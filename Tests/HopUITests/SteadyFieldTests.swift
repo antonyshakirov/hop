@@ -8,6 +8,51 @@ final class SteadyFieldTests: XCTestCase {
     // WORKAROUND: XCTest crashes while releasing this AppKit fixture on macOS 27.
     private static var retainedFixtures: [AnyObject] = []
 
+    func testDurationPlaceholderAndValueKeepTheirRenderedRightEdgeInBothThemes() throws {
+        for dark in [false, true] {
+            let draft = Draft()
+            let host = NSHostingView(rootView: Editor(draft: draft, duration: true)
+                .frame(width: 74, height: 18)
+                .background(dark ? Color.black : Color.white))
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 74, height: 18),
+                                  styleMask: [.borderless], backing: .buffered, defer: false)
+            window.isReleasedWhenClosed = false
+            window.contentView = host
+            window.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
+            window.orderFrontRegardless()
+            Self.retainedFixtures.append(contentsOf: [draft as AnyObject, host, window])
+            defer { window.orderOut(nil) }
+            pump()
+
+            func renderedRightEdge(_ name: String) throws -> Int {
+                host.layoutSubtreeIfNeeded()
+                let image = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
+                host.cacheDisplay(in: host.bounds, to: image)
+                if let directory = ProcessInfo.processInfo.environment["HOP_ISSUE_PROBE_ARTIFACT_DIR"] {
+                    try XCTUnwrap(image.representation(using: .png, properties: [:]))
+                        .write(to: URL(fileURLWithPath: directory).appendingPathComponent(name + ".png"))
+                }
+                var right: Int?
+                for y in 0..<image.pixelsHigh {
+                    for x in 0..<image.pixelsWide {
+                        guard let colour = image.colorAt(x: x, y: y)?.usingColorSpace(.deviceRGB) else { continue }
+                        let background: CGFloat = dark ? 0.0 : 1.0
+                        let difference = abs(colour.redComponent - background)
+                            + abs(colour.greenComponent - background) + abs(colour.blueComponent - background)
+                        if difference > 0.3 { right = max(right ?? x, x) }
+                    }
+                }
+                return try XCTUnwrap(right, "The field must render visible glyphs")
+            }
+            let theme = dark ? "dark" : "light"
+            let placeholder = try renderedRightEdge("placeholder-\(theme)")
+            draft.text = "0:00:00"
+            pump()
+            let value = try renderedRightEdge("value-\(theme)")
+            XCTAssertLessThanOrEqual(abs(placeholder - value), 1, "Placeholder and value must share the right edge")
+        }
+    }
+
     private final class Draft: ObservableObject {
         @Published var text = ""
         @Published var focused = false
@@ -17,9 +62,11 @@ final class SteadyFieldTests: XCTestCase {
     private struct Editor: View {
         @ObservedObject var draft: Draft
         var exitsOnPointerLeave = false
+        var duration = false
 
         var body: some View {
-            SteadyField(text: $draft.text, focus: $draft.focused,
+            SteadyField(text: $draft.text, placeholder: duration ? "0:00:00" : "",
+                        alignment: duration ? .right : .natural, focus: $draft.focused,
                         onEndEditing: { draft.committed = draft.text },
                         onOutsideInteraction: exitsOnPointerLeave ? { draft.focused = false } : nil)
         }

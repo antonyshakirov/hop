@@ -1811,8 +1811,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     (`DurationField`, tested): `h:mm:ss`, hours uncapped — "11:00" for eleven
     hours flat read as eleven MINUTES just as easily (Anton, 2026-08-28).
     Typing and paste accept only ASCII digits and `:`; letters, spaces,
-    signs and other punctuation are removed before reaching the draft. Partial
-    input remains editable with the caret, selection and Backspace. Clicking an
+    signs and other punctuation are removed before reaching the draft.
+    The empty placeholder and entered duration share the same right edge in both themes.
+    Partial input remains editable with the caret, selection and Backspace. Clicking an
     already open duration field reacquires keyboard activation even if the panel
     has handed it back to another application. Parts
     are counted from the right, so a lone number is seconds, and over-large

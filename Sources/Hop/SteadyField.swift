@@ -86,11 +86,14 @@ struct SteadyField: NSViewRepresentable {
             : NSFont.systemFont(ofSize: size, weight: weight)
         field.alignment = alignment
         field.textColor = colour.map { NSColor($0) } ?? .labelColor
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = alignment
         // The stock placeholder colour is faint enough to read as an empty
         // field with nothing to say. This one asks for something.
         field.placeholderAttributedString = NSAttributedString(
             string: placeholder,
             attributes: [.font: field.font ?? NSFont.systemFont(ofSize: size),
+                         .paragraphStyle: paragraph,
                          .foregroundColor: NSColor.secondaryLabelColor])
     }
 
