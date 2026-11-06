@@ -50,6 +50,11 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.4.4
+
+- Theo dõi thời gian: sửa lỗi chỉnh sửa thời lượng đã ghi bằng bàn phím.
+- Ô thời gian chỉ nhận chữ số và dấu hai chấm. Gợi ý và giá trị nhập được căn chỉnh giống nhau.
+
 ### 2.4.3
 
 - Torrent: các tệp không được chọn không còn bị tạo hoặc thay đổi.

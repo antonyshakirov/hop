@@ -54,6 +54,11 @@ macOS abre como qualquer outro app. O código-fonte é público e as
 atualizações integradas são verificadas com Ed25519. Requer macOS 14 ou mais
 recente.
 
+### 2.4.4
+
+- Controle de tempo: corrigida a edição de durações salvas pelo teclado.
+- Os campos de tempo aceitam apenas dígitos e dois-pontos. O texto e a indicação têm o mesmo alinhamento.
+
 ### 2.4.3
 
 - Torrents: arquivos não selecionados não são mais criados ou alterados.

@@ -51,6 +51,11 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.4.4
+
+- Zaman takibi: kayıtlı sürelerin klavyeyle düzenlenmesi düzeltildi.
+- Zaman alanları yalnızca rakam ve iki nokta kabul eder. Yer tutucu ve girilen değer aynı hizada gösterilir.
+
 ### 2.4.3
 
 - Torrent: seçilmeyen dosyalar artık oluşturulmuyor veya değiştirilmiyor.

@@ -51,6 +51,11 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.4.4
+
+- Tijdregistratie: toetsenbordinvoer voor opgeslagen tijdsduren hersteld.
+- Tijdvelden accepteren alleen cijfers en dubbele punten. Tekst en invulhint zijn gelijk uitgelijnd.
+
 ### 2.4.3
 
 - Torrents: niet-geselecteerde bestanden worden niet meer aangemaakt of gewijzigd.

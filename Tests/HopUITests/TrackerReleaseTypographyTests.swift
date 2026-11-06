@@ -57,7 +57,7 @@ final class TrackerReleaseTypographyTests: XCTestCase {
                 XCTAssertEqual(view.bounds.width, 368)
                 XCTAssertGreaterThan(view.bounds.height, 60)
                 let png = try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
-                let name = "2.4.3-\(lang.rawValue)-\(dark ? "dark" : "light").png"
+                let name = "2.4.4-\(lang.rawValue)-\(dark ? "dark" : "light").png"
                 if let directory {
                     try png.write(to: URL(fileURLWithPath: directory).appendingPathComponent(name))
                 }

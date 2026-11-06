@@ -53,6 +53,11 @@ macOS la abre como cualquier otra app. El código fuente es público y las
 actualizaciones integradas se verifican con Ed25519. Requiere macOS 14 o
 posterior.
 
+### 2.4.4
+
+- Registro de tiempo: se ha corregido la edición de duraciones guardadas con el teclado.
+- Los campos de tiempo solo aceptan dígitos y dos puntos. El texto y la indicación están alineados igual.
+
 ### 2.4.3
 
 - Torrents: los archivos no seleccionados ya no se crean ni se modifican.

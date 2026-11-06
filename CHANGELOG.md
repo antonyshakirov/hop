@@ -1,5 +1,10 @@
 # Hop - version history
 
+## 2.4.4 - 2026-11-06
+
+- Time tracker: restored keyboard editing of recorded durations.
+- Time fields accept only digits and colons, with matching text and placeholder alignment.
+
 ## 2.4.3 - 2026-11-05
 
 - Torrents: skipped files and folders are no longer created during selective downloads.

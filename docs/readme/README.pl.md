@@ -51,6 +51,11 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.4.4
+
+- Śledzenie czasu: poprawiono edycję zapisanych czasów trwania za pomocą klawiatury.
+- Pola czasu przyjmują tylko cyfry i dwukropki. Wskazówka i wpisana wartość mają takie samo wyrównanie.
+
 ### 2.4.3
 
 - Torrenty: niewybrane pliki nie są już tworzone ani zmieniane.

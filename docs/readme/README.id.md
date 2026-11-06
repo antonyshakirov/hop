@@ -52,6 +52,11 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.4.4
+
+- Pelacak waktu: perbaikan pengeditan durasi tercatat dengan papan ketik.
+- Kolom waktu hanya menerima angka dan titik dua. Teks petunjuk dan nilai masukan memiliki perataan yang sama.
+
 ### 2.4.3
 
 - Torrent: file yang tidak dipilih tidak lagi dibuat atau diubah.

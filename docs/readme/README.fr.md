@@ -54,6 +54,11 @@ l'ouvre comme n'importe quelle autre app. Le code source est public et les
 mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
+### 2.4.4
+
+- Suivi du temps : correction de la saisie au clavier des durées enregistrées.
+- Les champs de temps acceptent uniquement les chiffres et les deux-points. Le texte et l’indication ont le même alignement.
+
 ### 2.4.3
 
 - Torrents : les fichiers non sélectionnés ne sont plus créés ni modifiés.

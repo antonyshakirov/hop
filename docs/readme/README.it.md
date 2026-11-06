@@ -52,6 +52,11 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
+### 2.4.4
+
+- Tracciamento del tempo: corretta la modifica da tastiera delle durate registrate.
+- I campi del tempo accettano solo cifre e due punti. Il testo e il suggerimento hanno lo stesso allineamento.
+
 ### 2.4.3
 
 - Torrent: i file non selezionati non vengono più creati o modificati.
