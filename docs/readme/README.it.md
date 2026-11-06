@@ -55,7 +55,7 @@ successivo.
 ### 2.4.4
 
 - Tracciamento del tempo: corretta la modifica da tastiera delle durate registrate.
-- I campi del tempo accettano solo cifre e due punti. Il testo e il suggerimento hanno lo stesso allineamento.
+- I campi del tempo accettano solo cifre e due punti. Testo e suggerimento hanno lo stesso allineamento.
 
 ### 2.4.3
 
