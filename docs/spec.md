@@ -144,6 +144,60 @@ signing would break).
    that panel, even though Hop has returned keyboard focus to the other app.
    Clicking inside the panel still completes the action on the first click.
 
+## Configurable menu bar readings
+
+Owner agreement, 2026-11-11: offer every reliable reading available from existing
+modules, with opt-in selection and ordering. No new permissions, integrations,
+private API calls, disk scans or sensor pollers are introduced by this feature.
+
+Settings > menu bar (`menu-bar`) contains checkboxes, accessible move-up/down
+buttons, a labels switch, side-by-side/rotating modes and a current-value preview.
+Each choice also shows its current value before selection. Checkboxes control display,
+not the underlying module. The mixer rows explicitly say status, explain the running
+checkmark versus stopped dash, and expose descriptive tooltip/accessibility text.
+New readings default off. The existing countdown/tracker preferences remain the
+source of truth and their module-page switches remain synchronized. Icon-only
+suppresses readings without clearing preferences. Hidden modules produce no readings;
+choices remain stored for their return. A selected but unavailable sensor shows an
+em dash, never an invented zero. Timer/tracker appear only while running or paused,
+and their legacy behavior remains unchanged.
+
+Available readings: CPU/GPU load and temperatures, RAM used/total, swap, disk
+available capacity and SSD temperature, network down/up, battery charge and charging
+state, temperature, estimated health, cycles, signed battery power, adapter nameplate
+rating, uptime, awake remaining time, VPN connection/stalled state, active torrent
+count and weighted progress, and application/input mixing state. Mixing state is
+not the microphone mute state. An inactive module state shows an em dash; VPN check
+means a configured connection is up, not a promise that all traffic is protected.
+
+Disk capacity comes from the existing monitor's startup volume `/`, using
+`volumeAvailableCapacityForImportantUsage`; it may include reclaimable capacity.
+It does not select external disks. RAM uses binary GB, disk and network decimal
+units. Temperature follows the existing regional/explicit preference. Missing,
+non-finite, negative capacities/rates and impossible percentages are unavailable.
+Battery power keeps its sign; adapter rating is not live power consumption.
+
+The JSON `menuBarReadings` preference stores order, enabled extra readings, mode and
+labels. Unknown entries are ignored; duplicate order entries are removed and new
+known entries append without enabling themselves. Corrupt storage falls back to
+defaults. Timer/tracker retain `showMenuBarCountdown` and `trackerTimeInBar`.
+
+Rotating mode shares the existing five-second cycle. A bounded presentation timer
+runs only with multiple rotating readings and performs no sensor reads. Side-by-side
+rows over 54 characters or the measured 420pt reading budget rotate automatically,
+retaining every choice, including languages with wide glyphs. Width fits
+the currently selected readings, with a 420pt reading cap. No historical or unselected
+reading reserves space. A stretched external host width is not inherited when freezing.
+While the panel is open, the reading set, format, effective rotation and exact status-item width freeze;
+values continue updating. The tooltip/accessibility label includes the complete set. Compact mode shows values
+and units without word prefixes; the labels switch adds the names. Memory is used/total,
+and its tooltip spells out which part is used. Disk is available capacity. A 6pt gap
+separates active mixer marks from readout text (owner refinements, 2026-11-12).
+Click behavior remains opening the normal Hop panel.
+
+Regression coverage: MenuBarReadingsTests and MenuBarReadingTests; native settings
+renders and CoreText line-wrap checks in MenuBarSettingsRenderingTests.
+
 ## Menu bar icon — corner badges
 
 **The icon's colour follows the MENU BAR, not the app.** A decorated icon is a

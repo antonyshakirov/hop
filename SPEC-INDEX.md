@@ -5,6 +5,7 @@ Read only the area being changed. The existing behavioral specification remains
 
 | Area | Read |
 | --- | --- |
+| Menu bar readings and settings | `docs/spec.md` - Configurable menu bar readings |
 | Panel, appearance, geometry, lifecycle | `docs/spec.md` — Hard invariants of the panel |
 | Sound device controls and output routing | `docs/spec.md` — Sound and Sound quick mixer controls |
 | Hop Mix sources, persistence and input lifecycle | `product-spec/results/screens/sound-input.md` |

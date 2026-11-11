@@ -49,6 +49,8 @@ final class VPNController: ObservableObject {
     /// Whether the module's own list is on screen, which is the only thing that
     /// justifies the fast cadence and a process launch per tick.
     private var panelOpen = false
+    private var menuBarPreferenceObserver: NSObjectProtocol?
+    private var previousWatchDemand = false
     private var lastListRead = Date.distantPast
     /// When a reading was started, while one is in flight.
     private var readStartedAt: Date?
@@ -80,9 +82,12 @@ final class VPNController: ObservableObject {
     /// closed the menu-bar dot is the only consumer, so a module that is on no
     /// space, or whose dot has been switched off, is not worth measuring — the
     /// same two conditions the icon itself is drawn under.
-    private var isWatched: Bool {
+    var isWatched: Bool {
         if panelOpen { return true }
-        return UserDefaults.standard.bool(forKey: SettingsKey.vpnMenuBarMark)
+        let defaults = UserDefaults.standard
+        let reading = !defaults.bool(forKey: SettingsKey.menuBarIconOnly)
+            && MenuBarReadings.decode(defaults.string(forKey: SettingsKey.menuBarReadings) ?? "").enabled.contains(.vpn)
+        return (defaults.bool(forKey: SettingsKey.vpnMenuBarMark) || reading)
             && !PanelView.storedModuleIsInactive("vpn")
     }
 
@@ -101,18 +106,37 @@ final class VPNController: ObservableObject {
 
     init(demo: Bool = false) {
         self.demo = demo
-        configurations = Self.staged
+        configurations = (Snapshot.active || demo) ? Self.staged : []
         if Snapshot.active { return }
         if demo {
             refresh()   // once: the user's own list makes the better picture
             return
         }
         applyActivation()
+        previousWatchDemand = isWatched
+        menuBarPreferenceObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.menuBarPreferencesChanged() }
+        }
         NotificationCenter.default.addObserver(
             forName: ModuleActivation.didChange, object: nil, queue: .main
         ) { [weak self] _ in
             Task { @MainActor in self?.applyActivation() }
         }
+    }
+
+    deinit {
+        if let menuBarPreferenceObserver { NotificationCenter.default.removeObserver(menuBarPreferenceObserver) }
+    }
+
+    private func menuBarPreferencesChanged() {
+        let demand = isWatched
+        guard demand != previousWatchDemand else { return }
+        previousWatchDemand = demand
+        guard ModuleActivation.isOn("vpn"), !Snapshot.active, !demo else { return }
+        if demand { refresh() }
+        retune()
     }
 
     /// Stops the `scutil` reads while the module is off; no tunnel is touched.

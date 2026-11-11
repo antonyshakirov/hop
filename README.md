@@ -175,6 +175,10 @@ closed (handy for downloads, long builds and external displays).
 
 ### System monitor
 
+In Settings > menu bar, choose and reorder system readings and module states.
+Show them side by side or in turn; keep the existing icon-only mode when preferred.
+
+
 CPU and GPU load and temperature, memory and swap, network, disk, battery
 health and power draw – live values with sparkline charts, color thresholds
 you set yourself, °C/°F, and an uptime line. Readings come straight from macOS

@@ -5,12 +5,13 @@ import HopCore
 /// takes and what the window is left on.
 /// SPEC: docs/spec.md — "Settings window".
 enum SettingsSelection: Hashable {
-    case general, spaces, hotkeys, permissions, updates, guide, about
+    case general, menuBar, spaces, hotkeys, permissions, updates, guide, about
     case module(String)
 
     var id: String {
         switch self {
         case .general: return "general"
+        case .menuBar: return "menu-bar"
         case .spaces: return "layout"
         case .hotkeys: return "hotkeys"
         case .permissions: return "permissions"
@@ -27,6 +28,7 @@ enum SettingsSelection: Hashable {
     /// were sections of their own and are now the pages of those two modules.
     init(id: String) {
         switch id {
+        case "menu-bar": self = .menuBar
         case "layout": self = .spaces
         case "hotkeys": self = .hotkeys
         case "permissions": self = .permissions
@@ -104,6 +106,7 @@ struct SettingsSidebar: View {
     private var sections: [Item] {
         [
             Item(id: SettingsSelection.general.id, icon: "gearshape", title: t(.aboutTabGeneral)),
+            Item(id: SettingsSelection.menuBar.id, icon: "menubar.rectangle", title: t(.barTitle)),
             Item(id: SettingsSelection.spaces.id, icon: "square.grid.2x2", title: t(.settingsTabLayout)),
             Item(id: SettingsSelection.hotkeys.id, icon: "command", title: t(.hotkeysLabel)),
             Item(id: SettingsSelection.permissions.id, icon: "lock.shield", title: t(.permTab)),

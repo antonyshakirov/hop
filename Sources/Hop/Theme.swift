@@ -194,9 +194,22 @@ struct HandCursorArea: NSViewRepresentable {
     @Environment(\.isEnabled) private var isEnabled
 
     final class Area: NSView {
+        struct PointerState {
+            let windowVisible: Bool
+            let frontWindowNumber: Int
+            let location: NSPoint
+        }
+
         private var area: NSTrackingArea?
         private var refreshPending = false
         var isEnabled = true
+        var pointerState: (NSWindow) -> PointerState = { window in
+            let location = NSEvent.mouseLocation
+            return PointerState(windowVisible: window.isVisible,
+                frontWindowNumber: NSWindow.windowNumber(at: location, belowWindowWithWindowNumber: 0),
+                location: location)
+        }
+        var setCursor: (NSCursor) -> Void = { $0.set() }
 
         /// The clicks belong to the SwiftUI button this sits behind.
         override func hitTest(_ point: NSPoint) -> NSView? { nil }
@@ -221,12 +234,13 @@ struct HandCursorArea: NSViewRepresentable {
         }
 
         func recheck() {
-            guard let window, window.isVisible, !isHiddenOrHasHiddenAncestor,
-                  NSWindow.windowNumber(at: NSEvent.mouseLocation,
-                    belowWindowWithWindowNumber: 0) == window.windowNumber else { return }
-            let point = convert(window.mouseLocationOutsideOfEventStream, from: nil)
+            guard let window, !isHiddenOrHasHiddenAncestor else { return }
+            let pointer = pointerState(window)
+            guard pointer.windowVisible,
+                  pointer.frontWindowNumber == window.windowNumber else { return }
+            let point = convert(window.convertPoint(fromScreen: pointer.location), from: nil)
             guard visibleRect.contains(point) else { return }
-            (isEnabled ? NSCursor.pointingHand : NSCursor.arrow).set()
+            setCursor(isEnabled ? NSCursor.pointingHand : NSCursor.arrow)
         }
 
         func refreshCursor() {

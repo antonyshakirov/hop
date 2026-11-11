@@ -138,6 +138,23 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private var statsCancellable: AnyCancellable?
     /// Runs only across a handover between two clocks sharing the bar.
     private var fadeTicker: Timer?
+    private var readingTicker: Timer?
+    private var vpnCancellable: AnyCancellable?
+    private var cachedReadingsRaw = ""
+    private var cachedReadings = MenuBarReadings()
+    private var readingWidth: CGFloat = 0
+    private var frozenReadingWidth: CGFloat?
+    private var frozenReadingLayout: MenuBarReadings?
+    private var frozenReadingRotation: Bool?
+
+    private var readingSettings: MenuBarReadings {
+        let raw = UserDefaults.standard.string(forKey: SettingsKey.menuBarReadings) ?? ""
+        if raw != cachedReadingsRaw {
+            cachedReadingsRaw = raw
+            cachedReadings = MenuBarReadings.decode(raw)
+        }
+        return cachedReadings
+    }
 
     init(model: AppModel, statusItem injectedItem: NSStatusItem? = nil) {
         self.model = model
@@ -187,6 +204,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             .sink { [weak self] in self?.setNeedsRefresh() }
         // SPEC: docs/spec.md — "What a running clock costs", the bar's own stream.
         clockCancellable = model.barChanged
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.setNeedsRefresh() }
+        vpnCancellable = model.vpn.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.setNeedsRefresh() }
         // the monitor's red zone is refreshed by the background stats tick
@@ -272,7 +292,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 // closing the panel starts the idle countdown for the updater
                 self?.model.activity.note()
                 self?.frozenTitleLength = nil
-                self?.frozenSlots = nil
+                self?.thawMenuBarReadings()
                 self?.panelOriginX = nil
                 self?.popoverAnchor?.close()
                 self?.popoverAnchor = nil
@@ -356,6 +376,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private enum BarSlot: Equatable {
         case engine
         case tracker(UUID)
+        case metric(MenuBarMetric)
     }
 
     /// Whole-point size: a fractional SwiftUI height lands the popover
@@ -596,7 +617,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // from "is the title non-empty": the torrent glance arrow (↓/↑) also fills
         // the title, and treating that as "time visible" wrongly surfaced the
         // countdown while the timer was off, which shifted the panel on open.
-        frozenSlots = currentSlots()
+        freezeMenuBarReadings()
         // windows left open (converter mid-batch etc.) come back with the panel:
         // they sink behind other apps and clicking the star is how users return
         model.raiseOpenWindows?()
@@ -898,6 +919,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         let title: String
         let glyph: String?
         let opacity: Double
+        var tooltip: String = ""
     }
 
     private var lastLook: Look?
@@ -905,6 +927,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     func refreshButton() {
         guard let button = statusItem.button else { return }
         if UserDefaults.standard.bool(forKey: SettingsKey.menuBarIconOnly) {
+            readingTicker?.invalidate()
+            readingTicker = nil
+            readingWidth = 0
             fadeTicker?.invalidate()
             fadeTicker = nil
             apply(Look(iconOnly: true, composition: IconComposition(), base: nil, dark: false,
@@ -1040,13 +1065,32 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // started from the panel must not surface mid-session, and one stopped
         // from the panel must not disappear and leave its padded space empty.
         // The figures themselves stay live.
-        let readings = (frozenSlots ?? currentSlots()).map(reading(for:))
+        let slots = frozenSlots ?? currentSlots()
+        let readings = slots.map(reading(for:))
+        let config = frozenReadingLayout ?? readingSettings
+        let rotating = frozenReadingRotation ?? MenuBarReading.shouldRotate(readings.map(\.text), settings: config)
+        retuneReadingTicker(rotating && readings.count > 1)
+        let mono = MenuBarReading.barFont
+        let texts = rotating ? readings.map(\.text) : [readings.map(\.text).joined(separator: "  ")]
+        let width = texts.map { ($0 as NSString).size(withAttributes: [.font: mono]).width }.max() ?? 0
+        readingWidth = min(MenuBarReading.maximumReadingWidth, width + (readings.count > 1 && rotating ? 22 : 8))
+        let tooltip = slots.map { slot in
+            switch slot {
+            case .engine: return MenuBarReading.title(.timer, lang: L10n.current) + ": " + reading(for: slot).value
+            case .tracker: return MenuBarReading.title(.tracker, lang: L10n.current) + ": " + reading(for: slot).value
+            case .metric(let metric):
+                return MenuBarReading.live(metric, model: model, detailed: false, lang: L10n.current,
+                    temperatureUnit: UserDefaults.standard.string(forKey: "tempUnit") ?? "auto").tooltip(lang: L10n.current)
+            }
+        }.joined(separator: "\n")
 
         // monospaced font: the width doesn't jump as digits change
         var title = ""
         var glyph: String?
         var opacity: Double = 1
-        if readings.count > 1 {
+        if !rotating, !readings.isEmpty {
+            title = " " + readings.map(\.text).joined(separator: "  ")
+        } else if readings.count > 1 {
             // whose turn it is, and how far through a handover we are — both
             // read off the clock, so any redraw lands on the same answer
             let now = Date()
@@ -1081,7 +1125,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             }
         }
         apply(Look(iconOnly: false, composition: composition, base: base, dark: barIsDark,
-                   title: title, glyph: glyph, opacity: opacity), to: button)
+                   title: title, glyph: glyph, opacity: opacity, tooltip: tooltip), to: button)
     }
 
     private func apply(_ look: Look, to button: NSStatusBarButton) {
@@ -1089,11 +1133,17 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // its appearance, which our own observer answers with another refresh.
         // Under a menu-bar manager that re-parents the item (Ice) that never
         // settled. SPEC: docs/spec.md — "What a running clock costs".
-        guard look != lastLook || button.image == nil else { return }
+        let iconWidth = look.iconOnly ? MenuBarIcon.canvasSize.width : MenuBarIcon.canvasSize(for: look.composition).width
+        let leadingGap = !look.title.isEmpty && (look.composition.inputMix || look.composition.outputMix)
+            ? MenuBarReading.mixerLeadingGap : 0
+        let desiredWidth = frozenReadingWidth ?? (iconWidth + 12 + (look.title.isEmpty ? 0 : readingWidth + leadingGap))
+        guard look != lastLook || button.image == nil || abs(statusItem.length - desiredWidth) > 0.5 else { return }
         // SPEC: docs/spec.md — "What a running clock costs": a tick changes the digits, not the icon.
         let iconChanged = button.image == nil || look.composition != lastLook?.composition
             || look.base != lastLook?.base || look.dark != lastLook?.dark || look.iconOnly != lastLook?.iconOnly
         lastLook = look
+        button.toolTip = look.tooltip.isEmpty ? "HOP" : look.tooltip
+        button.setAccessibilityLabel(button.toolTip)
 
         if iconChanged {
             button.image = look.iconOnly ? MenuBarIcon.plainDialTemplate : look.base.map {
@@ -1102,40 +1152,49 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             button.imagePosition = .imageLeft
         }
 
-        let mono = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
+        statusItem.length = desiredWidth
+        let mono = MenuBarReading.barFont
         if look.title.isEmpty {
             button.title = ""
         } else {
             button.attributedTitle = Self.barLabel(
                 look.title, glyph: look.glyph, opacity: look.opacity,
-                appearance: button.effectiveAppearance, font: mono)
+                appearance: button.effectiveAppearance, font: mono, leadingGap: leadingGap)
         }
+        #if DEBUG
+        if PanelFrameLog.enabled {
+            PanelFrameLog.write("menuBarLayout", "requested=\(statusItem.length) reading=\(readingWidth) icon=\(iconWidth) button=\(button.frame) window=\(String(describing: button.window?.frame)) characters=\(look.title.count) frozen=\(String(describing: frozenReadingWidth))")
+        }
+        #endif
 
     }
 
     /// The clocks with something to say right now.
     private func currentSlots() -> [BarSlot] {
-        var slots: [BarSlot] = []
         let off = ModuleActivation.inactiveModules()
-        let showCountdown = UserDefaults.standard
-            .object(forKey: SettingsKey.showMenuBarCountdown) as? Bool ?? true
-        let state = model.engine.state
-        if showCountdown, !off.contains("timer"), state == .running || state == .paused {
-            slots.append(.engine)
-        }
-        // the tracked task's ticking "today" value, opt-in
-        if model.tracker.isTracking,
-           !off.contains("tracker"),
-           UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar),
-           let activeID = model.tracker.engine.activeTaskID {
-            slots.append(.tracker(activeID))
+        let showCountdown = UserDefaults.standard.object(forKey: SettingsKey.showMenuBarCountdown) as? Bool ?? true
+        let running = model.engine.state == .running || model.engine.state == .paused
+        let metrics = readingSettings.visible(inactive: off,
+            timer: showCountdown && running,
+            tracker: model.tracker.isTracking && UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar))
+        let slots: [BarSlot] = metrics.compactMap { metric in
+            switch metric {
+            case .timer: return .engine
+            case .tracker: return model.tracker.engine.activeTaskID.map(BarSlot.tracker)
+            default: return .metric(metric)
+            }
         }
         return slots
     }
 
     /// What a slot reads at this instant. A stopped timer shows what it is set
     /// to, a stopped task the total it reached — never a blank.
-    private func reading(for slot: BarSlot) -> (symbol: String, text: String) {
+    private func reading(for slot: BarSlot) -> (symbol: String, text: String, value: String) {
+        func clockText(_ metric: MenuBarMetric, value: String) -> String {
+            let detailed = (frozenReadingLayout ?? readingSettings).detailed
+            return MenuBarReading(metric: metric, value: value,
+                label: detailed ? MenuBarReading.title(metric, lang: L10n.current) : "").text
+        }
         switch slot {
         case .engine:
             let engine = model.engine
@@ -1146,10 +1205,56 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             } else {
                 value = running ? engine.remaining : engine.duration
             }
-            return (engine.isStopwatch ? "stopwatch" : "timer", TimeFormatting.short(value))
+            let text = TimeFormatting.short(value)
+            return (engine.isStopwatch ? "stopwatch" : "timer", clockText(.timer, value: text), text)
         case .tracker(let id):
-            return ("record.circle", TimeFormatting.short(model.tracker.engine.today(taskID: id)))
+            let text = TimeFormatting.short(model.tracker.engine.today(taskID: id))
+            return ("record.circle", clockText(.tracker, value: text), text)
+        case .metric(let metric):
+            let config = frozenReadingLayout ?? readingSettings
+            let reading = MenuBarReading.live(metric, model: model, detailed: config.detailed,
+                lang: L10n.current, temperatureUnit: UserDefaults.standard.string(forKey: "tempUnit") ?? "auto")
+            return (reading.symbol, reading.text, reading.value)
         }
+    }
+
+    func freezeMenuBarReadings() {
+        frozenSlots = currentSlots()
+        if let look = lastLook {
+            let iconWidth = look.iconOnly ? MenuBarIcon.canvasSize.width : MenuBarIcon.canvasSize(for: look.composition).width
+            let gap = look.composition.inputMix || look.composition.outputMix ? MenuBarReading.mixerLeadingGap : 0
+            frozenReadingWidth = iconWidth + 12 + (look.title.isEmpty ? 0 : readingWidth + gap)
+        }
+        frozenReadingLayout = readingSettings
+        frozenReadingRotation = MenuBarReading.shouldRotate((frozenSlots ?? []).map { reading(for: $0).text }, settings: readingSettings)
+    }
+
+    func thawMenuBarReadings() {
+        frozenSlots = nil
+        frozenReadingWidth = nil
+        frozenReadingLayout = nil
+        frozenReadingRotation = nil
+    }
+
+    private func retuneReadingTicker(_ enabled: Bool) {
+        guard enabled else {
+            readingTicker?.invalidate()
+            readingTicker = nil
+            return
+        }
+        guard readingTicker == nil else { return }
+        let now = Date()
+        let elapsed = now.timeIntervalSinceReferenceDate
+        let delay = MenuBarCycle.interval - elapsed.truncatingRemainder(dividingBy: MenuBarCycle.interval)
+        let timer = Timer(fire: now.addingTimeInterval(delay), interval: MenuBarCycle.interval, repeats: true) { [weak self] timer in
+            Task { @MainActor in
+                guard let self else { timer.invalidate(); return }
+                self.refreshButton()
+            }
+        }
+        timer.tolerance = 0.1
+        RunLoop.main.add(timer, forMode: .common)
+        readingTicker = timer
     }
 
     // MARK: - Taking turns
@@ -1186,11 +1291,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     /// flicker. The colour used IS AppKit's own — `labelColor` resolved in the
     /// bar's appearance — so a label at rest looks the way it always did.
     private static func barLabel(
-        _ text: String, glyph: String?, opacity: Double, appearance: NSAppearance, font: NSFont
+        _ text: String, glyph: String?, opacity: Double, appearance: NSAppearance, font: NSFont,
+        leadingGap: CGFloat = 0
     ) -> NSAttributedString {
         guard let glyph else {
             // one clock speaking: the label AppKit has always drawn, colour and all
-            return NSAttributedString(string: text, attributes: [.font: font])
+            let label = NSMutableAttributedString(string: text, attributes: [.font: font])
+            if leadingGap > 0, label.length > 0 { label.addAttribute(.kern, value: leadingGap, range: NSRange(location: 0, length: 1)) }
+            return label
         }
         var ink = NSColor.labelColor
         appearance.performAsCurrentDrawingAppearance {
@@ -1198,7 +1306,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         }
         let faded = ink.withAlphaComponent(ink.alphaComponent * max(0, min(1, opacity)))
         let label = NSMutableAttributedString()
-        label.append(NSAttributedString(string: " ", attributes: [.font: font]))
+        label.append(NSAttributedString(string: " ", attributes: [.font: font, .kern: leadingGap]))
         if let image = symbolImage(glyph, color: faded, pointSize: font.pointSize - 1.5) {
             let attachment = NSTextAttachment()
             attachment.image = image

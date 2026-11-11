@@ -1848,6 +1848,7 @@ struct HopApp: App {
         VideoSelfTest.runIfRequested()
         IWorkSelfTest.runIfRequested()
         ClipboardSelfTest.runIfRequested()
+        MenuBarLoadSelfTest.runIfRequested()
         Snapshot.runIfRequested()
         #endif
     }

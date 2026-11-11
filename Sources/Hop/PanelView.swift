@@ -3985,6 +3985,8 @@ struct PanelView: View {
         switch SettingsSelection(id: settingsSection) {
         case .general:
             page("gearshape", t(.aboutTabGeneral)) { generalBasics }
+        case .menuBar:
+            page("menubar.rectangle", t(.barTitle)) { MenuBarSettingsView(lang: lang) }
         case .spaces:
             page("square.grid.2x2", t(.settingsTabLayout)) { layoutSettings }
         case .hotkeys:
