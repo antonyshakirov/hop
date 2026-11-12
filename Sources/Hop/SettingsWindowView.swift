@@ -119,21 +119,25 @@ struct SettingsSidebar: View {
     /// In the panel's own order, space by space: a module added to the middle
     /// of space one gets its page in the middle of this list too, not at the
     /// end. SPEC: docs/spec.md — "Settings window".
-    private var modules: [Item] {
-        let order = PanelView.storedModuleOrder()
-        let placed = ModuleCatalog.modules.sorted { a, b in
-            let ia = order.firstIndex(of: a.id) ?? order.count
-            let ib = order.firstIndex(of: b.id) ?? order.count
-            return ia == ib ? false : ia < ib
+    private func modules(in group: SettingsModuleGroup) -> [Item] {
+        group.modules.compactMap { id in
+            guard let key = ModulePresentation.titleKey(id) else { return nil }
+            return Item(id: SettingsSelection.module(id).id,
+                        icon: ModulePresentation.icon(id), title: L10n.t(key, lang))
         }
-        return placed.compactMap { entry in
-            guard let key = ModulePresentation.titleKey(entry.id) else { return nil }
-            return Item(
-                id: SettingsSelection.module(entry.id).id,
-                icon: ModulePresentation.icon(entry.id),
-                title: L10n.t(key, lang)
-            )
+    }
+
+    static func groupTitle(_ id: String, lang: AppLanguage) -> String {
+        let key: L10nKey
+        switch id {
+        case "time": key = .settingsGroupTime
+        case "files": key = .settingsGroupFiles
+        case "screen": key = .settingsGroupScreen
+        case "system": key = .settingsGroupSystem
+        case "network": key = .onbGroupNetwork
+        default: key = .modulesLabel
         }
+        return L10n.t(key, lang)
     }
 
     var body: some View {
@@ -144,11 +148,13 @@ struct SettingsSidebar: View {
                     .padding(.bottom, 6)
                 ForEach(sections) { row($0) }
 
-                SettingsGroupLabel(title: t(.modulesLabel))
-                    .padding(.leading, 10)
-                    .padding(.top, 18)
-                    .padding(.bottom, 6)
-                ForEach(modules) { row($0) }
+                ForEach(ModuleCatalog.settingsGroups(in: PanelView.storedModuleOrder()), id: \.id) { group in
+                    SettingsGroupLabel(title: Self.groupTitle(group.id, lang: lang))
+                        .padding(.leading, 10)
+                        .padding(.top, 18)
+                        .padding(.bottom, 6)
+                    ForEach(modules(in: group)) { row($0) }
+                }
             }
             .padding(10)
             .padding(.top, 12)
@@ -190,6 +196,8 @@ struct SettingsSidebar: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("settings." + item.id)
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
         .help(item.title)
         .hoverHighlight(6)
     }

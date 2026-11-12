@@ -1,5 +1,10 @@
 import Foundation
 
+public struct SettingsModuleGroup: Equatable, Sendable {
+    public let id: String
+    public let modules: [String]
+}
+
 /// A key combination as Carbon stores it, spelled out so HopCore needs no Carbon import.
 public struct ModuleCombo: Equatable, Hashable, Sendable {
     public static let control: UInt32 = 0x1000
@@ -227,6 +232,22 @@ public enum ModuleCatalog {
         OnboardingGroup(titleID: "onbGroupNetwork", modules: ["speedtest", "vpn", "torrent", "network"]),
         OnboardingGroup(titleID: "onbGroupDesk", modules: ["windows", "apps", "uninstall"]),
     ]
+
+    /// SPEC: docs/spec.md — "Settings window", grouped module navigation.
+    public static func settingsGroups(in order: [String]) -> [SettingsModuleGroup] {
+        let groups: [SettingsModuleGroup] = [
+            .init(id: "time", modules: ["timer", "tracker", "todos"]),
+            .init(id: "files", modules: ["clipboard", "convert", "archive"]),
+            .init(id: "screen", modules: ["color", "ocr", "shot", "annotate", "windows"]),
+            .init(id: "system", modules: ["system", "awake", "keyboard", "sound", "uninstall"]),
+            .init(id: "network", modules: ["speedtest", "vpn", "torrent", "network"]),
+        ]
+        return groups.map { group in
+            SettingsModuleGroup(id: group.id, modules: group.modules.sorted {
+                (order.firstIndex(of: $0) ?? order.count) < (order.firstIndex(of: $1) ?? order.count)
+            })
+        }
+    }
 
     public static func module(_ id: String) -> ModuleEntry? {
         modules.first { $0.id == id }

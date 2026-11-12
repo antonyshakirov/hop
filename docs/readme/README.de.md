@@ -52,6 +52,11 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.5.0
+
+- Menüleiste: Speicherplatz, Arbeitsspeicher, Akku und weitere Werte auswählen
+- Einstellungen: Module sind nach Funktion gruppiert
+
 ### 2.4.4
 
 - Zeiterfassung: die Dauer gespeicherter Sitzungen lässt sich wieder per Tastatur bearbeiten.

@@ -52,6 +52,11 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.5.0
+
+- bar menu: pilih ruang disk, memori, baterai dan data lainnya
+- pengaturan: modul dikelompokkan menurut fungsi
+
 ### 2.4.4
 
 - Pelacak waktu: perbaikan pengeditan durasi tercatat dengan papan ketik.

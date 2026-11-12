@@ -53,6 +53,11 @@ macOS la abre como cualquier otra app. El código fuente es público y las
 actualizaciones integradas se verifican con Ed25519. Requiere macOS 14 o
 posterior.
 
+### 2.5.0
+
+- barra de menús: elige espacio en disco, memoria, batería y otros datos
+- ajustes: los módulos se agrupan por función
+
 ### 2.4.4
 
 - Registro de tiempo: se ha corregido la edición de duraciones guardadas con el teclado.

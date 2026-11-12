@@ -1,5 +1,10 @@
 # Hop - version history
 
+## 2.5.0 - 2026-11-12
+
+- Menu bar: choose disk space, memory, battery and other readings, reorder them and show them together or in rotation.
+- Settings: modules are grouped by purpose, with panel order retained within each group.
+
 ## 2.4.4 - 2026-11-06
 
 - Time tracker: restored keyboard editing of recorded durations.

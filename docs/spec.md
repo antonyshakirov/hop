@@ -144,6 +144,14 @@ signing would break).
    that panel, even though Hop has returned keyboard focus to the other app.
    Clicking inside the panel still completes the action on the first click.
 
+## Release 2.5.0 card
+
+Owner agreement, 2026-11-12: prepare a minor release and show a What's New card
+for configurable menu bar readings and grouped settings modules. Card id `2.5`
+has independent dismissal state and follows the existing display policy. Its
+settings action opens `menu-bar`, without selecting readings or activating modules.
+The version notes describe the same two changes in every supported language.
+
 ## Configurable menu bar readings
 
 Owner agreement, 2026-11-11: offer every reliable reading available from existing
@@ -954,10 +962,16 @@ at launch after the migrations have run.
 The settings window is a 220pt sidebar and a page (`SettingsSidebar`,
 `SettingsSelection`). The sidebar lists the sections first — "general" (theme,
 language, launch, sounds, app icon, the `colored indicators` toggle for the
-menu-bar badges, the Dock switch), "modules & tabs" for the panel layout,
-"hotkeys", "app permissions" and "updates" — then every module of
-`ModuleCatalog` in panel order, each with its icon and name
-(`ModulePresentation`). A row wraps onto a second line rather than truncating:
+menu-bar badges, the Dock switch), "menu bar" for readings, "modules & tabs"
+for the panel layout, "hotkeys", "app permissions", "updates", "guide" and
+"about" — then every module of
+`ModuleCatalog`, grouped by purpose: time and tasks; files and clipboard;
+screen and windows; system and sound; network. `ModuleCatalog.settingsGroups`
+covers each catalog module exactly once, including disabled modules. Group order
+is fixed; modules retain panel order within each group, with the group's stable
+default order for missing panel ids. Headers remain visible; no collapse state
+or panel-layout change is introduced. Each module keeps its icon, localized name
+and existing `module:` destination (`ModulePresentation`). A row wraps onto a second line rather than truncating:
 the longest module names in German and French do not fit 220pt on one. A module's page carries its heading with a one-line
 "what it is for" (`purpose*`, ×10 — the onboarding cards will read the same
 keys), an **"enable the module"** switch holding exactly the state the power
