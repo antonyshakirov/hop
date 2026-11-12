@@ -79,6 +79,11 @@ private final class NonactivatingTabPanel: NSPanel {
 
 @MainActor
 final class IntegralSizeHostingController: NSHostingController<AnyView> {
+    func configureForPopover() {
+        enableExplicitPopoverSizing()
+        enableFirstMouse()
+    }
+
     func enableFirstMouse() {
         view = FirstMousePanelView(rootView: rootView)
     }
@@ -174,12 +179,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // SPEC: docs/spec.md, panel height is driven by the measured chrome and content.
         // macOS 27 can restore the old height after an explicit popover resize if
         // the hosting controller still publishes its own ideal-size constraint.
-        if #available(macOS 27.0, *) {
-            host.enableExplicitPopoverSizing()
-        } else {
-            host.sizingOptions = .preferredContentSize
-        }
-        host.enableFirstMouse()
+        host.configureForPopover()
         // no size animation: switching tabs doesn't "slide" from bottom to top
         popover.animates = false
         host.view.layoutSubtreeIfNeeded()

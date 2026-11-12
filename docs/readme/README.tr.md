@@ -51,10 +51,11 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
-### 2.5.0
+### 2.4.5
 
 - menü çubuğu: disk alanı, bellek, pil ve diğer verileri seçin
 - ayarlar: modüller işlevlerine göre gruplandı
+- panel: yükseklik her sekmeye uyarlanır
 
 ### 2.4.4
 

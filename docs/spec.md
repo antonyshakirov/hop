@@ -144,13 +144,13 @@ signing would break).
    that panel, even though Hop has returned keyboard focus to the other app.
    Clicking inside the panel still completes the action on the first click.
 
-## Release 2.5.0 card
+## Release 2.4.5 card
 
-Owner agreement, 2026-11-12: prepare a minor release and show a What's New card
-for configurable menu bar readings and grouped settings modules. Card id `2.5`
+Owner correction, 2026-11-12: prepare patch release 2.4.5 and explicitly show a What's New card
+for configurable menu bar readings, grouped settings modules and corrected panel height. Card id `2.4.5`
 has independent dismissal state and follows the existing display policy. Its
 settings action opens `menu-bar`, without selecting readings or activating modules.
-The version notes describe the same two changes in every supported language.
+The version notes describe the same three changes in every supported language.
 
 ## Configurable menu bar readings
 
@@ -7607,6 +7607,15 @@ resizing the status item cannot move the already-open panel. Closing releases
 the anchor; the next opening uses the current icon position. An icon hidden by
 a menu-bar manager retains the top-right fallback anchor. The anchor joins
 full-screen spaces without taking keyboard focus.
+
+All supported macOS versions configure the popover host through
+`IntegralSizeHostingController.configureForPopover`: explicit sizing and first-click
+support belong to the same setup path. The native host must not publish automatic
+preferred-content-size constraints while Hop supplies measured panel dimensions.
+Deferred hosting layout must preserve the requested height when switching from
+long to short spaces or back, regardless of the initial space. This prevents
+legacy automatic sizing from restoring an older height (issue #14).
+`PanelLegacyHeightTests` covers hidden native containers and the real panel.
 
 A repeated measured size is compared with the popover's actual content size.
 If AppKit has restored an older, taller size, the same compact measurement

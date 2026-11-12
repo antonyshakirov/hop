@@ -166,7 +166,7 @@ struct PanelView: View {
     @AppStorage("newsSeen.1.9.1") private var news191Seen = false
     @AppStorage("newsSeen.1.10") private var news110Seen = false
     @AppStorage("newsSeen.2.4") private var news24Seen = false
-    @AppStorage("newsSeen.2.5") private var news25Seen = false
+    @AppStorage("newsSeen.2.4.5") private var news245Seen = false
     /// Whether THIS opening has already been counted against the card's two.
     @State private var releaseCardCounted = false
     // Two-step "what's new" card: step 1 = opt-in (enable/hide), step 2 = the
@@ -487,8 +487,8 @@ struct PanelView: View {
         .init(id: "2.2", lines: [.news22Network, .news22Mac27, .news22More], enables: "network"),
         ReleaseCard(id: "2.3", lines: [.news23Leftovers, .news23Mac, .news23Clipboard, .news23More]),
         ReleaseCard(id: "2.4", lines: [.news24Mixer, .news24AI, .news24Icon, .news24Torrents, .news24Windows]),
-        ReleaseCard(id: "2.5", lines: [.news25Bar, .news25Groups],
-                    destination: .menuBar, action: .news25Action),
+        ReleaseCard(id: "2.4.5", lines: [.news245Bar, .news245Groups, .news245Panel],
+                    destination: .menuBar, action: .news245Action),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -539,7 +539,7 @@ struct PanelView: View {
         _ = news191Seen
         _ = news110Seen
         _ = news24Seen
-        _ = news25Seen
+        _ = news245Seen
         guard pendingAnnouncement == nil else { return nil }
         let defaults = UserDefaults.standard
         guard defaults.bool(forKey: "onboardingDone") else { return nil }
@@ -741,7 +741,7 @@ struct PanelView: View {
         news191Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.9.1"))
         news110Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.10"))
         news24Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.4"))
-        news25Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.5"))
+        news245Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.4.5"))
     }
 
     /// The full notes for the release; the card is a summary of what the updates

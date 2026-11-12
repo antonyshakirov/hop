@@ -6,12 +6,13 @@ import XCTest
 @testable import Hop
 
 @MainActor
-final class MinorReleasePresentationTests: XCTestCase {
+final class PatchReleasePresentationTests: XCTestCase {
     func testPreparedNotesMatchTheCardInEveryLanguage() throws {
         var prepared: [String: String] = [:]
         for lang in AppLanguage.allCases {
-            let prefix = "2.5.0 – 2026-11-12\n\n• " + L10n.t(.news25Bar, lang)
-                + "\n\n• " + L10n.t(.news25Groups, lang) + "\n\n"
+            let prefix = "2.4.5 – 2026-11-12\n\n• " + L10n.t(.news245Bar, lang)
+                + "\n\n• " + L10n.t(.news245Groups, lang)
+                + "\n\n• " + L10n.t(.news245Panel, lang) + "\n\n"
             prepared[lang.rawValue] = prefix
             XCTAssertTrue(L10n.t(.docNews, lang).hasPrefix(prefix), lang.rawValue)
         }
@@ -32,7 +33,7 @@ final class MinorReleasePresentationTests: XCTestCase {
             for title in titles {
                 checkLines(title.uppercased(), width: 188, font: font(9), tracking: 0.6, lang: lang)
             }
-            for key in [L10nKey.news25Bar, .news25Groups, .news25Action] {
+            for key in [L10nKey.news245Bar, .news245Groups, .news245Panel, .news245Action] {
                 checkLines(L10n.t(key, lang), width: 304, font: font(10), lang: lang)
             }
             for module in ModuleCatalog.allIDs {
@@ -77,7 +78,7 @@ final class MinorReleasePresentationTests: XCTestCase {
                 XCTAssertEqual(try XCTUnwrap(bitmap.colorAt(x: 0, y: 0)).alphaComponent, 1)
                 let png = try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
                 XCTAssertGreaterThan(png.count, 10_000)
-                if let directory = ProcessInfo.processInfo.environment["HOP_250_RENDER_DIR"] {
+                if let directory = ProcessInfo.processInfo.environment["HOP_RELEASE_RENDER_DIR"] {
                     try FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
                     try png.write(to: URL(fileURLWithPath: directory)
                         .appendingPathComponent("sidebar-\(lang.rawValue)-\(dark ? "dark" : "light").png"))
@@ -101,7 +102,7 @@ final class MinorReleasePresentationTests: XCTestCase {
         XCTAssertFalse(lines.isEmpty, file: file, line: line)
         let short = L10n.shortWords(lang).union(lang == .en
             ? ["an", "the", "of", "to", "in", "on", "for", "with", "from", "without", "through", "and", "or"]
-            : lang == .de ? ["und", "oder", "der", "die", "das", "ein", "eine", "mit", "für", "von", "zu"] : [])
+            : lang == .de ? ["und", "oder", "der", "die", "das", "ein", "eine", "mit", "für", "von", "zu", "nach"] : [])
         for rendered in lines.dropLast() {
             let last = rendered.components(separatedBy: .whitespaces).last ?? ""
             XCTAssertFalse(short.contains(last.lowercased()),

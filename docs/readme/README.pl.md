@@ -51,10 +51,11 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
-### 2.5.0
+### 2.4.5
 
 - pasek menu: wybierz miejsce na dysku, pamięć, baterię i inne dane
 - ustawienia: moduły pogrupowane według funkcji
+- panel: wysokość dopasowana do każdej karty
 
 ### 2.4.4
 

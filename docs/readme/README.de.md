@@ -52,10 +52,11 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
-### 2.5.0
+### 2.4.5
 
 - Menüleiste: Speicherplatz, Arbeitsspeicher, Akku und weitere Werte auswählen
-- Einstellungen: Module sind nach Funktion gruppiert
+- Einstellungen: Module sind nach Funktion gruppiert
+- Panel: passende Höhe für jeden Tab
 
 ### 2.4.4
 

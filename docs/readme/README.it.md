@@ -52,10 +52,11 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
-### 2.5.0
+### 2.4.5
 
 - barra dei menu: scegli spazio su disco, memoria, batteria e altri dati
 - impostazioni: moduli raggruppati per funzione
+- pannello: altezza adattata a ogni scheda
 
 ### 2.4.4
 
