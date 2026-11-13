@@ -1,5 +1,7 @@
 # Hop - version history
 
+## 2.4.6 - 2026-11-14
+
 ## 2.4.5 - 2026-11-12
 
 - Panel: fix stale height after switching between spaces of different sizes.

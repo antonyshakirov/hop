@@ -52,6 +52,8 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.4.6
+
 ### 2.4.5
 
 - bar menu: pilih ruang disk, memori, baterai dan data lainnya

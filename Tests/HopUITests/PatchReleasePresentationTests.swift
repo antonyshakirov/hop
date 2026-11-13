@@ -7,14 +7,14 @@ import XCTest
 
 @MainActor
 final class PatchReleasePresentationTests: XCTestCase {
-    func testPreparedNotesMatchTheCardInEveryLanguage() throws {
+    func testPreviousCardNotesRemainInEveryLanguage() throws {
         var prepared: [String: String] = [:]
         for lang in AppLanguage.allCases {
             let prefix = "2.4.5 – 2026-11-12\n\n• " + L10n.t(.news245Bar, lang)
                 + "\n\n• " + L10n.t(.news245Groups, lang)
                 + "\n\n• " + L10n.t(.news245Panel, lang) + "\n\n"
             prepared[lang.rawValue] = prefix
-            XCTAssertTrue(L10n.t(.docNews, lang).hasPrefix(prefix), lang.rawValue)
+            XCTAssertTrue(L10n.t(.docNews, lang).contains(prefix), lang.rawValue)
         }
         if let output = ProcessInfo.processInfo.environment["HOP_RELEASE_COPY_OUTPUT"] {
             try JSONSerialization.data(withJSONObject: prepared, options: [.prettyPrinted, .sortedKeys])

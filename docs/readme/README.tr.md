@@ -51,6 +51,8 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.4.6
+
 ### 2.4.5
 
 - menü çubuğu: disk alanı, bellek, pil ve diğer verileri seçin

@@ -51,6 +51,8 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.4.6
+
 ### 2.4.5
 
 - menubalk: kies schijfruimte, geheugen, batterij en andere waarden

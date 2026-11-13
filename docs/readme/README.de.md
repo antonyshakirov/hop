@@ -52,6 +52,8 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.4.6
+
 ### 2.4.5
 
 - Menüleiste: Speicherplatz, Arbeitsspeicher, Akku und weitere Werte auswählen

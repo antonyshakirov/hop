@@ -61,16 +61,23 @@ final class HotfixReleaseTests: XCTestCase {
         XCTAssertFalse(PanelView.releaseCardIDs.contains("2.5"))
         for lang in AppLanguage.allCases {
             let notes = L10n.t(.docNews, lang)
-            XCTAssertTrue(notes.hasPrefix("2.4.5 – 2026-11-12"), lang.rawValue)
-            let current = notes.components(separatedBy: "2.4.4 – ")[0]
+            XCTAssertTrue(notes.contains("2.4.5 – 2026-11-12"), lang.rawValue)
+            let current = notes.components(separatedBy: "2.4.5 – ")[1].components(separatedBy: "2.4.4 – ")[0]
             XCTAssertEqual(current.components(separatedBy: "• ").count - 1, 3, lang.rawValue)
+        }
+    }
+
+    func testSpacingPatchHasNoNewAnnouncementCopyOrPanelCard() {
+        XCTAssertFalse(PanelView.releaseCardIDs.contains("2.4.6"))
+        for lang in AppLanguage.allCases {
+            XCTAssertTrue(L10n.t(.docNews, lang).hasPrefix("2.4.6 – 2026-11-14\n\n2.4.5 – "), lang.rawValue)
         }
     }
 
     func testTheMinorReleaseHasItsCard() {
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.4.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.4"))
-        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.4.5")
+        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.4.6")
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.3.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.3"))
     }

@@ -51,6 +51,8 @@ Hop is signed with an Apple Developer ID and notarized by Apple, so macOS
 opens it like any other app. The source is public, and built-in updates are
 verified with Ed25519. Requires macOS 14 or newer.
 
+### 2.4.6
+
 ### 2.4.5
 
 - menu bar: choose disk space, memory, battery and other readings

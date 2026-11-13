@@ -54,6 +54,8 @@ macOS abre como qualquer outro app. O código-fonte é público e as
 atualizações integradas são verificadas com Ed25519. Requer macOS 14 ou mais
 recente.
 
+### 2.4.6
+
 ### 2.4.5
 
 - barra de menus: escolha espaço em disco, memória, bateria e outros dados

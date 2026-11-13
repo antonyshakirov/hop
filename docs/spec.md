@@ -7195,6 +7195,9 @@ the Dock. The same items
 open the localized release notes. Historical 2.3 cards/notes and the published
 plist version remain unchanged. Noise suppression is not included or advertised.
 
+**Hotfix 2.4.6** (owner request, 2026-11-14): menu-bar spacing only. Advance the
+release history version/date without new announcement text or a new panel card.
+
 **Hotfix 2.4.1** (Anton, 2026-10-29): release notes describe the panel toggle,
 number-field focus fixes and the single-tab header removal. No new panel card.
 

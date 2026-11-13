@@ -54,6 +54,8 @@ l'ouvre comme n'importe quelle autre app. Le code source est public et les
 mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
+### 2.4.6
+
 ### 2.4.5
 
 - barre des menus : choisissez espace disque, mémoire, batterie et autres valeurs

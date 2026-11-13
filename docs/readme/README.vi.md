@@ -50,6 +50,8 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.4.6
+
 ### 2.4.5
 
 - thanh menu: chọn dung lượng đĩa, bộ nhớ, pin và các chỉ số khác
