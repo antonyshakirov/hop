@@ -88,7 +88,7 @@ final class PanelPopoverAnchorTests: XCTestCase {
             else { model.soundCallMix.stop() }
             controller.refreshButton()
             RunLoop.main.run(until: Date().addingTimeInterval(0.05))
-            XCTAssertEqual(item.button?.image?.size.width, enabled ? 28 : 22)
+            XCTAssertEqual(item.button?.image?.size.width, enabled ? 32 : 22)
             XCTAssertTrue(panel.isVisible)
             XCTAssertEqual(panel.frame.minX, openingFrame.minX, accuracy: 0.5)
             XCTAssertEqual(panel.frame.maxY, openingFrame.maxY, accuracy: 0.5)

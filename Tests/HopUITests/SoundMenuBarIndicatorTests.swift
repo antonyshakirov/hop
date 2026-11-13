@@ -5,6 +5,72 @@ import XCTest
 
 @MainActor
 final class SoundMenuBarIndicatorTests: XCTestCase {
+    func testStatusItemGrowsOnlyForVisibleContentAndReturnsToSystemWidth() throws {
+        let defaults = UserDefaults.standard
+        let keys = [SettingsKey.menuBarIconOnly, SettingsKey.soundMenuBarMark,
+                    SettingsKey.panelTabs, SettingsKey.menuBarReadings,
+                    SettingsKey.showMenuBarCountdown]
+        let saved = keys.map { defaults.object(forKey: $0) }
+        let snapshot = Snapshot.active
+        Snapshot.active = true
+        let suite = "HopTests.StatusWidth." + UUID().uuidString
+        let storage = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer {
+            Snapshot.active = snapshot
+            storage.removePersistentDomain(forName: suite)
+            for (key, value) in zip(keys, saved) {
+                if let value { defaults.set(value, forKey: key) }
+                else { defaults.removeObject(forKey: key) }
+            }
+        }
+        defaults.set(false, forKey: SettingsKey.menuBarIconOnly)
+        defaults.set(true, forKey: SettingsKey.soundMenuBarMark)
+        defaults.removeObject(forKey: SettingsKey.panelTabs)
+        defaults.set(MenuBarReadings().encoded, forKey: SettingsKey.menuBarReadings)
+        defaults.set(false, forKey: SettingsKey.showMenuBarCountdown)
+        let mixer = SoundMixerController(defaults: storage, makeSession: { _ in Session() },
+                                         discover: { [] }, outputs: { [] })
+        let model = AppModel(preview: true, mixerController: mixer, soundEnabled: { true })
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        item.isVisible = false
+        defer { mixer.stop(); model.soundCallMix.shutdown(); NSStatusBar.system.removeStatusItem(item) }
+        let button = try XCTUnwrap(item.button)
+        let controller = StatusItemController(model: model, statusItem: item)
+        let standardWidth = NSStatusBar.system.thickness
+        func check(_ extra: CGFloat, file: StaticString = #filePath, line: UInt = #line) throws {
+            controller.refreshButton()
+            XCTAssertEqual(item.length, standardWidth + extra, accuracy: 0.01, file: file, line: line)
+            XCTAssertEqual(button.title, "", file: file, line: line)
+            button.frame.size.width = item.length
+            let image = try XCTUnwrap(button.image, file: file, line: line)
+            let cell = try XCTUnwrap(button.cell as? NSButtonCell, file: file, line: line)
+            let frame = cell.imageRect(forBounds: button.bounds)
+            XCTAssertEqual(frame.width, image.size.width, file: file, line: line)
+            XCTAssertGreaterThanOrEqual(frame.minX, 0, file: file, line: line)
+            XCTAssertLessThanOrEqual(frame.maxX, item.length, file: file, line: line)
+        }
+        try check(0)
+        mixer.start()
+        try check(13)
+        model.soundCallMix.stageDemo(model.soundMixer.apps)
+        try check(21)
+        mixer.stop()
+        try check(10)
+        controller.freezeMenuBarReadings()
+        defaults.set(false, forKey: SettingsKey.soundMenuBarMark)
+        try check(10)
+        controller.thawMenuBarReadings()
+        try check(0)
+        defaults.set(true, forKey: SettingsKey.soundMenuBarMark)
+        try check(10)
+        defaults.set(true, forKey: SettingsKey.menuBarIconOnly)
+        try check(0)
+        defaults.set(false, forKey: SettingsKey.menuBarIconOnly)
+        try check(10)
+        model.soundCallMix.shutdown()
+        try check(0)
+    }
+
     private final class Session: SoundMixingSession {
         func outputs(_ channels: [SoundMixerChannel]) {}
         func configure(_ channel: SoundMixerChannel) {}
@@ -109,8 +175,8 @@ final class SoundMenuBarIndicatorTests: XCTestCase {
     }
 
     func testMixerImageWidthUsesOnlyTheVisibleSymbols() {
-        let cases: [(Bool, Bool, CGFloat)] = [(false, false, 22), (true, false, 28),
-                                             (false, true, 31), (true, true, 39)]
+        let cases: [(Bool, Bool, CGFloat)] = [(false, false, 22), (true, false, 32),
+                                             (false, true, 35), (true, true, 43)]
         for (input, output, width) in cases {
             let image = MenuBarIcon.compose(IconComposition(outputMix: output, inputMix: input))
             XCTAssertEqual(image.size, NSSize(width: width, height: 17), "input=\(input), output=\(output)")
@@ -137,7 +203,7 @@ final class SoundMenuBarIndicatorTests: XCTestCase {
                 for y in 0..<full.pixelsHigh { for x in 0..<full.pixelsWide {
                     let alpha = full.colorAt(x: x, y: y)?.alphaComponent ?? 0
                     if alpha > 0 { ink += 1 }
-                    if x >= Int(size.width) * scale { XCTAssertEqual(alpha, 0) }
+                    if x >= Int(size.width - 4) * scale { XCTAssertEqual(alpha, 0, "Audio indicators need a clear trailing inset") }
                 }}
                 XCTAssertGreaterThan(ink, 0)
                 if let directory = ProcessInfo.processInfo.environment["HOP_MENU_PREVIEW_DIR"] {

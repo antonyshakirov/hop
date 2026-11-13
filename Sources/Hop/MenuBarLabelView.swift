@@ -66,6 +66,7 @@ enum MenuBarIcon {
     static var devMarkFrame: NSRect { devMarkRect.offsetBy(dx: contentInset, dy: 0) }
     static let microphoneFrame = NSRect(x: 21, y: 3.5, width: 7.5, height: 10)
     static let speakerFrame = NSRect(x: 29, y: 3.5, width: 10.8, height: 10)
+    private static let audioTrailingInset: CGFloat = 4
 
     static func canvasSize(for composition: IconComposition) -> NSSize {
         let right: CGFloat
@@ -77,7 +78,7 @@ enum MenuBarIcon {
         } else {
             return canvasSize
         }
-        return NSSize(width: right.rounded(.down), height: canvasSize.height)
+        return NSSize(width: right.rounded(.down) + audioTrailingInset, height: canvasSize.height)
     }
 
     private static func drawDevMark(color: NSColor) {

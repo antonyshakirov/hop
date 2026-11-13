@@ -1136,7 +1136,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         let iconWidth = look.iconOnly ? MenuBarIcon.canvasSize.width : MenuBarIcon.canvasSize(for: look.composition).width
         let leadingGap = !look.title.isEmpty && (look.composition.inputMix || look.composition.outputMix)
             ? MenuBarReading.mixerLeadingGap : 0
-        let desiredWidth = frozenReadingWidth ?? (iconWidth + 12 + (look.title.isEmpty ? 0 : readingWidth + leadingGap))
+        let desiredWidth = frozenReadingWidth ?? contentWidth(for: look)
         guard look != lastLook || button.image == nil || abs(statusItem.length - desiredWidth) > 0.5 else { return }
         // SPEC: docs/spec.md — "What a running clock costs": a tick changes the digits, not the icon.
         let iconChanged = button.image == nil || look.composition != lastLook?.composition
@@ -1167,6 +1167,15 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         }
         #endif
 
+    }
+
+    private func contentWidth(for look: Look) -> CGFloat {
+        let iconWidth = look.iconOnly ? MenuBarIcon.canvasSize.width : MenuBarIcon.canvasSize(for: look.composition).width
+        if look.title.isEmpty {
+            return NSStatusBar.system.thickness + iconWidth - MenuBarIcon.canvasSize.width
+        }
+        let gap = look.composition.inputMix || look.composition.outputMix ? MenuBarReading.mixerLeadingGap : 0
+        return iconWidth + 12 + readingWidth + gap
     }
 
     /// The clocks with something to say right now.
@@ -1221,9 +1230,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     func freezeMenuBarReadings() {
         frozenSlots = currentSlots()
         if let look = lastLook {
-            let iconWidth = look.iconOnly ? MenuBarIcon.canvasSize.width : MenuBarIcon.canvasSize(for: look.composition).width
-            let gap = look.composition.inputMix || look.composition.outputMix ? MenuBarReading.mixerLeadingGap : 0
-            frozenReadingWidth = iconWidth + 12 + (look.title.isEmpty ? 0 : readingWidth + gap)
+            frozenReadingWidth = contentWidth(for: look)
         }
         frozenReadingLayout = readingSettings
         frozenReadingRotation = MenuBarReading.shouldRotate((frozenSlots ?? []).map { reading(for: $0).text }, settings: readingSettings)

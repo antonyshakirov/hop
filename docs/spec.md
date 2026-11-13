@@ -199,8 +199,8 @@ reading reserves space. A stretched external host width is not inherited when fr
 While the panel is open, the reading set, format, effective rotation and exact status-item width freeze;
 values continue updating. The tooltip/accessibility label includes the complete set. Compact mode shows values
 and units without word prefixes; the labels switch adds the names. Memory is used/total,
-and its tooltip spells out which part is used. Disk is available capacity. A 6pt gap
-separates active mixer marks from readout text (owner refinements, 2026-11-12).
+and its tooltip spells out which part is used. Disk is available capacity. A 6pt text gap
+follows the mixer artwork's 4pt trailing inset (owner refinements, 2026-11-14).
 Click behavior remains opening the normal Hop panel.
 
 Regression coverage: MenuBarReadingsTests and MenuBarReadingTests; native settings
@@ -217,7 +217,17 @@ colour the bar had when it was last drawn, invisible on the other one (fixed
 it never had the problem: AppKit colours a title itself.
 
 The status-item star carries small badges in its four corners, on a fixed
-22×17 canvas so the icon never changes width. The composition (which badge,
+22×17 canvas so corner badges never change its width. With no text or audio
+indicators, the status item uses the system menu bar's square-item width.
+Visible microphone and speaker indicators extend that width by their
+additional artwork plus a 4pt trailing inset; hidden indicators reserve no space.
+The inset follows the last visible audio symbol and is not added between symbols.
+Removing them restores
+the square width, including in icon-only mode. Text readings retain their measured
+content width and spacing. The existing width freeze applies while the panel is
+open; closing it reapplies the current content width.
+Regression coverage: `SoundMenuBarIndicatorTests.testStatusItemGrowsOnlyForVisibleContentAndReturnsToSystemWidth`.
+The composition (which badge,
 where) is a pure HopCore function — `IconBadges.compose(IconState) →
 IconComposition` — with no AppKit, fully unit-tested (`IconBadgesTests`); the
 renderer `MenuBarIcon.compose` only draws what it returns. Corner assignment is
