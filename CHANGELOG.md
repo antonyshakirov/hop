@@ -1,5 +1,12 @@
 # Hop - version history
 
+## 2.5.0 - 2026-11-16
+
+- Cooling: choose macOS control, maximum speed, fixed RPM or a CPU temperature curve on supported fans. Open the controls from the system monitor and hide their row in monitor settings.
+- Keep Awake: an administrator-approved service releases closed-lid mode on low battery, excessive heat, session expiry or loss of contact with Hop. Updates wait until closed-lid mode and manual cooling stop.
+- Clipboard: open history with Command-Shift-C, search, and copy a result with Command-1 through Command-9 or Return.
+- Fixed pending closed-lid duration changes and recovery before starting another session.
+
 ## 2.4.6 - 2026-11-14
 
 ## 2.4.5 - 2026-11-12

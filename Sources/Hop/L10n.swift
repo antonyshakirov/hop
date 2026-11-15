@@ -554,7 +554,7 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.0 – 2026-11-15\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
+        "2.5.0 – 2026-11-16\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
             + "\n\n" + previous
     }
 

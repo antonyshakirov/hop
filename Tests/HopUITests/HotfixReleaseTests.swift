@@ -8,7 +8,7 @@ final class HotfixReleaseTests: XCTestCase {
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.5"))
         for lang in AppLanguage.allCases {
             let notes = L10n.t(.docNews, lang)
-            XCTAssertTrue(notes.hasPrefix("2.5.0 – 2026-11-15"), lang.rawValue)
+            XCTAssertTrue(notes.hasPrefix("2.5.0 – 2026-11-16"), lang.rawValue)
             for key in [L10nKey.news25Cooling, .news25Lid, .news25Clipboard] {
                 XCTAssertTrue(notes.contains("• " + L10n.t(key, lang)), lang.rawValue)
             }
