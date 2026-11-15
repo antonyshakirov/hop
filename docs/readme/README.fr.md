@@ -175,10 +175,13 @@ tourne. Voir [docs/automation.md](../automation.md).
 
 ### Anti-veille
 
-Gardez le Mac éveillé pendant 15 minutes, 8 heures ou pour toujours – un
-clic, pas de mot de passe. En option, gardez l'écran allumé, ou continuez à
-travailler avec le couvercle fermé (pratique pour les téléchargements, les
-longues compilations et les écrans externes).
+Garde le Mac éveillé de 15 minutes à ∞. «l’écran reste allumé» garde aussi l’écran éclairé.
+
+Le bouton du capot active le travail à capot fermé ; si la veille n’était pas bloquée, une session illimitée commence. Un autre clic désactive ce mode. Ambre signifie actif.
+
+Ce mode nécessite un service autorisé par l’administrateur. Il s’arrête à 10% de batterie sans secteur, en cas d’alerte de chaleur de macOS ou en fin de session. Après 90 secondes sans Hop, le service rétablit la veille et le contrôle des ventilateurs.
+
+Les mises à jour attendent l’arrêt des deux contrôles. Posez le Mac sur une surface ferme et ventilée.
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/awake.webp" width="420" alt="Hop – Anti-veille">
@@ -202,6 +205,12 @@ quand macOS signale lui-même une tension.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+refroidissement: automatique / maximum / vitesse fixe / selon température. Le contrôle manuel est disponible sur les Mac compatibles équipés de ventilateurs.
+
+Un service autorisé par l’administrateur contrôle les ventilateurs et protège les sessions à capot fermé.
+
+les mises à jour attendent l’arrêt des deux contrôles. posez le Mac sur une surface ferme et ventilée.
+
 ### Historique du presse-papiers
 
 Les 100 derniers éléments copiés (jusqu'à 300) – texte, images et fichiers –
@@ -213,6 +222,8 @@ mots de passe et autres saisies masquées ne sont jamais enregistrés.
 <div align="center">
 <img src="https://hop.tools/screens/fr/clipboard.webp" width="420" alt="Hop – Historique du presse-papiers">
 </div>
+
+⌘⇧C ouvre une fenêtre de recherche dans l’historique. ⌘1–⌘9 copie un résultat ; les flèches et entrée sélectionnent et copient. échap ferme la fenêtre.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

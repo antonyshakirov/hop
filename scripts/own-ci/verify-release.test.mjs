@@ -74,7 +74,9 @@ if (tool === 'curl') {
   if (config.signatureFailure && target.includes(config.signatureFailure)) fail();
   if (args.includes('--entitlements')) process.stdout.write('<?xml version="1.0"?><plist version="1.0"><dict><key>com.apple.developer.system-extension.install</key><true/></dict></plist>\\n');
   else if (args.some(arg => /^-d/.test(arg) || arg === '--display')) {
-    const team = config.workerTeamMismatch && target.includes('HopAudioWorker.app') ? 'OTHERTEAM' : 'FIXTURETEAM';
+    const mismatch = (config.workerTeamMismatch && target.includes('HopAudioWorker.app'))
+      || (config.hardwareTeamMismatch && target.includes('HopHardwareHelper.app'));
+    const team = mismatch ? 'OTHERTEAM' : 'FIXTURETEAM';
     process.stderr.write('TeamIdentifier=' + team + '\\nAuthority=Developer ID Application: Fixture\\n');
   } else if (!args.includes('--verify')) fail();
 } else fail();
@@ -111,15 +113,22 @@ async function fixture(t) {
     const app = join(root, 'bundles', product.arch, 'Hop.app');
     const filter = join(app, 'Contents/Library/SystemExtensions', bundleID + '.netfilter.systemextension');
     const worker = join(app, 'Contents/Helpers/HopAudioWorker.app');
+    const hardware = join(app, 'Contents/Helpers/HopHardwareHelper.app');
     await executable(join(app, 'Contents/MacOS/Hop'), product.arch);
     await executable(join(filter, 'Contents/MacOS', bundleID + '.netfilter'), product.arch);
     await executable(join(worker, 'Contents/MacOS/HopAudioWorker'), 'arm64 x86_64');
+    await executable(join(hardware, 'Contents/MacOS/HopHardwareHelper'), 'arm64 x86_64');
+    await mkdir(join(app, 'Contents/Library/LaunchDaemons'), { recursive: true });
+    await copyFile(join(repository, 'scripts/com.antonshakirov.minimo.hardware.plist'),
+      join(app, 'Contents/Library/LaunchDaemons', bundleID + '.hardware.plist'));
     await writeFile(join(app, 'Contents/Info.plist'), plist({ CFBundleIdentifier: bundleID,
       CFBundleShortVersionString: version, CFBundleExecutable: 'Hop', CFBundleName: 'Hop' }));
     await writeFile(join(filter, 'Contents/Info.plist'), plist({ CFBundleIdentifier: bundleID + '.netfilter',
       CFBundleShortVersionString: version, CFBundleExecutable: bundleID + '.netfilter' }));
     await writeFile(join(worker, 'Contents/Info.plist'), plist({ CFBundleIdentifier: bundleID + '.audio-worker',
       CFBundleExecutable: 'HopAudioWorker' }));
+    await writeFile(join(hardware, 'Contents/Info.plist'), plist({ CFBundleIdentifier: bundleID + '.hardware-helper',
+      CFBundleShortVersionString: version, CFBundleExecutable: 'HopHardwareHelper' }));
     const archive = Buffer.concat([Buffer.from('HOP-FIXTURE:' + product.arch + '\n'), Buffer.alloc(1_000_001, 0x5a)]);
     const signature = sign(null, archive, key.privateKey);
     for (const host of ['primary', 'mirror']) {
@@ -298,6 +307,36 @@ test('nested audio worker signature failure is rejected', async t => {
 
 test('nested audio worker signing team must match the app', async t => {
   const f = await fixture(t); await f.config({ workerTeamMismatch: true }); await rejected(f);
+});
+
+test('hardware service must exist with the matching identity, version and architecture', async t => {
+  for (const failure of ['missing', 'identity', 'version', 'architecture']) {
+    const f = await fixture(t);
+    const helper = join(f.app('x86_64'), 'Contents/Helpers/HopHardwareHelper.app');
+    if (failure === 'missing') await rm(helper, { recursive: true });
+    else if (failure === 'architecture') await writeFile(join(helper, 'Contents/MacOS/HopHardwareHelper.archs'), 'arm64');
+    else await writeFile(join(helper, 'Contents/Info.plist'), plist({
+      CFBundleIdentifier: bundleID + (failure === 'identity' ? '.dev' : '') + '.hardware-helper',
+      CFBundleExecutable: 'HopHardwareHelper', CFBundleShortVersionString: failure === 'version' ? '0.0.1' : version,
+    }));
+    await rejected(f);
+  }
+});
+
+test('hardware service signature and signing team are checked', async t => {
+  for (const config of [{ signatureFailure: 'HopHardwareHelper.app' }, { hardwareTeamMismatch: true }]) {
+    const f = await fixture(t); await f.config(config); await rejected(f);
+  }
+});
+
+test('hardware registration cannot be missing or launch a different program', async t => {
+  for (const missing of [true, false]) {
+    const f = await fixture(t);
+    const file = join(f.app('x86_64'), 'Contents/Library/LaunchDaemons', bundleID + '.hardware.plist');
+    if (missing) await rm(file);
+    else await writeFile(file, plist({ Label: bundleID + '.hardware', Program: '/bin/sh' }));
+    await rejected(f);
+  }
 });
 
 test('Gatekeeper refusal remains a failure', async t => {

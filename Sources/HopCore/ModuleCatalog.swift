@@ -100,7 +100,10 @@ public enum ModuleCatalog {
             ModuleAction(id: "open", storageKey: "hotkey_awake", hotKeyID: 3,
                          defaultCombo: ModuleCombo(keyCode: 0, modifiers: controlOption)),
         ]),
-        ModuleEntry(id: "clipboard", guideLetter: "c", actions: []),
+        ModuleEntry(id: "clipboard", guideLetter: "c", actions: [
+            ModuleAction(id: "open", storageKey: "hotkey_clipboard", hotKeyID: 62,
+                         defaultCombo: ModuleCombo(keyCode: 8, modifiers: ModuleCombo.command | ModuleCombo.shift)),
+        ]),
         ModuleEntry(id: "convert", guideLetter: "f", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_convert", hotKeyID: 21,
                          defaultCombo: ModuleCombo(keyCode: 8, modifiers: controlOption)),

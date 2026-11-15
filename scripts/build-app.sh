@@ -7,6 +7,7 @@
 #   ./scripts/build-app.sh --install --dev — parallel "Hop Dev.app":
 #       its own bundle id (…minimo.dev) → its own settings and permissions;
 #       the main Hop.app is NOT touched and keeps running
+#   HOP_NOTARIZE=1 is required to install a Dev build containing the hardware service.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -14,11 +15,13 @@ DEV=0
 INSTALL=0
 PROD=0
 OPEN_SOUND=0
+SHOW_RELEASE_CARD=0
 for arg in "$@"; do
     [[ "$arg" == "--dev" ]] && DEV=1
     [[ "$arg" == "--install" ]] && INSTALL=1
     [[ "$arg" == "--prod" ]] && PROD=1
     [[ "$arg" == "--open-sound" ]] && OPEN_SOUND=1
+    [[ "$arg" == "--show-release-card" ]] && SHOW_RELEASE_CARD=1
 done
 
 # the production Hop.app is updated ONLY via releases (latest.json on the site)
@@ -59,7 +62,8 @@ swift build "${BUILD_ARGS[@]}"
 # WORKAROUND: the bin path is asked of SwiftPM, never spelled out — Swift 6.4 moved it and 2.1.1 shipped a stale binary.
 BINARY="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)/Hop"
 WORKER_BINARY="${BINARY%/Hop}/HopAudioWorker"
-for EXECUTABLE in "$BINARY" "$WORKER_BINARY"; do
+HARDWARE_BINARY="${BINARY%/Hop}/HopHardwareHelper"
+for EXECUTABLE in "$BINARY" "$WORKER_BINARY" "$HARDWARE_BINARY"; do
     if [[ ! -f "$EXECUTABLE" ]]; then
         echo "❌ swift build did not produce $EXECUTABLE"
         exit 1
@@ -75,8 +79,13 @@ if [[ -n "$STALE" ]]; then
     echo "❌ $WORKER_BINARY is older than $STALE — refusing to package a stale worker"
     exit 1
 fi
+STALE="$(find Sources/HopHardwareHelper Sources/HopHardwareKit Package.swift -type f \( -name '*.swift' -o -name Package.swift \) -newer "$HARDWARE_BINARY" | head -1 || true)"
+if [[ -n "$STALE" ]]; then
+    echo "❌ $HARDWARE_BINARY is older than $STALE — refusing to package a stale service"
+    exit 1
+fi
 if [[ $DEV != 1 ]]; then
-    for EXECUTABLE in "$BINARY" "$WORKER_BINARY"; do
+    for EXECUTABLE in "$BINARY" "$WORKER_BINARY" "$HARDWARE_BINARY"; do
         ARCHS="$(lipo -archs "$EXECUTABLE")"
         if [[ "$ARCHS" != *arm64* || "$ARCHS" != *x86_64* ]]; then
             echo "❌ $EXECUTABLE is not universal ($ARCHS)"
@@ -104,7 +113,8 @@ if [[ $DEV == 1 ]]; then
 else
     APP_NAME="Hop"
 fi
-APP="dist/$APP_NAME.app"
+OUTPUT_DIRECTORY="${HOP_BUILD_OUTPUT:-dist}"
+APP="$OUTPUT_DIRECTORY/$APP_NAME.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BINARY" "$APP/Contents/MacOS/Hop"
@@ -114,6 +124,12 @@ WORKER_APP="$APP/Contents/Helpers/HopAudioWorker.app"
 mkdir -p "$WORKER_APP/Contents/MacOS"
 cp "$WORKER_BINARY" "$WORKER_APP/Contents/MacOS/HopAudioWorker"
 cp scripts/HopAudioWorker-Info.plist "$WORKER_APP/Contents/Info.plist"
+HARDWARE_APP="$APP/Contents/Helpers/HopHardwareHelper.app"
+mkdir -p "$HARDWARE_APP/Contents/MacOS" "$APP/Contents/Library/LaunchDaemons"
+cp "$HARDWARE_BINARY" "$HARDWARE_APP/Contents/MacOS/HopHardwareHelper"
+cp scripts/HopHardwareHelper-Info.plist "$HARDWARE_APP/Contents/Info.plist"
+cp scripts/com.antonshakirov.minimo.hardware.plist "$APP/Contents/Library/LaunchDaemons/com.antonshakirov.minimo.hardware.plist"
+cp docs/third-party/ClamDown-LICENSE.txt "$APP/Contents/Resources/ClamDown-LICENSE.txt"
 for icon in "${DOC_ICONS[@]}"; do
     cp "assets/$icon.icns" "$APP/Contents/Resources/$icon.icns"
 done
@@ -123,11 +139,29 @@ if [[ $DEV == 1 ]]; then
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleName -string "Hop Dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleDisplayName -string "Hop Dev" "$APP/Contents/Info.plist"
+    plutil -replace HopHardwareDiagnosticsVersion -integer 1 "$APP/Contents/Info.plist"
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.audio-worker" "$WORKER_APP/Contents/Info.plist"
+    plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.hardware-helper" "$HARDWARE_APP/Contents/Info.plist"
+    python3 - "$APP/Contents/Library/LaunchDaemons" <<'PYHARDWARE'
+import pathlib, plistlib, sys
+directory = pathlib.Path(sys.argv[1])
+source = directory / 'com.antonshakirov.minimo.hardware.plist'
+value = plistlib.loads(source.read_bytes())
+value['Label'] = 'com.antonshakirov.minimo.dev.hardware'
+value['MachServices'] = {'com.antonshakirov.minimo.dev.hardware': True}
+value['AssociatedBundleIdentifiers'] = ['com.antonshakirov.minimo.dev']
+(directory / 'com.antonshakirov.minimo.dev.hardware.plist').write_bytes(plistlib.dumps(value))
+source.unlink()
+PYHARDWARE
     # SPEC: docs/spec.md — "Versioning", a dev build carries the release it is preparing.
     PREPARING="$("$BINARY" --preparing-version)"
     plutil -replace CFBundleShortVersionString -string "$PREPARING" "$APP/Contents/Info.plist"
+    plutil -replace CFBundleVersion -string "$PREPARING" "$APP/Contents/Info.plist"
 fi
+APP_VERSION="$(plutil -extract CFBundleShortVersionString raw "$APP/Contents/Info.plist")"
+APP_BUILD="$(plutil -extract CFBundleVersion raw "$APP/Contents/Info.plist")"
+plutil -replace CFBundleVersion -string "$APP_BUILD" "$HARDWARE_APP/Contents/Info.plist"
+plutil -replace CFBundleShortVersionString -string "$APP_VERSION" "$HARDWARE_APP/Contents/Info.plist"
 source scripts/signing.sh
 IDENTITY="$(hop_signing_identity)"
 if [[ -z "$IDENTITY" ]]; then
@@ -137,8 +171,8 @@ if [[ -z "$IDENTITY" ]]; then
     IDENTITY="-"
 fi
 # SPEC: docs/spec.md — "Network access": every build carries the filter.
-# macOS refuses a Developer ID system extension that is not notarised, so a dev
-# build that has to run the filter is built with HOP_NOTARIZE=1 (a few minutes);
+# macOS requires notarization for the network filter and LaunchDaemon, so a dev
+# build that has to run either is built with HOP_NOTARIZE=1;
 # notarisation also wants a secure timestamp on the nested code of a release.
 TIMESTAMP=no-timestamp
 [[ "${HOP_NOTARIZE:-}" == "1" || $DEV == 0 ]] && TIMESTAMP=timestamp
@@ -159,6 +193,7 @@ elif [[ $DEV == 0 ]]; then
     exit 1
 fi
 hop_sign_app "$WORKER_APP" "$IDENTITY" "$TIMESTAMP" scripts/HopAudioWorker.entitlements
+hop_sign_app "$HARDWARE_APP" "$IDENTITY" "$TIMESTAMP" scripts/HopHardwareHelper.entitlements
 hop_sign_app "$APP" "$IDENTITY" "$TIMESTAMP" "$APP_ENTITLEMENTS"
 
 if [[ "${HOP_NOTARIZE:-}" == "1" ]]; then
@@ -171,7 +206,7 @@ for line in open(".env"):
         print(f"export {match.group(1)}={shlex.quote(match.group(2))}")
 PYENV
 )"
-    ZIP="dist/$APP_NAME-notarize.zip"
+    ZIP="$OUTPUT_DIRECTORY/$APP_NAME-notarize.zip"
     rm -f "$ZIP"
     ditto -c -k --keepParent "$APP" "$ZIP"
     RESULT=$(xcrun notarytool submit "$ZIP" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
@@ -191,6 +226,20 @@ echo "done: $APP ($CONFIGURATION)"
 
 if [[ $INSTALL == 1 ]]; then
     TARGET="/Applications/$APP_NAME.app"
+    if [[ $DEV == 1 ]] && ! spctl -a -t exec "$APP" >/dev/null 2>&1; then
+        echo "❌ the development app must be notarized before installing its hardware service"
+        echo "   rebuild with HOP_NOTARIZE=1"
+        exit 1
+    fi
+    if [[ $DEV == 1 && -d "$TARGET/Contents/Helpers/HopHardwareHelper.app" ]]; then
+        DIAGNOSTICS="$(plutil -extract HopHardwareDiagnosticsVersion raw "$TARGET/Contents/Info.plist" 2>/dev/null || true)"
+        if [[ "$DIAGNOSTICS" != "1" ]]; then
+            echo "❌ the installed development build lacks the hardware maintenance handshake"
+            echo "   inspect its service state before replacing this earlier development build"
+            exit 1
+        fi
+        "$TARGET/Contents/MacOS/Hop" --hardware-prepare-update
+    fi
     # kill ONLY our own instance: both versions use the Hop binary,
     # pkill -x would take down the main version along with dev
     pkill -f "$TARGET/Contents/MacOS/Hop" 2>/dev/null || true
@@ -200,7 +249,9 @@ if [[ $INSTALL == 1 ]]; then
     fi
     rm -rf "$TARGET"
     cp -R "$APP" "$TARGET"
-    if [[ $DEV == 1 && $OPEN_SOUND == 1 ]]; then
+    if [[ $DEV == 1 && $SHOW_RELEASE_CARD == 1 ]]; then
+        open "$TARGET" --args --show-release-card
+    elif [[ $DEV == 1 && $OPEN_SOUND == 1 ]]; then
         open "$TARGET" --args --open-sound
     else
         open "$TARGET"

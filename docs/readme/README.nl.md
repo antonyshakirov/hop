@@ -171,9 +171,13 @@ toevoegen of lezen wat er draait. Zie
 
 ### Geen slaap
 
-Houd de Mac 15 minuten, 8 uur of voor altijd wakker – één klik, geen
-wachtwoord. Laat optioneel het scherm aan, of werk door met het deksel dicht
-(handig voor downloads, lange builds en externe schermen).
+Houdt de Mac wakker van 15 minuten tot ∞. „scherm blijft aan” laat ook het scherm branden.
+
+De klepknop schakelt werken met gesloten klep in; staat slaapblokkering uit, dan begint een onbeperkte sessie. Nogmaals klikken schakelt de klepmodus uit. Amber betekent actief.
+
+De modus vereist een door de beheerder toegestane dienst. Hij stopt bij 10% batterij zonder netstroom, een hittemelding van macOS of het einde van de sessie. Na 90 seconden zonder Hop herstelt de dienst slaap en ventilatorbesturing.
+
+Updates wachten tot beide regelingen uit zijn. Zet de Mac op een stevige, geventileerde ondergrond.
 
 <div align="center">
 <img src="https://hop.tools/screens/nl/awake.webp" width="420" alt="Hop – Geen slaap">
@@ -196,6 +200,12 @@ verhuisd, en niet pas als macOS zelf krapte meldt.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+koeling: automatisch / maximaal / vast toerental / op temperatuur. Handmatige regeling is beschikbaar op compatibele Macs met ventilatoren.
+
+Een door de beheerder goedgekeurde dienst regelt ventilatoren en beveiligt sessies met gesloten klep.
+
+updates wachten tot beide regelingen uit zijn. zet de Mac op een stevige, geventileerde ondergrond.
+
 ### Klembordgeschiedenis
 
 De laatste 100 (tot 300) dingen die je kopieerde – tekst, afbeeldingen en
@@ -207,6 +217,8 @@ Wachtwoorden en andere verborgen invoer worden nooit opgeslagen.
 <div align="center">
 <img src="https://hop.tools/screens/nl/clipboard.webp" width="420" alt="Hop – Klembordgeschiedenis">
 </div>
+
+⌘⇧C opent de geschiedenis in een zoekvenster. ⌘1–⌘9 kopieert een resultaat; pijltjes en enter selecteren en kopiëren. escape sluit het venster.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

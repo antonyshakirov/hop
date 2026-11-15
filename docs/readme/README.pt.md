@@ -171,9 +171,13 @@ Veja [docs/automation.md](../automation.md).
 
 ### Sem suspensão
 
-Mantenha o Mac acordado por 15 minutos, 8 horas ou para sempre – um clique,
-sem senha. Opcionalmente mantenha a tela ligada, ou continue trabalhando com
-a tampa fechada (ótimo para downloads, builds longos e telas externas).
+Mantém o Mac acordado de 15 minutos a ∞. «o ecrã fica ligado» mantém também o ecrã aceso.
+
+O botão da tampa ativa o uso com a tampa fechada; se o bloqueio de repouso estava desligado, inicia uma sessão sem limite. Outro clique desliga este modo. Âmbar significa ativo.
+
+Requer um serviço autorizado pelo administrador. Termina com 10% de bateria sem corrente, um aviso de calor do macOS ou no fim da sessão. Após 90 segundos sem Hop, o serviço repõe o repouso e o controlo das ventoinhas.
+
+As atualizações aguardam que ambos os controlos sejam desligados. Usa o Mac numa superfície firme e ventilada.
 
 <div align="center">
 <img src="https://hop.tools/screens/pt/awake.webp" width="420" alt="Hop – Sem suspensão">
@@ -196,6 +200,12 @@ macOS diz que está apertado.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+refrigeração: automático / máximo / velocidade fixa / por temperatura. O controlo manual está disponível nos Macs compatíveis com ventoinhas.
+
+Um serviço autorizado pelo administrador controla as ventoinhas e protege as sessões com a tampa fechada.
+
+as atualizações aguardam que ambos os controlos sejam desligados. usa o Mac numa superfície firme e ventilada.
+
 ### Histórico da área de transferência
 
 As últimas 100 coisas que você copiou (até 300) – texto, imagens e arquivos –
@@ -207,6 +217,8 @@ ocultas nunca são armazenadas.
 <div align="center">
 <img src="https://hop.tools/screens/pt/clipboard.webp" width="420" alt="Hop – Histórico da área de transferência">
 </div>
+
+⌘⇧C abre o histórico numa janela de pesquisa. ⌘1–⌘9 copia um resultado; as setas e enter selecionam e copiam. escape fecha a janela.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

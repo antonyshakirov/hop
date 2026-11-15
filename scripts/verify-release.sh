@@ -84,12 +84,14 @@ for arch in $ARCHS; do
     app="$TMP/$arch/Hop.app"
     filter="$app/Contents/Library/SystemExtensions/$EXPECTED_ID.netfilter.systemextension"
     worker="$app/Contents/Helpers/HopAudioWorker.app"
+    hardware="$app/Contents/Helpers/HopHardwareHelper.app"
     check_identity "$app" "$EXPECTED_ID" Hop
 # SPEC: docs/spec.md — "Network access": the filter ships inside, signed, and the
 # app holds the entitlement to install it.
     check_identity "$filter" "$EXPECTED_ID.netfilter" "$EXPECTED_ID.netfilter"
     check_identity "$worker" "$WORKER_ID" HopAudioWorker
-    for bundle in "$app" "$filter"; do
+    check_identity "$hardware" "$EXPECTED_ID.hardware-helper" HopHardwareHelper
+    for bundle in "$app" "$filter" "$hardware"; do
         [[ "$(plist_value "$bundle/Contents/Info.plist" CFBundleShortVersionString)" == "$VERSION" ]] \
             || fail "$arch bundle version does not match $VERSION: $bundle"
     done
@@ -102,7 +104,25 @@ for arch in $ARCHS; do
         || fail "$arch audio worker lacks the required architecture"
     codesign --verify --strict --deep "$app" || fail "$arch app signature is broken"
     app_team="$(team "$app")" || fail "$arch app has no signing team"
-    for nested in "$filter" "$worker"; do
+    lipo -verify_arch "$arch" "$hardware/Contents/MacOS/HopHardwareHelper" \
+        || fail "$arch hardware service lacks the required architecture"
+    [[ -f "$app/Contents/Library/LaunchDaemons/$EXPECTED_ID.hardware.plist" ]] \
+        || fail "$arch hardware service registration is missing"
+    python3 - "$app/Contents/Library/LaunchDaemons/$EXPECTED_ID.hardware.plist" "$EXPECTED_ID" <<'PYHARDWARE' \
+        || fail "$arch hardware service registration is invalid"
+import plistlib, sys
+with open(sys.argv[1], 'rb') as source:
+    value = plistlib.load(source)
+identifier = sys.argv[2]
+assert value.get('Label') == identifier + '.hardware'
+assert value.get('BundleProgram') == 'Contents/Helpers/HopHardwareHelper.app/Contents/MacOS/HopHardwareHelper'
+assert 'Program' not in value and 'ProgramArguments' not in value
+assert value.get('UserName') == 'root'
+assert value.get('AssociatedBundleIdentifiers') == [identifier]
+assert value.get('MachServices') == {identifier + '.hardware': True}
+assert value.get('RunAtLoad') is True and value.get('KeepAlive') is True
+PYHARDWARE
+    for nested in "$filter" "$worker" "$hardware"; do
         codesign --verify --strict "$nested" || fail "$arch nested signature is broken: $nested"
         nested_team="$(team "$nested")" || fail "$arch nested bundle has no signing team: $nested"
         [[ "$nested_team" == "$app_team" ]] || fail "$arch nested signing team differs: $nested"

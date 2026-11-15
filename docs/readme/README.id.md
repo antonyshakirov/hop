@@ -172,10 +172,13 @@ waktu, menambah tugas berpengingat, atau membaca apa yang sedang berjalan. Lihat
 
 ### Anti-tidur
 
-Jaga Mac tetap terjaga selama 15 menit, 8 jam, atau selamanya – sekali
-klik, tanpa kata sandi. Opsional: biarkan layar tetap menyala, atau terus
-bekerja dengan penutup tertutup (praktis untuk unduhan, build panjang, dan
-layar eksternal).
+Menjaga Mac tetap terjaga dari 15 menit hingga ∞. “layar tetap menyala” juga menjaga layar tetap terang.
+
+Tombol tutup mengaktifkan kerja dengan tutup tertutup; jika pencegahan tidur mati, sesi tanpa batas dimulai. Klik lagi untuk mematikan. Kuning berarti aktif.
+
+Perlu layanan yang diizinkan administrator. Mode berhenti saat baterai 10% tanpa daya listrik, macOS melaporkan panas berlebih, atau sesi berakhir. Setelah 90 detik tanpa Hop, layanan memulihkan tidur dan kendali kipas.
+
+Pembaruan menunggu kedua kendali dimatikan. Letakkan Mac di permukaan keras dengan ventilasi baik.
 
 <div align="center">
 <img src="https://hop.tools/screens/id/awake.webp" width="420" alt="Hop – Anti-tidur">
@@ -198,6 +201,12 @@ sendiri bilang sedang sesak.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+pendinginan: otomatis / maksimum / kecepatan tetap / berdasarkan suhu. Kontrol manual tersedia di Mac kompatibel yang memiliki kipas.
+
+Layanan yang diizinkan administrator mengontrol kipas dan melindungi sesi saat tutup tertutup.
+
+pembaruan menunggu kedua kendali dimatikan. letakkan Mac di permukaan keras dengan ventilasi baik.
+
 ### Riwayat clipboard
 
 100 hal terakhir yang kamu salin (hingga 300) – teks, gambar, dan file –
@@ -209,6 +218,8 @@ Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
 <div align="center">
 <img src="https://hop.tools/screens/id/clipboard.webp" width="420" alt="Hop – Riwayat clipboard">
 </div>
+
+⌘⇧C membuka riwayat di jendela pencarian. ⌘1–⌘9 menyalin hasil; tombol panah dan enter memilih dan menyalin. escape menutup jendela.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

@@ -2,10 +2,10 @@ import AppKit
 import Combine
 import HopCore
 import IOKit.pwr_mgt
+import HopHardwareKit
 
 /// "Caffeine": keeps the Mac awake via a system power assertion.
-/// Optionally keeps the display on and (via pmset, with an admin password)
-/// prevents the Mac from sleeping even with the lid closed.
+/// Display assertions stay local; protected lid sessions use the hardware service.
 @MainActor
 final class KeepAwakeController: ObservableObject {
     struct Option: Equatable {
@@ -42,6 +42,13 @@ final class KeepAwakeController: ObservableObject {
     private var hasAssertion = false
     /// Lid mode — visible to the UI: laptop icon in the module row.
     @Published private(set) var lidApplied = false
+    @Published private(set) var lidChanging = false
+    private var lidOperation = UUID()
+    private var lidRequested = false
+    private var protectedLid: (Bool, Date?) async throws -> Bool = { on, until in
+        try await CoolingController.shared.setLid(on, until: until)
+        return CoolingController.shared.snapshot.lid
+    }
     /// Blanks the built-in panel while the lid is closed in lid mode.
     private let lidDimmer = LidDisplayController()
     private var ticker: Timer?
@@ -50,7 +57,8 @@ final class KeepAwakeController: ObservableObject {
     /// Preview: the row shows the module ON, without holding a real power
     /// assertion or making a sound.
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
-    init(demo: Bool) {
+    init(demo: Bool, protectedLid: ((Bool, Date?) async throws -> Bool)? = nil) {
+        if let protectedLid { self.protectedLid = protectedLid }
         isActive = true
         selected = Self.options.first { $0.label == "4h" }
         until = Date().addingTimeInterval(4 * 3600)
@@ -63,15 +71,7 @@ final class KeepAwakeController: ObservableObject {
         let liveHandoff = resume?.handoffID.map { AwakeUpdateHandoff.isLive(id: $0) } ?? false
         let session = resume?.session(now: now, liveHandoff: liveHandoff) ?? .none
         inheritedHandoffID = liveHandoff ? resume?.handoffID : nil
-        if session != .none,
-           resume?.keepsLid(now: now, liveHandoff: liveHandoff) == true,
-           UserDefaults.standard.bool(forKey: "lidSleepAppliedPending"),
-           sleepDisabledStateMatches(true) {
-            lidApplied = true
-            updateLidDimmer()
-        } else {
-            revertLidIfPending()
-        }
+        revertLidIfPending()
         switch session {
         case .endless:
             begin(Self.option(seconds: nil), until: nil, cue: false)
@@ -96,6 +96,13 @@ final class KeepAwakeController: ObservableObject {
         }
         if lidApplied && !isActive {
             revertLidIfPending()
+        }
+        CoolingController.shared.lidDidStop = { [weak self] reason in
+            guard let self else { return }
+            self.lidApplied = false
+            self.lidRequested = false
+            self.updateLidDimmer()
+            if reason != .stopped, self.isActive { self.deactivate() }
         }
         // safety net: on app exit, release the assertion and restore lid sleep
         terminateObserver = NotificationCenter.default.addObserver(
@@ -144,6 +151,7 @@ final class KeepAwakeController: ObservableObject {
         shownMinutes = until.map { AwakeCountdown.minutes(remaining: $0.timeIntervalSinceNow) }
 
         startTicker()
+        if lidRequested { applyLidSleepDisabled(true, playCue: false) }
     }
 
     private func startTicker() {
@@ -175,7 +183,7 @@ final class KeepAwakeController: ObservableObject {
         // lid mode lives only inside an awake session: when the session ends
         // (manual off or time expiry, not an option switch), sleep comes back —
         // otherwise a closed lid would block sleep forever after the timer.
-        if !silent && lidApplied {
+        if !silent && (lidApplied || lidChanging) {
             applyLidSleepDisabled(false, playCue: false) // the off cue already played
         }
     }
@@ -183,6 +191,7 @@ final class KeepAwakeController: ObservableObject {
     // SPEC: docs/spec.md — "Keep awake survives an update".
     func stashForRelaunch() throws {
         guard isActive || lidApplied else { return }
+        guard !lidApplied, !lidChanging, !CoolingController.shared.blocksUpdates else { throw CocoaError(.userCancelled) }
         guard until == nil else { throw CocoaError(.userCancelled) }
         if inheritedHandoffID == nil {
             updateLease = try AwakeUpdateHandoff.start(
@@ -237,10 +246,9 @@ final class KeepAwakeController: ObservableObject {
         options.first { $0.seconds == seconds } ?? options[options.count - 1]
     }
 
-    /// Mandatory cleanup on exit: without it the Mac would be left
-    /// with sleep disabled forever.
+    /// Ask immediately on exit; the service watchdog covers an interrupted exit.
     func releaseLidForShutdown() {
-        if lidApplied {
+        if lidApplied || lidChanging {
             applyLidSleepDisabled(false)
         }
     }
@@ -257,16 +265,17 @@ final class KeepAwakeController: ObservableObject {
         }
     }
 
-    /// Lid mode is enabled EXPLICITLY, via a button while keep-awake is active:
-    /// the admin password is requested only at that moment.
+    /// An explicit lid action may request installation or approval of the service.
     func toggleLid() {
-        // the lid is an independent toggle; the moon and timers are unrelated
-        let wasApplied = lidApplied
-        applyLidSleepDisabled(!wasApplied)
-        // play the sound only if the state actually changed (password not cancelled)
-        if lidApplied != wasApplied {
-            Sounds.awakeCue(on: lidApplied)
-        }
+        guard !lidChanging else { return }
+        setLidEnabled(!lidApplied)
+    }
+
+    func setLidEnabled(_ on: Bool) {
+        guard !on || !lidChanging else { return }
+        guard lidApplied != on || lidChanging else { return }
+        if on && !isActive { activate(Self.option(seconds: nil)) }
+        applyLidSleepDisabled(on)
     }
 
     private func createAssertion() -> Bool {
@@ -286,69 +295,32 @@ final class KeepAwakeController: ObservableObject {
         return true
     }
 
-    /// pmset disablesleep requires root — we ask for the admin password.
-    /// Turning awake off must restore sleep, otherwise the Mac stops sleeping at all.
+    // SPEC: docs/spec.md — Protected lid sessions.
     private func applyLidSleepDisabled(_ disabled: Bool, playCue: Bool = true) {
-        let value = disabled ? "1" : "0"
-
-        // path 1: no password — if the one-time sudoers setup is already in place.
-        // Trust the exit status only when pmset's ACTUAL state confirms it: a stale
-        // or half-broken setup must fall through to the password path below and
-        // re-request rights, not silently claim success.
-        if runQuiet("/usr/bin/sudo", ["-n", "/usr/bin/pmset", "disablesleep", value]),
-           sleepDisabledStateMatches(disabled) {
-            lidApplied = disabled
-            if playCue {
-                Sounds.awakeCue(on: disabled) // lid clicks with the same cue as no-sleep
+        let operation = UUID()
+        lidRequested = disabled
+        lidOperation = operation
+        lidChanging = true
+        Task { [weak self] in
+            guard let self else { return }
+            defer { if self.lidOperation == operation { self.lidChanging = false } }
+            do {
+                let applied = try await self.protectedLid(disabled, self.until)
+                guard self.lidOperation == operation else { return }
+                self.lidApplied = applied
+                self.lidRequested = applied
+                if playCue { Sounds.awakeCue(on: self.lidApplied) }
+                self.updateLidDimmer()
+            } catch {
+                if self.lidOperation == operation {
+                    self.lidRequested = false
+                    AppModel.sharedKeepAwake?.showHardwareFailure?()
+                }
             }
-            UserDefaults.standard.set(disabled, forKey: "lidSleepAppliedPending")
-            updateLidDimmer()
-            return
         }
-
-        // path 2: first time — a single password prompt installs a sudoers rule
-        // STRICTLY for the two commands pmset disablesleep 0/1 (validated by visudo)
-        // and immediately applies the desired state. No password ever needed again.
-        // the username is strictly validated: otherwise a hostile account could
-        // inject a rule into sudoers
-        let user = NSUserName()
-        guard user.range(of: "^[A-Za-z0-9._-]+$", options: .regularExpression) != nil else {
-            return
-        }
-        let rule = "\(user) ALL=(root) NOPASSWD: /usr/bin/pmset disablesleep 1, /usr/bin/pmset disablesleep 0"
-        // create the temp file in root-only /var/root via mktemp:
-        // the unpredictable name closes the /tmp symlink attack
-        let shell = "TMP=$(/usr/bin/mktemp /var/root/hop-pmset.XXXXXX) "
-            + "&& printf '%s\\n' '\(rule)' > \"$TMP\" "
-            + "&& /usr/sbin/visudo -cf \"$TMP\" "
-            + "&& /usr/bin/install -m 0440 -o root -g wheel \"$TMP\" /etc/sudoers.d/hop-pmset "
-            + "&& /bin/rm -f \"$TMP\" "
-            + "&& /usr/bin/pmset disablesleep \(value)"
-        // An AppleScript string literal is double-quoted, so every " and \ inside the
-        // shell command must be escaped for AppleScript (backslashes FIRST, then
-        // quotes) before it is embedded. Without this the `"$TMP"` in the command
-        // closed the AppleScript string early: the script failed to compile, the admin
-        // prompt never appeared, and the lid button silently did nothing.
-        let escapedShell = shell
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
-        let source = """
-        do shell script "\(escapedShell)" with administrator privileges
-        """
-        var error: NSDictionary?
-        NSAppleScript(source: source)?.executeAndReturnError(&error)
-        // Claim success only when pmset's real state confirms the change — the
-        // script's exit alone can lie (e.g. a partial failure after the prompt).
-        if error == nil, sleepDisabledStateMatches(disabled) {
-            lidApplied = disabled
-            Sounds.awakeCue(on: disabled) // lid clicks with the same cue as no-sleep
-            UserDefaults.standard.set(disabled, forKey: "lidSleepAppliedPending")
-            updateLidDimmer()
-        }
-        // password cancelled or apply failed — leave the state as is (the icon stays
-        // unlit, honest UI); the next click re-runs the whole flow, re-requesting
-        // rights from scratch
     }
+
+    var showHardwareFailure: (() -> Void)?
 
     /// SPEC: docs/spec.md — "Lid mode without a password", taking the rule back.
     static let lidRulePath = "/etc/sudoers.d/hop-pmset"
@@ -362,7 +334,8 @@ final class KeepAwakeController: ObservableObject {
     /// removing the rule while `SleepDisabled` is 1 would leave a Mac that never
     /// sleeps and no longer any way for Hop to change that without asking again.
     func removeLidRule() {
-        guard !Snapshot.active, Self.lidRuleInstalled else { return }
+        guard !Snapshot.active, Self.lidRuleInstalled, !lidApplied, !lidChanging,
+              !CoolingController.shared.snapshot.lid else { return }
         let shell = "/usr/bin/pmset disablesleep 0 && /bin/rm -f \(Self.lidRulePath)"
         let source = "do shell script \"\(shell)\" with administrator privileges"
         var error: NSDictionary?
@@ -383,24 +356,9 @@ final class KeepAwakeController: ObservableObject {
         }
     }
 
-    /// Ground truth for lid mode: does `pmset -g`'s SleepDisabled line match the
-    /// requested state? Exit statuses of sudo/osascript alone can lie; the power
-    /// manager's own report cannot. Unreadable output returns true (don't
-    /// second-guess a state we cannot observe — behave exactly as before).
+    // SPEC: docs/spec.md — Hardware service and legacy lid rules.
     private func sleepDisabledStateMatches(_ disabled: Bool) -> Bool {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
-        process.arguments = ["-g"]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = Pipe()
-        do { try process.run() } catch { return true }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        guard let out = String(data: data, encoding: .utf8),
-              let line = out.split(separator: "\n").first(where: { $0.contains("SleepDisabled") })
-        else { return true }
-        return line.contains(disabled ? "1" : "0")
+        (try? SystemHardwareBackend().sleepDisabled()) == disabled
     }
 
     /// Quiet launch without UI: true if the command succeeded (exit 0).

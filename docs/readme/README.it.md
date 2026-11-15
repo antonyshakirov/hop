@@ -173,10 +173,13 @@ un'attività con promemoria o leggere cosa sta girando. Vedi
 
 ### Niente stop
 
-Tieni il Mac sveglio per 15 minuti, 8 ore o per sempre – un clic, nessuna
-password. Facoltativamente tieni acceso lo schermo, oppure continua a
-lavorare con il coperchio chiuso (comodo per download, build lunghe e
-schermi esterni).
+Tiene sveglio il Mac da 15 minuti a ∞. «lo schermo resta acceso» mantiene acceso anche lo schermo.
+
+Il pulsante del coperchio attiva il lavoro a coperchio chiuso; se il blocco del sonno era spento, avvia una sessione illimitata. Un altro clic disattiva il modo. Ambra significa attivo.
+
+Serve un servizio autorizzato dall’amministratore. Si ferma al 10% di batteria senza alimentazione, con un avviso di calore di macOS o a fine sessione. Dopo 90 secondi senza Hop, il servizio ripristina sonno e controllo delle ventole.
+
+Gli aggiornamenti attendono che entrambi i controlli siano spenti. Usa il Mac su una superficie solida e ventilata.
 
 <div align="center">
 <img src="https://hop.tools/screens/it/awake.webp" width="420" alt="Hop – Niente stop">
@@ -199,6 +202,12 @@ solo quando macOS stesso segnala difficoltà.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+raffreddamento: automatico / massimo / velocità fissa / per temperatura. Il controllo manuale è disponibile sui Mac compatibili dotati di ventole.
+
+Un servizio autorizzato dall’amministratore controlla le ventole e protegge le sessioni a coperchio chiuso.
+
+gli aggiornamenti attendono che entrambi i controlli siano spenti. usa il Mac su una superficie solida e ventilata.
+
 ### Cronologia degli appunti
 
 Le ultime 100 cose copiate (fino a 300) – testo, immagini e file – un clic per
@@ -210,6 +219,8 @@ nascosti non vengono mai salvati.
 <div align="center">
 <img src="https://hop.tools/screens/it/clipboard.webp" width="420" alt="Hop – Cronologia degli appunti">
 </div>
+
+⌘⇧C apre la cronologia in una finestra di ricerca. ⌘1–⌘9 copia un risultato; le frecce e invio selezionano e copiano. escape chiude la finestra.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

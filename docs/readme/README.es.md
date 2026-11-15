@@ -173,10 +173,13 @@ Ver [docs/automation.md](../automation.md).
 
 ### Sin reposo
 
-Mantén el Mac despierto 15 minutos, 8 horas o para siempre – un clic, sin
-contraseña. Opcionalmente deja la pantalla encendida, o sigue trabajando
-con la tapa cerrada (ideal para descargas, compilaciones largas y pantallas
-externas).
+Mantiene el Mac despierto de 15 minutos a ∞. «la pantalla sigue encendida» mantiene también la pantalla iluminada.
+
+El botón de tapa activa el uso con la tapa cerrada; si no se impedía el reposo, inicia una sesión sin límite. Otro clic desactiva este modo. Ámbar significa activo.
+
+Requiere un servicio autorizado por el administrador. Termina con un 10% de batería sin corriente, una alerta de calor de macOS o al acabar la sesión. Tras 90 segundos sin Hop, el servicio restablece el reposo y el control de ventiladores.
+
+Las actualizaciones esperan a que ambos controles estén desactivados. Usa el Mac sobre una superficie firme y ventilada.
 
 <div align="center">
 <img src="https://hop.tools/screens/es/awake.webp" width="420" alt="Hop – Sin reposo">
@@ -199,6 +202,12 @@ mucha memoria ha ido al disco, y no solo cuando macOS informa de que va justo.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+refrigeración: automático / máximo / velocidad fija / por temperatura. El control manual está disponible en los Mac compatibles con ventiladores.
+
+Un servicio autorizado por el administrador controla los ventiladores y protege las sesiones con la tapa cerrada.
+
+las actualizaciones esperan a que ambos controles estén desactivados. usa el Mac sobre una superficie firme y ventilada.
+
 ### Historial del portapapeles
 
 Las últimas 100 cosas que copiaste (hasta 300) – texto, imágenes y archivos –
@@ -210,6 +219,8 @@ contraseñas y otras entradas ocultas nunca se guardan.
 <div align="center">
 <img src="https://hop.tools/screens/es/clipboard.webp" width="420" alt="Hop – Historial del portapapeles">
 </div>
+
+⌘⇧C abre el historial en una ventana de búsqueda. ⌘1–⌘9 copia un resultado; las flechas y enter seleccionan y copian. escape cierra la ventana.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

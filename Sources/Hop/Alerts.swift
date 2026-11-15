@@ -19,10 +19,10 @@ enum Alerts {
         Sounds.alarm()
     }
 
-    /// UNUserNotificationCenter crashes outside an .app bundle (dev run via `swift run`),
-    /// so checking bundleIdentifier is mandatory.
+    /// XCTest can supply an identifier without an application bundle proxy.
+    /// UserNotifications requires the actual .app, including for settings reads.
     private static var notificationsAvailable: Bool {
-        Bundle.main.bundleIdentifier != nil
+        Bundle.main.bundleIdentifier != nil && Bundle.main.bundleURL.pathExtension == "app"
     }
 
     static func requestPermissionIfPossible() {
@@ -41,6 +41,18 @@ enum Alerts {
     /// A banner that only informs: no sound, unlike the alarm's.
     static func notice(title: String, body: String) {
         postNotification(title: title, body: body, sound: false)
+    }
+
+    static func noticeIfAllowed(title: String, body: String) {
+        guard notificationsAvailable, !Snapshot.active else { return }
+        let center = UNUserNotificationCenter.current()
+        center.getNotificationSettings { settings in
+            guard settings.authorizationStatus == .authorized else { return }
+            let content = UNMutableNotificationContent()
+            content.title = oneLine(title)
+            content.body = body
+            center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
+        }
     }
 
     private static func postNotification(title: String? = nil, body: String? = nil,

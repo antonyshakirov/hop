@@ -11,6 +11,8 @@ let package = Package(
         // HopCore keeps the full optimizer: the timer maths, the parsing rules and
         // everything else with tests behind it lives here, and it costs seconds.
         .target(name: "HopCore"),
+        .target(name: "HopHardwareKit"),
+        .executableTarget(name: "HopHardwareHelper", dependencies: ["HopHardwareKit"]),
         // The app layer builds with -Osize, and that is a 27× difference measured
         // on this tree (2026-07-26): a release build of the UI module took 16m46s
         // with -O and 37s with -Osize, for a binary of exactly the same size
@@ -22,7 +24,7 @@ let package = Package(
         // optimization level ("Optimize for size" in Xcode), not a debug setting.
         .executableTarget(
             name: "Hop",
-            dependencies: ["HopCore", "HopAudioDSP", "HopAudioEngine"],
+            dependencies: ["HopCore", "HopAudioDSP", "HopAudioEngine", "HopHardwareKit"],
             swiftSettings: [.unsafeFlags(["-Osize"], .when(configuration: .release))]
         ),
         // SPEC: docs/spec.md — "Network access". The content filter, shipped
@@ -34,5 +36,6 @@ let package = Package(
         ),
         .testTarget(name: "HopCoreTests", dependencies: ["HopCore"], resources: [.copy("Fixtures")]),
         .testTarget(name: "HopUITests", dependencies: ["Hop", "HopAudioDSP"]),
+        .testTarget(name: "HopHardwareTests", dependencies: ["HopHardwareKit"]),
     ]
 )

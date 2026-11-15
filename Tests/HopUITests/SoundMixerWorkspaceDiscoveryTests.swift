@@ -10,6 +10,37 @@ final class SoundMixerWorkspaceDiscoveryTests: XCTestCase {
         func stop() {}
     }
 
+    func testProcessMetadataCacheKeepsLiveRunningStateAndReloadsReusedPIDs() {
+        var cache = SoundProcessMetadataCache(), loads = 0
+        let launch = Date(timeIntervalSince1970: 100)
+        func load(_ id: String) -> SoundMixerAppSnapshot {
+            loads += 1
+            return SoundMixerAppSnapshot(id: id, name: id, processes: [], appRunning: true, sourceRunning: false)
+        }
+        XCTAssertEqual(cache.value(pid: 1, launch: launch, running: true, load: { load("first") })?.id, "first")
+        XCTAssertEqual(cache.value(pid: 1, launch: launch, running: false, load: { load("unchanged") })?.appRunning, false)
+        XCTAssertEqual(loads, 1)
+        XCTAssertEqual(cache.value(pid: 1, launch: launch.addingTimeInterval(1), running: true, load: { load("reused") })?.id, "reused")
+        XCTAssertEqual(loads, 2)
+        cache.retain([])
+        _ = cache.value(pid: 1, launch: launch, running: true, load: { load("reopened") })
+        XCTAssertEqual(loads, 3)
+        _ = cache.value(pid: 2, launch: nil, running: true, load: { load("unknown") })
+        _ = cache.value(pid: 2, launch: nil, running: true, load: { load("unknown") })
+        XCTAssertEqual(loads, 5)
+    }
+
+    func testOwnerMatchingUsesCompleteBundleSegmentsAndTheExistingRootPreference() {
+        let root = SoundMixerAppSnapshot(id: "example.player", name: "Player", processes: [], appRunning: true, sourceRunning: false)
+        let child = SoundMixerAppSnapshot(id: "example.player.helper", name: "Helper", processes: [], appRunning: true, sourceRunning: false)
+        let unrelated = SoundMixerAppSnapshot(id: "example.player-other", name: "Other", processes: [], appRunning: true, sourceRunning: false)
+        let empty = SoundMixerAppSnapshot(id: "", name: "Empty", processes: [], appRunning: true, sourceRunning: false)
+        XCTAssertEqual(SoundMixerDiscovery.owningApplication(bundle: "example.player.helper.audio", candidates: [child, unrelated, root, empty])?.id, root.id)
+        XCTAssertEqual(SoundMixerDiscovery.owningApplication(bundle: unrelated.id, candidates: [root, unrelated])?.id, unrelated.id)
+        XCTAssertNil(SoundMixerDiscovery.owningApplication(bundle: "example.player2.audio", candidates: [root, empty]))
+        XCTAssertEqual(SoundMixerDiscovery.owningApplication(bundle: child.id, candidates: [child])?.id, child.id)
+    }
+
     func testRunningAppWithoutAnAudioClientHasNoInventedAudioProcess() throws {
         let telegram = SoundMixerAppSnapshot(id: "org.telegram.desktop", name: "Telegram", processes: [],
             appRunning: true, sourceRunning: false)

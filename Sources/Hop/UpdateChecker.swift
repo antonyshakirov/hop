@@ -2,6 +2,7 @@ import AppKit
 import CryptoKit
 import Foundation
 import HopCore
+import HopHardwareKit
 
 /// Updates via hop.tools (latest.json + zip + signature):
 /// silent auto-update and manual check. The site is polled hourly; a found
@@ -62,6 +63,7 @@ final class UpdateChecker: ObservableObject {
         let manual: Bool
     }
     private(set) var pendingRelease: PendingRelease?
+    private var installInProgress = false
 
     var installationAllowed: @MainActor () -> Bool = { true }
     var automaticInstallationAllowed: @MainActor (Bool) -> Bool = { _ in true }
@@ -69,6 +71,9 @@ final class UpdateChecker: ObservableObject {
     var prepareRelaunch: (() throws -> Void)?
     var cancelRelaunch: (() -> Void)?
     var relaunchReady: () -> Bool = { true }
+    var prepareHardwareUpdate: (() async throws -> Void)?
+    var cancelHardwareUpdate: (() async -> Void)?
+    private static let previousBundleKey = "previousUpdateBundle"
 
     private var autoUpdateEnabled: Bool {
         UserDefaults.standard.object(forKey: Self.autoUpdateKey) as? Bool ?? true
@@ -77,6 +82,7 @@ final class UpdateChecker: ObservableObject {
     init(findRelease: (() async throws -> ReleaseInfo?)? = nil) {
         self.findRelease = findRelease
         Self.cleanupStagingLeftovers()
+        Self.cleanupPreviousBundle()
     }
 
     /// Installs stage the new bundle into temporaryDirectory/hop-update-<UUID>,
@@ -84,11 +90,19 @@ final class UpdateChecker: ObservableObject {
     /// every update left a ~7 MB folder behind (macOS only purges them days
     /// later). The next launch sweeps all of them instead.
     private static func cleanupStagingLeftovers() {
+        guard let identifier = Bundle.main.bundleIdentifier,
+              HardwareIdentity.applications.contains(identifier),
+              let lock = try? AppProcessLock.acquire("application") else { return }
+        defer { lock.release() }
         let fm = FileManager.default
         let tmp = fm.temporaryDirectory
         guard let entries = try? fm.contentsOfDirectory(atPath: tmp.path) else { return }
-        for name in entries where name.hasPrefix("hop-update-") {
-            try? fm.removeItem(at: tmp.appendingPathComponent(name))
+        let prefix = "hop-staging-\(identifier)-"
+        for name in entries where name.hasPrefix(prefix) {
+            guard UUID(uuidString: String(name.dropFirst(prefix.count))) != nil else { continue }
+            let file = tmp.appendingPathComponent(name)
+            guard (try? fm.attributesOfItem(atPath: file.path)[.type]) as? FileAttributeType == .typeDirectory else { continue }
+            try? fm.removeItem(at: file)
         }
     }
 
@@ -290,8 +304,16 @@ final class UpdateChecker: ObservableObject {
     }
 
     func install(_ info: ReleaseInfo, manual: Bool = true) async {
+        guard !installInProgress else { return }
+        installInProgress = true
+        defer { installInProgress = false }
         guard !deferIfBusy(info, manual: manual) else { return }
+        var bundleSwap: UpdateBundleSwap?
+        var sibling: URL?
+        var processLock: AppProcessLock?
+        defer { processLock?.release() }
         do {
+            processLock = try AppProcessLock.acquire("application")
             status = .downloading
             let build = try await MirrorFetch.download(from: info.zipURL, hosts: info.hosts)
             let tempZip = build.file
@@ -314,7 +336,7 @@ final class UpdateChecker: ObservableObject {
 
             status = .installing
             let staging = FileManager.default.temporaryDirectory
-                .appendingPathComponent("hop-update-\(UUID().uuidString)")
+                .appendingPathComponent("hop-staging-\(Bundle.main.bundleIdentifier ?? "unknown")-\(UUID().uuidString)")
             try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
 
             try run("/usr/bin/ditto", ["-xk", tempZip.path, staging.path])
@@ -322,29 +344,44 @@ final class UpdateChecker: ObservableObject {
                 .first(where: { $0.hasSuffix(".app") })
             else { throw URLError(.cannotParseResponse) }
             let newApp = staging.appendingPathComponent(appName)
+            guard let identifier = Bundle.main.bundleIdentifier,
+                  Bundle(url: newApp)?.bundleIdentifier == identifier,
+                  Bundle.main.bundleURL.deletingLastPathComponent().standardizedFileURL.path == "/Applications"
+            else { throw CocoaError(.fileWriteInvalidFileName) }
+            let installed = Bundle.main.bundleURL.standardizedFileURL
+            let replacement = installed.deletingLastPathComponent()
+                .appendingPathComponent(".hop-update-\(identifier)-\(UUID().uuidString).app")
+            sibling = replacement
+
 
             // quarantine is removed ONLY after the Ed25519 signature check above:
             // release authenticity is already proven by our key, and Gatekeeper
             // would simply block the ad-hoc build otherwise
             _ = try? run("/usr/bin/xattr", ["-dr", "com.apple.quarantine", newApp.path])
+            try run("/usr/bin/ditto", [newApp.path, replacement.path])
+            try run("/usr/bin/codesign", ["--verify", "--deep", "--strict", replacement.path])
+            guard let team = HardwareIdentity.ownTeam() else { throw HardwareReason.unsignedBuild }
+            try HardwareBundleValidation.validate(replacement, identifier: identifier, team: team)
 
             guard !deferIfBusy(info, manual: manual) else {
+                try? FileManager.default.removeItem(at: replacement)
                 try? FileManager.default.removeItem(at: staging)
                 return
             }
+            try await prepareHardwareUpdate?()
             try prepareRelaunch?()
             guard !deferIfBusy(info, manual: manual) else {
                 cancelRelaunch?()
+                await cancelHardwareUpdate?()
+                try? FileManager.default.removeItem(at: replacement)
                 try? FileManager.default.removeItem(at: staging)
                 return
             }
-            let target = "/Applications/\(appName)"
-            try? FileManager.default.removeItem(atPath: target)
-            // ditto rather than copyItem: it is the tool that carries a bundle
-            // across whole — extended attributes, ACLs, symlinks — and a bundle
-            // that arrives intact keeps the signature macOS ties its
-            // permissions to.
-            try run("/usr/bin/ditto", [newApp.path, target])
+            let target = installed.path
+            var swap = UpdateBundleSwap(installed: installed, candidate: replacement)
+            try swap.exchange()
+            bundleSwap = swap
+            UserDefaults.standard.set(replacement.path, forKey: Self.previousBundleKey)
 
             // relaunch into the new version. A plain `open` here would only
             // activate the still-running old instance and nothing would start
@@ -360,7 +397,14 @@ final class UpdateChecker: ObservableObject {
             QuitCause.current = "update installed"
             NSApp.terminate(nil)
         } catch {
+            if var swap = bundleSwap {
+                do { try swap.rollback(); bundleSwap = nil }
+                catch { cancelRelaunch?(); status = .failed; scheduleStatusExpiry(); return }
+            }
+            UserDefaults.standard.removeObject(forKey: Self.previousBundleKey)
+            if let sibling { try? FileManager.default.removeItem(at: sibling) }
             cancelRelaunch?()
+            await cancelHardwareUpdate?()
             status = .failed
             scheduleStatusExpiry()
         }
@@ -373,7 +417,28 @@ final class UpdateChecker: ObservableObject {
         process.arguments = arguments
         try process.run()
         process.waitUntilExit()
+        guard process.terminationStatus == 0 else { throw CocoaError(.executableRuntimeMismatch) }
         return process.terminationStatus
+    }
+
+    private static func cleanupPreviousBundle() {
+        guard let identifier = Bundle.main.bundleIdentifier,
+              let path = UserDefaults.standard.string(forKey: previousBundleKey),
+              let lock = try? AppProcessLock.acquire("application") else { return }
+        defer { lock.release() }
+        let url = URL(fileURLWithPath: path)
+        let prefix = ".hop-update-\(identifier)-"
+        let name = url.deletingPathExtension().lastPathComponent
+        guard url.deletingLastPathComponent().standardizedFileURL.path == "/Applications",
+              url.pathExtension == "app", name.hasPrefix(prefix),
+              UUID(uuidString: String(name.dropFirst(prefix.count))) != nil,
+              Bundle(url: url)?.bundleIdentifier == identifier,
+              (try? FileManager.default.attributesOfItem(atPath: path)[.type]) as? FileAttributeType == .typeDirectory
+        else { return }
+        do {
+            try FileManager.default.removeItem(at: url)
+            UserDefaults.standard.removeObject(forKey: previousBundleKey)
+        } catch {}
     }
 
 }

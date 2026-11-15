@@ -95,3 +95,53 @@ TrackerNamePointerTests drive queued AppKit events through the actual native
 name surface and hosted TrackerView for TR-08/TR-09. Physical WindowServer
 delivery still requires the installed Dev check.
 | TOR-14 | Required helper update fails with an old or missing version; saved torrents remain | Old binary stays unchanged, no process or output directory is created, and the visible retry action accepts a click without losing saved rows |
+
+## Clipboard quick picker
+
+| ID | Given / action | Expected observable result |
+| --- | --- | --- |
+| CL-01 | Press Command-Shift-C with clipboard enabled | Searchable history opens; no Copy keystroke is issued to the preceding app |
+| CL-02 | Search a synthetic history, then press Command-1 through Command-9 | Corresponding filtered result is copied whole and picker closes; order stays unchanged |
+| CL-03 | Move with arrows, press Return; reopen and press Escape | Return copies selection; Escape preserves the clipboard |
+| CL-04 | Select an image, files or externally stored long text | Existing copy path restores the actual content, preserving history |
+| CL-05 | Empty result, out-of-range digit, another Hop window, disabled module | No unintended copy or global digit interception; disabling releases the opener and closes the picker |
+| CL-06 | Open in light/dark themes and with long localized labels | Search, selection and numbered hints are readable and fit the window |
+| CL-07 | Compose Japanese/Chinese text in the search editor, press arrows/Return/Escape | Native composition receives those keys and history is not copied or dismissed |
+| CL-08 | Rebind the picker opener to Command-1, open, then press it again | First result is copied through the picker selection path |
+
+## Protected lid sessions and cooling
+
+| ID | Given / action | Expected observable result |
+| --- | --- | --- |
+| HW-01 | Enable protected lid mode with no approved helper | Explain approval; no sleep or fan override is claimed |
+| HW-02 | On battery reach10%, or serious/critical thermal state during protected lid mode | End the mode, restore owned sleep/fan changes, report the reason; no automatic rearm |
+| HW-03 | AC connected at5%, battery absent, or lid state unavailable | No false low-battery cutoff; unknown observations cannot authorize new overrides |
+| HW-04 | Kill app, stop heartbeat, expire session, or restart helper | Independent restoration occurs; durable record survives failed restoration and retry |
+| HW-05 | Invalid fan inventory/RPM, NaN, missing/stale temperature, unsupported encoding | No unsafe write; restore system control for any acquired fan |
+| HW-06 | Unsigned/wrong-identity XPC client or a second Dev/production owner | Deny control; preserve the legitimate owner's lease |
+| HW-07 | Update while lid/manual fan control is active; fail unregister/copy/register | Defer active update; retain recoverable bundle/state and surface error |
+| HW-08 | Select automatic, maximum, bounded fixed RPM or curve on supported hardware | Actual measured capabilities determine controls; readback confirms state |
+| HW-09 | Another GUI acquires hardware between an idle status and update prepare | Prepare rejects; no unregister occurs and its active override remains intact |
+| HW-10 | Crash/restart after maintenance ACK or failed unregister; race Dev/production | Durable marker blocks rearm, foreign daemon releases shared lock, matching owner completes only after unregister barrier and new handshake |
+| HW-11 | Close a busy Dev window, then end the production lease | Background status clears the stale update blocker without reopening the window |
+| HW-12 | A valid integrity-signed app/helper uses ad-hoc signing or a wrong Developer ID/team/identifier | Candidate is rejected before unregister and swap |
+| HW-13 | Intel fan interface has an additional Ftst key; a sensor value read fails after takeover | Restore uses the same metadata-selected control scheme and does not leave the manual mask set |
+
+| HW-14 | Enable System or Keep Awake while the service is missing/pending approval | Start setup once per off-to-on transition; unrelated changes do not repeat the request; no hardware override is armed |
+| HW-15 | Reopen the panel after granting/revoking approval, or lose the XPC connection | Banner reflects actual access, offers the next action, and clears after recovery; basic module functions remain available |
+| HW-16 | Enable modules during maintenance, render snapshots, or leave both modules off | No competing registration, no system permission UI in snapshots/onboarding, and no irrelevant banner |
+
+| HW-17 | Open cooling on a fanless Mac, then on a controllable-fan fixture | Unsupported state has no mode grid/Apply; actual native window matches measured content without a fixed empty footer |
+| HW-18 | Select macOS control or CPU temperature; change language/theme | Selected-mode explanation identifies who sets speed; curve thresholds remain explicit; content stays readable and the window refits |
+| HW-19 | Install the prepared Dev build and preview its release card | Installed version is the preparing version; latest card appears and dismisses, with its own persisted seen state |
+
+| HW-20 | Expire a finite Awake lease with the lid already closed and music playing | Restore fans/sleep flag, then request native sleep only when macOS says closing this lid should sleep; verify actual playback stops and the power log records sleep on-device |
+| HW-21 | End protected lid mode with an open lid, native external-display clamshell policy, or a fan-only lease | No forced sleep request; independent ordinary timer/Awake behavior is preserved |
+| HW-22 | Fail enable before applying, crash after applying/before marking, or fail sleep request after resetting the flag | No sleep for unapplied intention; applied duty survives reset/restart and retries; the record clears only after restored settings and accepted request/policy |
+
+| HW-23 | Turn cooling off/on in Monitor settings, then reopen/relaunch | Only the cooling row hides/reappears; the choice persists and no fan/lid control operation is sent |
+| HW-24 | Apply maximum/fixed/CPU curve, return to macOS, stop, lose service or enter recovery | Only a confirmed active manual mode appears as quiet trailing text before the arrow; no button styling, stale label or additional poller |
+| HW-25 | Hover cooling in both themes | Highlight has8pt extra space on each horizontal edge; icon/label/arrow columns remain aligned with metrics |
+
+| HW-26 | Change Awake duration while lid enable reply is delayed, while off is pending, or after failed enable | Root receives the latest deadline for a live on-intent; pending off and failed enable cannot be rearmed by a duration change |
+| HW-27 | Start a new lease while an old lid sleep-request recovery is pending | Complete old recovery and report busy without active=true in the same transition; a later explicit request is independent |

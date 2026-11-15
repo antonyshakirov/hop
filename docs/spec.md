@@ -1193,6 +1193,20 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### No sleep (awake)
 
+- **Protected lid sessions** use an administrator-approved bundled system
+  service. The service independently ends Hop's lid override on battery at
+  10% or less, serious/critical macOS thermal pressure, session expiry, or
+  90 seconds without a heartbeat. AC power is not a low-battery condition.
+  A cutoff restores only Hop-owned changes and does not automatically rearm.
+  Failure to restore remains visible and is retried; a pending recovery record
+  survives helper restart. Ordinary keep-awake needs no helper. Screen locking
+  continues to follow the established macOS setting.
+- **Hardware service updates** wait until lid override and manual cooling
+  are off and their restoration is confirmed. They restore, unregister the
+  old service, replace the app safely and register/validate the new service.
+  Endless ordinary awake can still use its existing assertion handoff. A
+  helper update does not inherit an unlimited hardware lease.
+
 - Keeps the Mac awake: downloads/processes aren't interrupted. Options
   15/30 min, 1/2/4/8 h, ∞ (turning it on without an option = ∞); the hour
   letter in the chips is localized (key unitHour), the ∞ glyph is raised
@@ -1202,24 +1216,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   dot (see "Menu bar icon — corner badges"), not a title glyph.
 - IOPM assertion: PreventUserIdleSystemSleep by default (the display may
   sleep); "display stays on" → PreventUserIdleDisplaySleep.
-- Lid: an icon button next to the moon (while awake is active). Enabling
-  runs `pmset disablesleep 1` via AppleScript with administrator privileges:
-  **the administrator password prompt comes from macOS itself — it is
-  a system requirement, independent of signing or Developer ID.** Turning
-  awake off, quitting the app, and time expiry restore sleep
-  (`disablesleep 0`); switching duration options keeps lid mode. Lid mode
-  never outlives the awake session — without it a closed lid would block
-  sleep forever.
-- **Keep awake survives an update** (Anton, 2026-10-01; revised 2026-10-25).
-  A timed awake session defers installation, just like a running or paused timer.
-  Endless awake can update during an idle moment. A guard assertion overlaps
-  the old and new processes; its UUID is saved before it starts. The new copy
-  releases the guard only after acquiring its own assertion, retaining actual
-  lid mode without a cue. Failed acquisition leaves an active, controllable
-  endless guard rather than dropping sleep protection. Legacy resume records
-  retain the ten-minute freshness limit and original deadline. See
-  "Updates during active work (2.4 development)" for the lifecycle and tests.
-  Quitting by hand still ends the session.
+- Lid: the laptop button enables the protected lid session through the bundled
+  hardware service. First use may need administrator approval in Login Items &
+  Extensions; it never installs a new sudoers rule. When awake is off the
+  button first starts an endless ordinary awake session. The lid indicator is
+  applied only after the service confirms success, and input is disabled while
+  the request is pending. Turning awake off, quitting and expiry release the
+  owned override; switching duration updates the service's independent deadline.
+- **Keep awake survives an update** (Anton, 2026-10-01; revised 2026-10-25
+  and protected-service agreement, 2026-11-15). Timed awake and all active or
+  unresolved hardware overrides defer installation. Endless ordinary awake can
+  update during an idle moment. A guard assertion overlaps the old/new process;
+  the new copy releases it only after acquiring its own assertion. Acquisition
+  failure retains a controllable endless guard. Legacy resume records retain
+  freshness/deadline parsing, but an old saved lid override is cleaned up rather
+  than silently adopted without the new service. Quitting by hand ends awake.
 - **Closed-lid display sleep — agreement with Anton, 2026-10-14.** While
   lid mode is active, closing the lid without an external display requests
   system display sleep (`pmset displaysleepnow`); `disablesleep 1` and the
@@ -1250,6 +1261,38 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ("your Mac won't sleep") rather than the module name.
 
 ### Monitor
+
+- **Cooling controls** open from the monitor. macOS automatic fan control is
+  the default. Supported fans offer maximum speed, a fixed RPM within their
+  actual minimum/maximum, and a CPU-temperature curve. No fan or unsupported
+  hardware exposes no enabled write control. Invalid, missing or stale sensor
+  values restore system control for a sensor-driven policy. Serious thermal
+  pressure forces standalone manual cooling to maximum; critical pressure returns
+  control to macOS. Protected lid sessions stop already at serious pressure. Writes require the same administrator-approved
+  hardware service as protected lid sessions. It restores system control on
+  stop, loss of the app heartbeat and after its own restart. Dev and production
+  share hardware ownership; a second client cannot take over an active lease.
+  Software tests do not certify fan behavior on untested Mac models.
+  The automatic selector is labelled macOS and explains that macOS chooses the
+  speed. The CPU-temperature selector uses Hop's explicit lower/upper thresholds.
+  A fanless or unsupported Mac shows the capability explanation and temperature,
+  without a mode grid or Apply action. Old inactive cutoff messages from another
+  session do not appear as a current error; restoration and current failures stay
+  visible. The cooling window fits its actual content before appearing and after
+  mode/language/capability changes; it scrolls only above 80% of the screen height.
+  It has no fixed empty area below short content.
+  The preparing 2.5 card and notes describe cooling, protected closed-lid sessions
+  and clipboard selection. The protection copy names the 10% battery, overheating
+  and unresponsive-app conditions. The cooling action below the monitor uses the
+  same icon width, baseline, label size and columns as the metric rows. Its hover
+  background extends 8 points past the content on each side without shifting
+  those columns. A separate cooling switch in monitor settings hides/reveals the
+  row and persists across launches; hiding it does not change fan or lid control.
+  The trailing slot shows a subdued text label before the arrow only for a
+  confirmed active manual fan policy. Idle macOS control, lid-only leases, pending
+  recovery and unavailable service status do not show an active fan label.
+  The label updates from the same service status as the cooling window and has
+  no separate button, badge background or polling timer.
 
 - The Russian title reads "system monitoring" (Anton, 2026-10-01), in the panel, the
   settings and the help.
@@ -1336,6 +1379,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   colours either way; only the menu bar badge is affected.
 
 ### Clipboard
+
+- **Quick picker**: Command-Shift-C opens an independent, searchable history
+  window; the combination can be changed in the existing shortcut settings.
+  It opens history without issuing Copy to the preceding app. Command-1 through
+  Command-9 copies the corresponding first nine search results, in history
+  order, and closes the window. Up/down select a result, Return copies it,
+  clicking a result copies it, and Escape closes without copying. Copy uses
+  the same image, file and full-text content as the panel and needs no
+  Accessibility permission. Number shortcuts belong only to the picker.
+  Disabling the clipboard module releases its shortcut and closes its picker.
 
 - Copy history: text, links, files, images. Capture ORDER is decided by a pure
   rule in HopCore (`ClipboardRules.classify`): a copied FILE beats image data,
@@ -5094,45 +5147,80 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   (paste-into-app, window manager, keyboard lock, drawing while a key is held), Screen Recording (screen text,
   screenshots, and the loupe and the blur on the drawing layer — the
   eyedropper explicitly does not need it), notifications (timer +
-  torrent done), administrator password (once, for closed-lid `pmset`), launch
+  torrent done), administrator approval (hardware service), launch
   at login. Each body is one sentence: a paragraph per permission read as a
   wall, and the page is scanned rather than studied. A seventh row — `restart` —
   joins them once something has been asked for in this run; see the restart under
   "A permission that goes missing says so".
 
-### Lid mode without a password
+### Hardware service and legacy lid rules
 
-- The closed-lid mode runs `pmset disablesleep`, which is root-only, so the first
-  use raises one macOS password prompt and installs
-  `/etc/sudoers.d/hop-pmset` — NOPASSWD strictly for `pmset disablesleep 0/1`,
-  validated by visudo. After that `sudo -n` carries it with no dialog ever again.
-- **The password row shows no state, deliberately.** Whether the next use will
-  ask cannot be read: `sudo -n -l <command>` answers success for anything the
-  policy allows at all, password or not (measured, 2026-09-03), and the only
-  exact test is running `pmset` itself, which a page redrawn every two seconds
-  must not do. What CAN be read is whether Hop's own rule is on disk
-  (`/etc/sudoers.d` is world-readable, Hop is not sandboxed), and that is used
-  only to offer the button below.
-- Hop's rule is not the only way the prompt can stay away: another app's rule for
-  the same command serves Hop just as well. Anton's Mac carried
-  `vorssaint-clamshell`, so the lid mode worked on the short path and Hop never
-  installed a rule of its own (2026-09-03). Nothing is wrong with that — if the
-  other rule goes, the next toggle asks once and installs Hop's.
-- **A launch takes back a no-sleep state nobody turned off.** Lid mode is undone
-  when the awake session ends and when Hop quits, but a crash or a `kill` runs
-  neither, and the Mac is then left never sleeping with no sign of why.
-  `lidSleepAppliedPending` records that `disablesleep` is ours, and
-  `revertLidIfPending` (from `init`) puts it back. Only over `sudo -n`: a
-  password dialog on launch is not something the user asked for, so where the
-  silent path is gone the flag simply stays and the next toggle settles it.
-- **`revoke` gives it back** (`KeepAwakeController.removeLidRule`): where Hop's
-  own rule exists, the administrator-password row carries the button. It restores
-  sleep and deletes the rule under ONE prompt, in that order — dropping the rule
-  while `SleepDisabled` is 1 would leave a Mac that never sleeps and no way for
-  Hop to change it without asking again.
-- The rule cannot be removed on uninstall from inside the app: Hop is dragged to
-  the Trash and its code does not run at that moment. `brew uninstall --zap`
-  deletes it (the cask's `zap delete:`), and the button covers everyone else.
+- Protected lid mode and fan writes use a bundled root LaunchDaemon registered
+  through SMAppService. The administrator permission row reflects its actual
+  registration/approval state. Its XPC channel accepts only the exact parent
+  app signing identifier and Developer ID team; the app verifies the helper's
+  exact identifier and team. Each operation requires the active console user.
+- GUI copies cannot steal a live connection's lease. Dev and production share
+  a root-owned 0700 journal directory and advisory lock. Each first override is
+  recorded and synced before writing; successful restoration/readback precedes
+  clearing. Failed restoration keeps the journal for retries and startup recovery.
+- GUI heartbeat renews at 20 seconds; the service checks cutoffs every 3 seconds
+  and releases after 90 seconds without a heartbeat. A connection loss releases
+  its lease immediately. The hardware watchdog is independent of ordinary awake
+  assertion handoff. A disabled module cannot initiate or retain its controls.
+- An update first validates the complete incoming app/helper signatures and
+  daemon registration. A durable maintenance transaction records UUID, app ID
+  and UID under the shared root lock while hardware is idle. New overrides are
+  refused across app/helper crashes, restarts and Dev/production instances.
+  Other variants release the lock when they encounter the marker.
+- The GUI persists its transaction before prepare, awaits successful unregister
+  completion, atomically swaps a verified sibling app with rollback, registers
+  the new or restored service and completes a matching handshake. Failure or
+  interruption never clears the root maintenance marker. Independent user-level
+  file locks serialize update/registration across copies of the same app.
+- Launching Hop checks the hardware-service permission without registering a new
+  helper. Enabling System or Keep Awake starts service setup once for that module
+  transition. Reordering modules and unrelated module changes do not repeat it.
+  A pending approval opens macOS Login Items & Extensions; a missing service is
+  registered through SMAppService. Approval remains an administrator action.
+- A persistent banner above the panel tabs explains missing service approval or
+  a failed service connection and offers setup, settings or retry. It names the
+  fan/closed-lid capabilities; ordinary monitoring and idle-sleep prevention still
+  work. Reopening the panel or returning to Hop rechecks the actual OS state.
+  The banner disappears when access works or both relevant modules are disabled.
+  No automatic permission check rearms fan/lid control or bypasses update fences.
+  Snapshots and onboarding do not request or open system permission UI.
+- Ending a protected lid lease restores fan settings and the sleep override before
+  re-evaluating the current lid state. If the lid is still closed and macOS reports
+  that closing it should cause sleep, the service requests normal system sleep;
+  ongoing music must not turn an expired Awake lease into indefinite operation.
+  An open lid or the native external-display clamshell policy does not request
+  sleep. Unknown policy or a failed request retains recovery for retry. This
+  applies to expiry, explicit stop, disconnect, watchdog and safety cutoffs.
+- The journal distinguishes an override intention from a confirmed application.
+  Recovery requests sleep only after a confirmed owned override (or an observed
+  applied override on recovery), retaining that duty across a failed reset/request.
+  A separate durable restored stage prevents retry from resetting another utility's
+  later sleep override. Failed journal writes do not block best-effort removal of
+  Hop's own override; an unsaved recovery is never reported as complete.
+  A successful sleep API return acknowledges a request, not observed physical sleep;
+  closed-lid playback acceptance remains a separate on-device check.
+- Changing the Awake duration while lid enabling is awaiting the service updates
+  that pending intent to the current deadline. Changing duration while lid disabling
+  is pending must not re-enable it; a failed enable is not retried by an ordinary
+  duration change. Generation checks discard superseded replies.
+- A request that completes old lid recovery cannot acknowledge a new active lease
+  in the same transition after potentially queuing sleep. It reports busy; a later
+  explicit request can begin a new session after restoration has finished.
+- The ordinary timer and Keep Awake deadlines remain independent. An ordinary
+  timer does not authorize closed-lid operation when that option is disabled.
+  Existing approval is restored after an update transaction; the service settings
+  button opens macOS Login Items & Extensions.
+- Older Hop versions could create `/etc/sudoers.d/hop-pmset` for just
+  `pmset disablesleep 0/1`. New sessions never create that file. A legacy pending
+  marker retains the existing quiet launch recovery; failure leaves the marker.
+  The existing revoke action restores sleep before removing the old rule, and
+  cannot run during a new hardware lid operation. Other apps' rules are untouched.
 - Live status where it can be checked: `AXIsProcessTrusted()`,
   `CGPreflightScreenCaptureAccess()`, `UNUserNotificationCenter` settings,
   `SMAppService.mainApp.status`. The notification query is skipped in a
@@ -6792,6 +6880,8 @@ its own database of known apps may do better on real software than it did here.
   render of the clean-up window came out. In a snapshot the rows are laid out
   directly and the caller gives the render its height.
 - `--only <module>` leaves ONE module's row on the panel and hides the rest;
+  this includes screenshot/drawing rows and network tools. The website monitor
+  recipe combines `--only system` with `--stats --charts`.
   `--overview` does the opposite and shows every module at once, the opt-in
   ones included, with content staged in each (the colour picker draws its
   swatches out of the clipboard history, so the overview seeds a mixed list —
@@ -7590,8 +7680,8 @@ checked again before terminating the old instance. The guard is excluded from th
 single-instance cleanup only while its live lock and persisted UUID agree.
 
 The old assertion overlaps the guard; the new instance acknowledges the guard only after
-its own assertion is acquired. Lid sleep prevention stays applied throughout a successful
-update and is adopted from actual system state. A live endless guard survives wall-clock
+its own assertion is acquired. Hardware lid/fan sessions defer this path; a legacy saved
+lid marker is recovered rather than inherited without service approval. A live endless guard survives wall-clock
 changes; legacy resume records still use the ten-minute freshness limit and preserve any
 original timed deadline. If the new instance cannot acquire its assertion, it adopts the
 live guard as its active endless session, retains the locator and lets the user turn it off.
@@ -7603,8 +7693,8 @@ The guard has no automatic expiry: it belongs to the user's explicitly endless s
 Its locator is cleared only after adoption or a successful cancellation signal.
 
 Automated checks inject assertion acquisition/release and use private temporary fixtures;
-they do not change system sleep/lid settings or install an update. A physical update with
-awake/lid enabled still requires separate acceptance testing before release.
+they do not change system sleep/lid settings or install an update. A physical ordinary-awake update and a deferred hardware update/unregister/register cycle
+still require separate acceptance testing before release.
 
 
 ## Compact panel sizing (2.4 development)
@@ -7761,6 +7851,13 @@ A local candidate may set the existing dev-only open-Sound diagnostic flag for
 review; public release packages must omit it. Source and installed executable hashes
 are recorded in the handoff receipt.
 ## Sound application discovery (26 October 2026)
+
+- Audio application discovery reuses process identity metadata (bundle, name and
+  bundle URL) by PID plus launch date, while checking current running/audio flags
+  each scan. A reused PID reloads metadata; unknown launch dates are never cached,
+  and entries disappear when the process leaves discovery. This avoids repeated
+  AppKit property reads inside the audio-process loop. The agent snapshot retains
+  its existing refresh cadence and live source checks.
 
 The Sound application list excludes the macOS `systemsoundserverd` service,
 including its legacy pinned presets. These presets are preserved on disk but

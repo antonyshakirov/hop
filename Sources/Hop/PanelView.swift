@@ -72,6 +72,7 @@ struct PanelView: View {
     @AppStorage("digitsSize") private var digitsSize = "large" // large | small
     @AppStorage("tempUnit") private var tempUnitRaw = "auto"
     @AppStorage("monitorDetailed") private var monitorDetailed = false
+    @AppStorage(SettingsKey.monitorCoolingVisible) private var monitorCoolingVisible = true
     @AppStorage("monitorWindowMin") private var monitorWindowMin = 5
     @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = true
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
@@ -161,12 +162,14 @@ struct PanelView: View {
     @AppStorage("featureSeen.modules160") private var modulesFeatureSeen = false
     /// The one permission three modules share.
     @ObservedObject private var permissions = AccessibilityWatch.shared
+    @State private var hardwareIssue: HardwarePermissionIssue?
     /// Release card: read so SwiftUI re-renders the moment it is dismissed.
     @AppStorage("newsSeen.1.9") private var news19Seen = false
     @AppStorage("newsSeen.1.9.1") private var news191Seen = false
     @AppStorage("newsSeen.1.10") private var news110Seen = false
     @AppStorage("newsSeen.2.4") private var news24Seen = false
     @AppStorage("newsSeen.2.4.5") private var news245Seen = false
+    @AppStorage("newsSeen.2.5") private var news25Seen = false
     /// Whether THIS opening has already been counted against the card's two.
     @State private var releaseCardCounted = false
     // Two-step "what's new" card: step 1 = opt-in (enable/hide), step 2 = the
@@ -489,6 +492,7 @@ struct PanelView: View {
         ReleaseCard(id: "2.4", lines: [.news24Mixer, .news24AI, .news24Icon, .news24Torrents, .news24Windows]),
         ReleaseCard(id: "2.4.5", lines: [.news245Bar, .news245Groups, .news245Panel],
                     destination: .menuBar, action: .news245Action),
+        ReleaseCard(id: "2.5", lines: [.news25Cooling, .news25Lid, .news25Clipboard]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -502,6 +506,14 @@ struct PanelView: View {
     }
 
     static func newsSeenKey(_ id: String) -> String { "newsSeen.\(id)" }
+    static func prepareLatestReleasePreview(_ defaults: UserDefaults = .standard) {
+        guard let card = releaseCards.last else { return }
+        defaults.set(false, forKey: newsSeenKey(card.id))
+        defaults.set(0, forKey: newsShownKey(card.id))
+        defaults.removeObject(forKey: newsFirstShownKey(card.id))
+        defaults.removeObject(forKey: newsCatchUpKey(card.id))
+    }
+
     private static func newsShownKey(_ id: String) -> String { "newsShown.\(id)" }
     private static func newsFirstShownKey(_ id: String) -> String { "newsFirstShown.\(id)" }
     private static func newsCatchUpKey(_ id: String) -> String { "newsCatchUp.\(id)" }
@@ -540,6 +552,7 @@ struct PanelView: View {
         _ = news110Seen
         _ = news24Seen
         _ = news245Seen
+        _ = news25Seen
         guard pendingAnnouncement == nil else { return nil }
         let defaults = UserDefaults.standard
         guard defaults.bool(forKey: "onboardingDone") else { return nil }
@@ -742,6 +755,7 @@ struct PanelView: View {
         news110Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.10"))
         news24Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.4"))
         news245Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.4.5"))
+        news25Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.5"))
     }
 
     /// The full notes for the release; the card is a summary of what the updates
@@ -1210,13 +1224,21 @@ struct PanelView: View {
     /// switch. The bottom padding reproduces the 16pt gap the old single VStack
     /// kept between the header and the first module (it was the VStack spacing).
     private var hasPanelChrome: Bool {
-        tabsModel.tabs.count > 1 || permissions.showsBanner || pendingAnnouncement != nil
+        tabsModel.tabs.count > 1 || permissions.showsBanner || hardwareIssue != nil || pendingAnnouncement != nil
             || pendingRelease != nil || showsTrackerOverrun
     }
 
     private var chrome: some View {
         VStack(spacing: 16) {
             permissionBanner
+            if let hardwareIssue {
+                HardwarePermissionBanner(issue: hardwareIssue, lang: lang) {
+                    switch hardwareIssue {
+                    case .missing, .approval: CoolingController.shared.requestPermission()
+                    case .unavailable, .connection: model.openCoolingWindow?()
+                    }
+                }
+            }
             featureBanner
             newsBanner
             overrunBanner
@@ -1226,7 +1248,11 @@ struct PanelView: View {
         // that one as granted before and after the repair.
         .onAppear {
             permissions.refresh()
+            CoolingController.shared.checkPermissions()
             if permissions.alert == .stale { model.keyboardLock.remeasure() }
+        }
+        .onReceive(CoolingController.shared.$permissionIssue) { issue in
+            if !Snapshot.active { hardwareIssue = issue }
         }
         .padding(.horizontal, 14)
         .padding(.top, 18)
@@ -3401,7 +3427,8 @@ struct PanelView: View {
                              closePanel: { model.closePanel?() })
                 .id(model.themeVersion)
         case "system":
-            StatsView(stats: model.stats, lang: lang, preview: !previewModules.isEmpty)
+            StatsView(stats: model.stats, cooling: .shared, lang: lang, preview: !previewModules.isEmpty,
+                      openCooling: { model.openCoolingWindow?() })
                 .id(model.themeVersion)
         case "tracker":
             TrackerView(tracker: model.tracker, lang: lang,
@@ -3820,7 +3847,7 @@ struct PanelView: View {
                 // lid — a permanent slot at the end of the row: nothing jumps around.
                 // with the module off, a click enables ∞ and the lid right away
                 Button {
-                    awake.toggleLid() // independent of the moon and the timers
+                    awake.toggleLid()
                 } label: {
                     // same shape always: only color shows activity
                     lidGlyph(
@@ -3835,6 +3862,7 @@ struct PanelView: View {
                 .buttonStyle(.plain)
                 .hoverHighlight(4)
                 .help(t(.awakeLid))
+                .disabled(awake.lidChanging)
                 .padding(.leading, 1)
             }
         }
@@ -5587,6 +5615,14 @@ struct PanelView: View {
 
     private var thresholdsSection: some View {
         VStack(spacing: 12) {
+
+            HStack {
+                Text(t(.coolingTitle))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $monitorCoolingVisible)
+            }
 
             HStack {
                 Text(t(.monitorColorLabel))

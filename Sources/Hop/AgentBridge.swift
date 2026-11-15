@@ -69,7 +69,7 @@ final class AgentBridge {
         // The state snapshot is a courtesy, not a live feed: a 5s refresh keeps
         // "what is running right now" honest without writing a file every tick.
         let ticker = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-            Task { @MainActor in self.runConfirmedCommands(); self.publishState() }
+            Task { @MainActor in self.runConfirmedCommands(publish: false); self.publishState() }
         }
         ticker.tolerance = 2
         stateTicker = ticker
@@ -79,7 +79,7 @@ final class AgentBridge {
         runConfirmedCommands()
     }
 
-    private func runConfirmedCommands() {
+    private func runConfirmedCommands(publish: Bool = true) {
         guard let model, let operationStore else { return }
         do {
             try operationStore.drainDeferred(now: Date()) { [self] request, completed in
@@ -87,7 +87,8 @@ final class AgentBridge {
                     performAudio(command, on: model) { [weak self] result in completed(result); self?.publishState() }
                 } else { completed(performConfirmed(request, on: model)) }
             }
-            publishState()
+            // The timer publishes after draining, including when the store is unavailable.
+            if publish { publishState() }
         } catch {
             Self.log.error("confirmed agent request failed: \(error.localizedDescription, privacy: .public)")
         }
@@ -175,12 +176,7 @@ final class AgentBridge {
                 model.keepAwake.deactivate()
             }
         case .lidMode(let on):
-            // The lid switch is a stored preference the controller reads, so set
-            // it and let the controller apply the change.
-            if UserDefaults.standard.bool(forKey: KeepAwakeController.lidKey) != on {
-                UserDefaults.standard.set(on, forKey: KeepAwakeController.lidKey)
-                model.keepAwake.toggleLid()
-            }
+            model.keepAwake.setLidEnabled(on)
         case .keyboardLock(let on, let seconds):
             on ? model.keyboardLock.lock(seconds: seconds) : model.keyboardLock.unlock()
         case .windowSnap(let name):

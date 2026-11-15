@@ -153,9 +153,13 @@ Hop 还会执行命令文件并支持 `hop://` 链接：同一个助手，或者
 
 ### 防休眠
 
-让 Mac 保持清醒 15 分钟、8 小时或永久––一次点击，无需密码。
-可选择让屏幕常亮，或者合上盖子继续工作
-（下载、长时间编译和外接显示器时特别好用）。
+让 Mac 保持唤醒 15 分钟至无限。“屏幕常亮”也会保持屏幕开启。
+
+点击盖子按钮开启合盖运行；若尚未阻止睡眠，将开启无限时长的会话。再次点击关闭合盖模式。琥珀色表示已开启。
+
+合盖模式需要管理员批准的服务。使用电池时电量降至 10%、macOS 报告过热或会话到期，模式会结束。与 Hop 失联 90 秒后，服务恢复睡眠和风扇控制。
+
+更新会等到合盖模式和手动风扇控制关闭。请将 Mac 放在坚固、通风的表面上。
 
 <div align="center">
 <img src="https://hop.tools/screens/zh/awake.webp" width="420" alt="Hop – 防休眠">
@@ -175,6 +179,12 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+散热: 自动 / 最大转速 / 固定转速 / 按温度调节. 手动控制适用于配备风扇的兼容 Mac。
+
+经管理员授权的服务控制风扇并保护合盖运行。
+
+更新会等到合盖模式和手动风扇控制关闭。请将 Mac 放在坚固、通风的表面上。
+
 ### 剪贴板历史
 
 最近复制的 100 条（最多 300 条）内容––文字、图片和文件，一键复制回来，
@@ -184,6 +194,8 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 <div align="center">
 <img src="https://hop.tools/screens/zh/clipboard.webp" width="420" alt="Hop – 剪贴板历史">
 </div>
+
+⌘⇧C 打开独立的历史记录搜索窗口。⌘1–⌘9 复制对应结果；方向键选择，回车键复制。escape 关闭窗口。
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

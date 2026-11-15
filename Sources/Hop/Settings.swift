@@ -43,6 +43,7 @@ enum SettingsKey {
     /// Show the active tracker task's ticking "today" time in the menu bar; off by default.
     static let trackerTimeInBar = "trackerTimeInBar"
     static let alertMode = "alertMode"
+    static let monitorCoolingVisible = "monitorCoolingVisible"
     static let appLanguage = "appLanguage" // "auto" or an AppLanguage code
     /// Red "!" on the left of the icon when the monitor hits the red zone; off by default.
     static let menuBarRedAlert = "menuBarRedAlert"

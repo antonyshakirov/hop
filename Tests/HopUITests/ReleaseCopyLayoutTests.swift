@@ -6,10 +6,37 @@ import XCTest
 @MainActor
 final class ReleaseCopyLayoutTests: XCTestCase {
     func testUpcomingReleaseCopyRenderedLines() {
-        let keys: [L10nKey] = [.news24Mixer, .news24AI, .news24Icon, .news24Torrents, .news24Windows, .onbSoundTitle, .onbSoundBody]
+        let keys: [L10nKey] = [.news25Cooling, .news25Lid, .news25Clipboard,
+            .news24Mixer, .news24AI, .news24Icon, .news24Torrents, .news24Windows, .onbSoundTitle, .onbSoundBody]
+        verifyRenderedLines(keys, dimensions: [(10, [304]), (12, [432, 620])])
+    }
+
+    func testHardwarePermissionBannerRenderedLines() {
+        verifyRenderedLines([.hardwareInstallHint, .hardwareApprovalHint, .hardwareConnection,
+            .hardwareSignedRequired, .hardwareInstall, .hardwareApprove, .coolingTitle],
+            dimensions: [(10, [298, 316])])
+    }
+
+    func testMonitorCoolingModeLabelsFitTheTrailingSlot() {
+        for lang in AppLanguage.allCases {
+            for key in [L10nKey.coolingMaximum, .coolingFixed, .coolingCurve] {
+                let font = lang.isRTL ? NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .medium)
+                                      : NSFont.monospacedSystemFont(ofSize: 10, weight: .medium)
+                let text = NSAttributedString(string: L10n.t(key, lang), attributes: [.font: font])
+                XCTAssertLessThanOrEqual(text.size().width, 180, "\(lang.rawValue).\(key)")
+            }
+        }
+    }
+
+    func testCoolingModeExplanationsRenderedLines() {
+        verifyRenderedLines([.coolingAutomaticHint, .coolingCurveHint, .hardwareUnsupported],
+                            dimensions: [(10, [456]), (11, [456])])
+    }
+
+    private func verifyRenderedLines(_ keys: [L10nKey], dimensions: [(CGFloat, [CGFloat])]) {
         for lang in AppLanguage.allCases {
             let short = L10n.shortWords(lang).union(lang == .en ? ["an", "the", "of", "to", "in", "on", "for", "with", "from", "without", "through", "and", "or"] : [])
-            for (size, widths) in [(CGFloat(10), [CGFloat(304)]), (12, [432, 620])] {
+            for (size, widths) in dimensions {
                 let font = lang.isRTL ? NSFont.monospacedDigitSystemFont(ofSize: size, weight: .medium)
                                       : NSFont.monospacedSystemFont(ofSize: size, weight: .medium)
                 for key in keys {

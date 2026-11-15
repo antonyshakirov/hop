@@ -46,7 +46,7 @@ final class AppModel: ObservableObject {
         let uninstallBusy = uninstall.state == .scanning || uninstall.state == .working
         return timerBusy || (keepAwake.isActive && keepAwake.until != nil) || tracker.isTracking || converter.busy || archiveBusy
             || speedTest.isRunning || screenText.isBusy || captureBusy || annotate.isUp || keyboardLock.isLocked
-            || uninstallBusy || torrent.busyForUpdate
+            || uninstallBusy || torrent.busyForUpdate || CoolingController.shared.blocksUpdates
             || sound.checking || sound.requestingAccess || sound.playing || sound.hasRecording
             || soundCallMix.running || soundCallMix.starting || soundCallMix.requestingMicrophone
             || (soundMixer.running && soundMixer.apps.contains { $0.sourceRunning })
@@ -108,6 +108,7 @@ final class AppModel: ObservableObject {
     /// Open the standalone settings window.
     var openSettingsWindow: (() -> Void)?
     var openSoundWindow: (() -> Void)?
+    var openCoolingWindow: (() -> Void)?
 
     /// Removing and re-adding the module must not revive a previous capture.
     func stopSoundMixers() {

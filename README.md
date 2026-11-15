@@ -171,9 +171,13 @@ See [docs/automation.md](docs/automation.md).
 
 ### No sleep
 
-Keep the Mac awake for 15 minutes, 8 hours or forever – one click, no
-password. Optionally keep the display on, or keep working with the lid
-closed (handy for downloads, long builds and external displays).
+Keeps the Mac awake from 15 minutes to ∞. “display stays on” also keeps the screen lit.
+
+The lid button starts closed-lid mode; if awake is off, it starts an unlimited session. A second click turns lid mode off. Amber means active.
+
+Closed-lid mode needs an administrator-approved service. It ends when battery charge reaches 10% on battery power, macOS reports excessive heat, or the session expires. After 90 seconds without Hop, the service restores sleep and fan control.
+
+Updates wait until closed-lid mode and manual fan control are off. Use the Mac on a firm, ventilated surface.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – No sleep">
@@ -200,12 +204,24 @@ short.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+The monitor opens cooling controls: automatic, maximum, fixed RPM or a CPU
+temperature curve, wherever the Mac exposes a supported fan interface. Actual
+fan ranges bound every setting; a Mac without supported fans stays read-only.
+An administrator-approved background service restores automatic control after
+a lost connection or heartbeat. The same service protects closed-lid sessions
+with battery, thermal and time limits. Updates wait for these controls to stop
+and restore before replacing the service.
+
 ### Clipboard history
 
 The last 100 (up to 300) things you copied – text, images and files – one
 click to copy back or paste straight into the previous app. Copied files are
 kept by name (several at once show as "name +N"), and pasting puts the actual
 file back. Passwords and other concealed input are never stored.
+
+Press Command-Shift-C to search history in its own window. Command-1 through
+Command-9 copies a result; arrows and Return select and copy, and Escape closes
+the picker. The opening shortcut can be changed in settings.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – Clipboard history">
@@ -645,6 +661,11 @@ cd hop
 swift build
 ./scripts/build-app.sh
 ```
+
+Development installs that include this service require notarization as well:
+`HOP_NOTARIZE=1 ./scripts/build-app.sh --install --dev`. The installer restores
+and unregisters an idle service before replacing the development app; an active
+hardware session blocks the install.
 
 Dev workflow, release pipeline and the behavioral spec live in
 [docs/development.md](docs/development.md) and [docs/spec.md](docs/spec.md).

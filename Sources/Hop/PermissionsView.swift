@@ -151,8 +151,13 @@ struct PermissionsView: View {
                  granted: Snapshot.active ? true : notificationsGranted,
                  settingsURL: "x-apple.systempreferences:com.apple.preference.notifications",
                  grant: { requestNotifications() }),
-            Item(id: "admin", symbol: "lock", title: .permAdminTitle, body: .permAdminBody,
-                 granted: nil, settingsURL: nil,
+            Item(id: "admin", symbol: "lock", title: .hardwareInstall, body: .hardwareInstallHint,
+                 granted: Snapshot.active ? false : SystemCoolingService().state == .enabled, settingsURL: nil,
+                 grant: {
+                     let controller = CoolingController.shared
+                     if SystemCoolingService().state == .approval { controller.settings() }
+                     else { controller.install() }
+                 },
                  revoke: KeepAwakeController.lidRuleInstalled ? removeLidRule : nil),
             Item(id: "login", symbol: "power", title: .permLoginTitle, body: .permLoginBody,
                  granted: Snapshot.active ? true : SMAppService.mainApp.status == .enabled,

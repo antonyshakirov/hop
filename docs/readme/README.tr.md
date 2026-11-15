@@ -170,9 +170,13 @@ okuyabilir. Bkz. [docs/automation.md](../automation.md).
 
 ### Uyku engelleme
 
-Mac'i 15 dakika, 8 saat ya da süresiz uyanık tutun – tek tık, parola
-yok. İsterseniz ekranı açık tutun ya da kapak kapalıyken çalışmaya devam
-edin (indirmeler, uzun derlemeler ve harici ekranlar için birebir).
+Mac’i 15 dakikadan ∞’a kadar uyanık tutar. “ekran açık kalsın” ekranı da açık tutar.
+
+Kapak düğmesi kapak kapalı çalışmayı açar; uyku engeli kapalıysa sınırsız bir oturum başlar. Yeniden tıklamak modu kapatır. Kehribar etkin demektir.
+
+Yönetici onaylı bir hizmet gerekir. Prizde değilken pil %10’a düşünce, macOS aşırı ısı bildirince veya oturum bitince durur. Hop ile 90 saniye iletişim kurulmazsa hizmet uyku ve fan kontrolünü geri yükler.
+
+Güncellemeler iki kontrol de kapanana kadar bekler. Mac’i sağlam, havalandırılan bir yüzeye koyun.
 
 <div align="center">
 <img src="https://hop.tools/screens/tr/awake.webp" width="420" alt="Hop – Uyku engelleme">
@@ -194,6 +198,12 @@ bildirdiğinde değil, belleğin çoğu diske indiğinde de uyarır.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+soğutma: otomatik / maksimum / sabit hız / sıcaklığa göre. Manuel kontrol, fanlı ve uyumlu Mac’lerde kullanılabilir.
+
+Yönetici onaylı servis fanları kontrol eder ve kapak kapalı oturumları korur.
+
+güncellemeler iki kontrol de kapanana kadar bekler. Mac’i sağlam, havalandırılan bir yüzeye koyun.
+
 ### Pano geçmişi
 
 Kopyaladığınız son 100 (300'e kadar) öğe – metin, görseller ve dosyalar –
@@ -205,6 +215,8 @@ girişler asla saklanmaz.
 <div align="center">
 <img src="https://hop.tools/screens/tr/clipboard.webp" width="420" alt="Hop – Pano geçmişi">
 </div>
+
+⌘⇧C geçmişi arama penceresinde açar. ⌘1–⌘9 bir sonucu kopyalar; ok tuşları ve enter seçip kopyalar. escape pencereyi kapatır.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

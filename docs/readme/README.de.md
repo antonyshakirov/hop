@@ -172,9 +172,13 @@ abfragen, was gerade läuft. Siehe [docs/automation.md](../automation.md).
 
 ### Kein Schlaf
 
-Halte den Mac 15 Minuten, 8 Stunden oder für immer wach – ein Klick, kein
-Passwort. Optional bleibt das Display an, oder du arbeitest bei geschlossenem
-Deckel weiter (praktisch für Downloads, lange Builds und externe Displays).
+Hält den Mac von 15 Minuten bis ∞ wach. „Bildschirm bleibt an“ lässt auch das Display eingeschaltet.
+
+Die Deckeltaste aktiviert den Betrieb bei geschlossenem Deckel. Ist die Wachsperre aus, beginnt eine unbegrenzte Sitzung. Erneut klicken schaltet den Deckelmodus aus. Bernstein bedeutet aktiv.
+
+Der Modus benötigt einen vom Administrator erlaubten Dienst. Er endet bei 10% Akku ohne Netzstrom, einer Hitzewarnung von macOS oder am Sitzungsende. Nach 90 Sekunden ohne Hop stellt der Dienst Schlaf und Lüftersteuerung wieder her.
+
+Updates warten, bis Deckelmodus und manuelle Lüftersteuerung aus sind. Den Mac auf eine feste, belüftete Fläche stellen.
 
 <div align="center">
 <img src="https://hop.tools/screens/de/awake.webp" width="420" alt="Hop – Kein Schlaf">
@@ -197,6 +201,12 @@ gelandet ist, und nicht erst, wenn macOS selbst Knappheit meldet.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+kühlung: automatisch / maximum / feste drehzahl / nach temperatur. Manuelle Steuerung ist auf kompatiblen Macs mit Lüftern verfügbar.
+
+Ein vom Administrator genehmigter Dienst steuert Lüfter und schützt Sitzungen bei geschlossenem Deckel.
+
+Updates warten, bis Deckelmodus und manuelle Lüftersteuerung aus sind. den Mac auf eine feste, belüftete Fläche stellen.
+
 ### Zwischenablage-Verlauf
 
 Die letzten 100 (bis zu 300) kopierten Einträge – Text, Bilder und Dateien –
@@ -208,6 +218,8 @@ und andere verdeckte Eingaben werden niemals gespeichert.
 <div align="center">
 <img src="https://hop.tools/screens/de/clipboard.webp" width="420" alt="Hop – Zwischenablage-Verlauf">
 </div>
+
+⌘⇧C öffnet die suche im eigenen verlaufsfenster. ⌘1–⌘9 kopiert einen treffer; pfeiltasten und enter wählen und kopieren. escape schließt das fenster.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

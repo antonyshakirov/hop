@@ -1,16 +1,20 @@
 import HopCore
+import HopHardwareKit
 import SwiftUI
 
 /// System tab: compact metric rows with colored icons and meaning-driven
 /// value highlighting. Polling runs only while the tab is on screen.
 struct StatsView: View {
     @ObservedObject var stats: SystemStatsController
+    @ObservedObject var cooling: CoolingController
     let lang: AppLanguage
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
     var preview = false
+    var openCooling: (() -> Void)?
 
     @AppStorage("tempUnit") private var tempUnitRaw = "auto"
     @AppStorage("monitorDetailed") private var detailedSetting = false
+    @AppStorage(SettingsKey.monitorCoolingVisible) private var coolingVisible = true
 
     /// A picture always shows its charts: the row of figures alone is what the
     /// module looks like with the setting off.
@@ -142,11 +146,31 @@ struct StatsView: View {
             }
         }
         .padding(.vertical, 4)
+        .safeAreaInset(edge: .bottom, spacing: coolingVisible && !preview && openCooling != nil ? 10 : 0) {
+            if let openCooling, !preview, coolingVisible {
+                Button(action: openCooling) {
+                    row(icon: "fan", color: Theme.textSecondary, label: t(.coolingTitle),
+                        value: coolingValue)
+                        .lineLimit(1)
+                        .padding(.vertical, 4).contentShape(Rectangle())
+                }
+                .buttonStyle(.plain).hoverHighlight(6, bleed: 8)
+            }
+        }
         // A snapshot keeps the staged numbers: polling would overwrite the
         // sample the render was set up with, and the gpu row would go back to
         // reporting this Mac's idle while the chart above it shows a load.
         .onAppear { if !Snapshot.active, !preview { stats.startPolling() } }
         .onDisappear { if !preview { stats.stopPolling() } }
+    }
+
+    private var coolingValue: Text {
+        let arrow = Text(Image(systemName: "arrow.up.right")).foregroundColor(Theme.textSecondary)
+        guard let mode = cooling.activeFanMode,
+              let key = [FanPolicy.Mode.maximum: L10nKey.coolingMaximum,
+                         .fixed: .coolingFixed, .curve: .coolingCurve][mode] else { return arrow }
+        return Text(t(key)).font(Theme.mono(10)).foregroundColor(Theme.textSecondary)
+            + Text("  ") + arrow
     }
 
     /// Slice of history within the window: points older than its start are not drawn.

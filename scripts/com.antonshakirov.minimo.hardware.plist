@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>Label</key><string>com.antonshakirov.minimo.hardware</string>
+<key>BundleProgram</key><string>Contents/Helpers/HopHardwareHelper.app/Contents/MacOS/HopHardwareHelper</string>
+<key>MachServices</key><dict><key>com.antonshakirov.minimo.hardware</key><true/></dict>
+<key>RunAtLoad</key><true/>
+<key>KeepAlive</key><true/>
+<key>ProcessType</key><string>Background</string>
+<key>UserName</key><string>root</string>
+<key>AssociatedBundleIdentifiers</key><array><string>com.antonshakirov.minimo</string></array>
+</dict></plist>

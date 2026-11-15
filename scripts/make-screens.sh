@@ -123,7 +123,7 @@ for lang in "${LANGS[@]}"; do
     shot "$lang" windows --only windows --demo
     shot "$lang" speed --only speed --demo
     shot "$lang" tracker --tasks
-    shot "$lang" system --stats --charts
+    shot "$lang" system --only system --stats --charts
     shot "$lang" torrents --torrents --demo
     shot "$lang" colors --colors --demo
     shot "$lang" keyboard --keyboard --demo

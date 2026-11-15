@@ -38,6 +38,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var uninstallWindow: NSWindow?
     private var networkWindow: NSWindow?
     private var soundWindow: NSWindow?
+    private var clipboardPicker: ClipboardPickerWindow?
+    private var coolingWindow: CoolingWindow?
     private var soundContentHeight: CGFloat = 0
     private var soundExpectedHeight: CGFloat = 320
     private var soundUserResized = false
@@ -78,7 +80,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dockWindows: [NSWindow] {
         var list = [settingsWindow, torrentAddWindow, converterWindow,
                     archiveWindow, uninstallWindow, screenTextWindow,
-                    networkWindow, soundWindow, onboardingWindow].compactMap { $0 }
+                    networkWindow, soundWindow, coolingWindow, onboardingWindow].compactMap { $0 }
         list.append(contentsOf: finderArchiveWindows.values.map(\.window))
         list.append(contentsOf: shotWindows.windows)
         return list
@@ -280,6 +282,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         observeDockWindowClosing()
 
+        if Bundle.main.bundleIdentifier == "com.antonshakirov.minimo.dev",
+           CommandLine.arguments.contains("--show-release-card") {
+            PanelView.prepareLatestReleasePreview()
+        }
         statusController = StatusItemController(model: model)
         // the controllers were built before the launch migrations wrote the layout
         ModuleActivation.announceChange()
@@ -328,6 +334,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.updater.prepareRelaunch = { try model.keepAwake.stashForRelaunch() }
         model.updater.cancelRelaunch = { model.keepAwake.cancelRelaunch() }
         model.updater.relaunchReady = { model.keepAwake.validateRelaunch() }
+        model.updater.prepareHardwareUpdate = { try await CoolingController.shared.prepareUpdate() }
+        model.updater.cancelHardwareUpdate = { await CoolingController.shared.resumeRegistration() }
         model.updater.startAutoChecks { critical in
             // a set timer (running or paused) is never interrupted; otherwise a
             // release installs only when the user isn't actively using Hop —
@@ -357,6 +365,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self.showSettingsWindow()
         }
         model.openSoundWindow = { [weak self] in self?.showSoundWindow() }
+        model.openCoolingWindow = { [weak self] in self?.showCoolingWindow() }
+        model.keepAwake.showHardwareFailure = { [weak self] in self?.showCoolingWindow() }
+        Task {
+            await CoolingController.shared.resumeRegistration()
+            CoolingController.shared.checkPermissions()
+        }
         model.soundMixer.resumeIfEnabled()
         model.soundStatus.setEnabled(ModuleActivation.isOn("sound"))
         soundActivationObserver = NotificationCenter.default.addObserver(
@@ -510,6 +524,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 if closing === self.archiveWindow { self.archiveUserResized = false }
                 if closing === self.uninstallWindow { self.uninstallUserResized = false }
                 if closing === self.soundWindow { self.soundUserResized = false }
+                if closing === self.coolingWindow { CoolingController.shared.close() }
                 if closing === self.screenTextWindow { self.screenTextUserResized = false }
             }
         }
@@ -521,6 +536,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // release app, which is compiled -c release like the dev app, so #if DEBUG
         // would not tell them apart.
         if Bundle.isDevBuild {
+            if Bundle.main.bundleIdentifier == "com.antonshakirov.minimo.dev",
+               CommandLine.arguments.contains("--show-release-card") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                    self?.statusController?.togglePanel()
+                    NSLog("HOP-DIAG release card panel visible=%d", self?.model.isPanelOpen?() == true ? 1 : 0)
+                }
+            }
+            if CommandLine.arguments.contains("--open-cooling") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.showCoolingWindow() }
+            }
             if CommandLine.arguments.contains("--open-sound")
                 || (Bundle.main.object(forInfoDictionaryKey: "HopOpenSoundAtLaunch") as? Bool == true) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.showSoundWindow() }
@@ -631,10 +656,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.model.keyboardLock.lock()
             },
             "sound": { [weak self] in self?.showSoundWindow() },
+            "clipboard": { [weak self] in self?.showClipboardPicker() },
             "convert": { [weak self] in self?.showConverterWindow() },
             "archive": { [weak self] in self?.showArchiveWindow() },
             "uninstall": { [weak self] in self?.showUninstallWindow() },
         ]
+    }
+
+    private func showClipboardPicker() {
+        guard ModuleActivation.isOn("clipboard") else { return }
+        model.activity.note()
+        if clipboardPicker == nil { clipboardPicker = ClipboardPickerWindow(clipboard: model.clipboard) }
+        clipboardPicker?.toggle()
+    }
+
+    private func showCoolingWindow() {
+        guard ModuleActivation.isOn("system") || ModuleActivation.isOn("awake") else { return }
+        model.activity.note()
+        if coolingWindow == nil {
+            let window = CoolingWindow(controller: .shared)
+            window.center()
+            coolingWindow = window
+        }
+        guard let window = coolingWindow else { return }
+        window.fitToContent()
+        CoolingController.shared.open()
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        window.backgroundColor = NSColor(Theme.background)
+        enterDockMode()
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
     }
 
     private func showSettingsWindow() {
@@ -857,7 +908,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applyAppTheme(refreshIcon: Bool = true) {
         statusController?.applyTheme()
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
-        for window in [soundWindow].compactMap({ $0 }) {
+        for window in [soundWindow, coolingWindow].compactMap({ $0 }) {
             window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
             window.backgroundColor = NSColor(Theme.background)
         }
@@ -1824,6 +1875,7 @@ struct HopApp: App {
 
     init() {
         AwakeUpdateHandoff.runIfRequested()
+        HardwareDiagnostics.runIfRequested()
         // SPEC: docs/spec.md — "Versioning": packaging reads metadata without launching the app.
         if CommandLine.arguments.contains("--preparing-version") {
             guard let version = ReleaseNews.preparing(notes: L10n.t(.docNews, .en),

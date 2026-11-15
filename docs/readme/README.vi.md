@@ -166,10 +166,13 @@ chạy. Xem [docs/automation.md](../automation.md).
 
 ### Chống ngủ
 
-Giữ máy Mac luôn thức trong 15 phút, 8 giờ hoặc mãi mãi – một cú nhấp,
-không cần mật khẩu. Tùy chọn giữ màn hình luôn sáng, hoặc tiếp tục làm việc
-khi gập nắp máy (tiện cho việc tải xuống, các bản build dài và màn hình
-ngoài).
+Giữ Mac thức từ 15 phút đến ∞. “giữ màn hình sáng” cũng giữ màn hình bật.
+
+Nút nắp bật chế độ làm việc khi đóng nắp; nếu chưa ngăn ngủ, một phiên không giới hạn sẽ bắt đầu. Nhấn lại để tắt. Màu hổ phách nghĩa là đang bật.
+
+Cần dịch vụ được quản trị viên cho phép. Chế độ dừng khi pin còn 10% lúc không cắm điện, macOS báo quá nóng hoặc phiên kết thúc. Sau 90 giây không liên lạc với Hop, dịch vụ khôi phục chế độ ngủ và điều khiển quạt.
+
+Cập nhật chờ hai chế độ được tắt. Đặt Mac trên bề mặt cứng và thông thoáng.
 
 <div align="center">
 <img src="https://hop.tools/screens/vi/awake.webp" width="420" alt="Hop – Chống ngủ">
@@ -191,6 +194,12 @@ xuống đĩa, chứ không chỉ khi macOS tự báo đang chật vật.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+làm mát: tự động / tối đa / tốc độ cố định / theo nhiệt độ. Điều khiển thủ công có trên các máy Mac tương thích có quạt.
+
+Dịch vụ được quản trị viên cho phép điều khiển quạt và bảo vệ phiên làm việc khi đóng nắp.
+
+cập nhật chờ hai chế độ được tắt. đặt Mac trên bề mặt cứng và thông thoáng.
+
 ### Lịch sử clipboard
 
 100 mục bạn sao chép gần nhất (tối đa 300) – văn bản, hình ảnh và tệp – một
@@ -202,6 +211,8 @@ chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác
 <div align="center">
 <img src="https://hop.tools/screens/vi/clipboard.webp" width="420" alt="Hop – Lịch sử clipboard">
 </div>
+
+⌘⇧C mở cửa sổ tìm kiếm lịch sử. ⌘1–⌘9 sao chép kết quả; phím mũi tên và enter để chọn và sao chép. escape đóng cửa sổ.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

@@ -168,10 +168,13 @@ lub sprawdzić, co jest uruchomione. Zobacz [docs/automation.md](../automation.m
 
 ### Blokada uśpienia
 
-Nie pozwól Macowi zasnąć przez 15 minut, 8 godzin albo bez końca –
-jedno kliknięcie, bez hasła. Opcjonalnie utrzymuj włączony ekran albo
-pracuj dalej z zamkniętą pokrywą (przydatne przy pobieraniu, długich
-buildach i zewnętrznych monitorach).
+Utrzymuje Maca w stanie czuwania od 15 minut do ∞. „ekran pozostaje włączony” utrzymuje też podświetlenie.
+
+Przycisk pokrywy włącza pracę z zamkniętą pokrywą; gdy blokada snu jest wyłączona, zaczyna sesję bez limitu. Kolejny klik wyłącza tryb. Bursztyn oznacza aktywność.
+
+Tryb wymaga usługi zatwierdzonej przez administratora. Kończy się przy 10% baterii bez zasilania, ostrzeżeniu macOS o przegrzaniu lub końcu sesji. Po 90 sekundach bez Hop usługa przywraca sen i sterowanie wentylatorami.
+
+Aktualizacje czekają na wyłączenie obu funkcji. Ustaw Maca na twardej, wentylowanej powierzchni.
 
 <div align="center">
 <img src="https://hop.tools/screens/pl/awake.webp" width="420" alt="Hop – Blokada uśpienia">
@@ -194,6 +197,12 @@ gdy sam macOS zgłasza ciasnotę.
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
+chłodzenie: automatycznie / maksimum / stałe obroty / według temperatury. Sterowanie ręczne jest dostępne na zgodnych Macach z wentylatorami.
+
+Usługa zatwierdzona przez administratora steruje wentylatorami i chroni sesje przy zamkniętej pokrywie.
+
+aktualizacje czekają na wyłączenie obu funkcji. ustaw Maca na twardej, wentylowanej powierzchni.
+
 ### Historia schowka
 
 Ostatnie 100 (do 300) skopiowanych rzeczy – tekst, obrazy i pliki – jedno
@@ -205,6 +214,8 @@ dane wejściowe nigdy nie są zapisywane.
 <div align="center">
 <img src="https://hop.tools/screens/pl/clipboard.webp" width="420" alt="Hop – Historia schowka">
 </div>
+
+⌘⇧C otwiera historię w oknie wyszukiwania. ⌘1–⌘9 kopiuje wynik; strzałki i enter wybierają i kopiują. escape zamyka okno.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
