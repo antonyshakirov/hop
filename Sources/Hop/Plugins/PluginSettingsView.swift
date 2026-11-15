@@ -24,7 +24,7 @@ struct PluginSettingsView: View {
                         VStack(alignment: .leading, spacing: 5) {
                             Text(record.package.manifest.name).font(Theme.mono(13, weight: .semibold))
                             Text(record.package.manifest.description).font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
-                            Text(record.package.manifest.version + " · " + record.package.manifest.author + " · " + (record.origin == "local" ? t(.local) : URL(string: record.origin)?.host ?? t(.catalog)))
+                            Text(metadata(record))
                                 .font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
                             Text(status(record)).font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
                         }.fixedSize(horizontal: false, vertical: true)
@@ -72,6 +72,12 @@ struct PluginSettingsView: View {
                 }.padding(.top, 8)
             }.padding(24).frame(width: 430).background(Theme.background).foregroundStyle(Theme.textPrimary)
         }
+    }
+    private func metadata(_ record: PluginRecord) -> String {
+        let origin: String
+        if record.origin == "local" { origin = t(.local) }
+        else { origin = URL(string: record.origin)?.host ?? t(.catalog) }
+        return [record.package.manifest.version, record.package.manifest.author, origin].joined(separator: " · ")
     }
     private func status(_ record: PluginRecord) -> String {
         if record.lastError == PluginError.memoryLimit.rawValue { return t(.memoryError) }
