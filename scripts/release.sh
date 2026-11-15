@@ -11,7 +11,7 @@ VERSION="${1:?usage: release.sh <version> [--critical]}"
 CRITICAL=false
 [[ "${2:-}" == "--critical" ]] && CRITICAL=true
 
-SITE_DIR="${HOP_SITE_DIR:-$HOME/Development Projects/Products Platform/projects/hop-website}"
+SITE_DIR="${HOP_SITE_DIR:-$HOME/Development Projects/Products Platform/projects/products/hop-website}"
 [[ -d "$SITE_DIR/src" ]] || { echo "site repo not found: $SITE_DIR"; exit 1 }
 # Outside the static site's root: the site deploy syncs with --delete.
 SITE_SSH="${HOP_SITE_SSH:-atelier-nl}"
@@ -180,7 +180,7 @@ sign_dmg dist/Hop-intel.dmg
 # Homebrew tap: version and both checksums, written here so `brew install` can
 # never lag a release behind again — the tap sat at 1.5.1 while 1.6.0 was already
 # downloading from the site (found 2026-07-29).
-TAP_CASK="${HOP_TAP_CASK:-$HOME/Development Projects/Products Platform/projects/homebrew-tap/Casks/hop.rb}"
+TAP_CASK="${HOP_TAP_CASK:-$HOME/Development Projects/Products Platform/projects/infrastructure/homebrew-tap/Casks/hop.rb}"
 if [[ -f "$TAP_CASK" ]]; then
     ARM_SHA=$(shasum -a 256 dist/Hop.dmg | awk '{print $1}')
     INTEL_SHA=$(shasum -a 256 dist/Hop-intel.dmg | awk '{print $1}')
@@ -275,7 +275,7 @@ fi
 # Look for the key in env, then in the Essentóne site .env (it already lives there).
 BUNNY_KEY="${BUNNY_API_KEY:-}"
 if [[ -z "$BUNNY_KEY" ]]; then
-    ESS_ENV="$HOME/Development Projects/Products Platform/projects/essentone/development/website/.env"
+    ESS_ENV="$HOME/Development Projects/Products Platform/projects/products/essentone/development/website/.env"
     if [[ -f "$ESS_ENV" ]]; then
         BUNNY_KEY="$(grep -E '^BUNNY_API_KEY=' "$ESS_ENV" | cut -d= -f2- | tr -d '"' || true)"
     fi
