@@ -72,7 +72,10 @@ if (tool === 'curl') {
 } else if (tool === 'codesign') {
   const target = args.at(-1);
   if (config.signatureFailure && target.includes(config.signatureFailure)) fail();
-  if (args.includes('--entitlements')) process.stdout.write('<?xml version="1.0"?><plist version="1.0"><dict><key>com.apple.developer.system-extension.install</key><true/></dict></plist>\\n');
+  if (args.includes('--entitlements')) {
+    if (!args.includes('--xml')) process.stdout.write('[Dict]\\n[Key] com.apple.developer.system-extension.install\\n[Bool] true\\n');
+    else process.stdout.write('<?xml version="1.0"?><plist version="1.0"><dict><key>com.apple.developer.system-extension.install</key>' + (config.systemExtensionDenied ? '<false/>' : '<true/>') + '</dict></plist>\\n');
+  }
   else if (args.some(arg => /^-d/.test(arg) || arg === '--display')) {
     const mismatch = (config.workerTeamMismatch && target.includes('HopAudioWorker.app'))
       || (config.hardwareTeamMismatch && target.includes('HopHardwareHelper.app'));
@@ -372,4 +375,10 @@ test('ambiguous canonical public key definitions fail closed', async t => {
   const definition = source.match(/^.*static let updatePublicKeyBase64 = .*$/m)[0];
   await writeFile(file, source + '\n' + definition + '\n');
   await rejected(f);
+});
+
+test('missing system-extension permission remains a failure with XML display', async t => {
+  const f = await fixture(t); await f.config({ systemExtensionDenied: true });
+  const result = await rejected(f);
+  assert.match(result.output, /cannot install its network filter/);
 });

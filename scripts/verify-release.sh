@@ -133,7 +133,7 @@ PYHARDWARE
     verdict="$(spctl -a -vvv -t exec "$app" 2>&1)" || fail "$arch app was refused by Gatekeeper"
     [[ "$verdict" == *"source=Notarized Developer ID"* ]] || fail "$arch app is not notarised"
     xcrun stapler validate "$app" >/dev/null 2>&1 || fail "$arch app has no valid stapled ticket"
-    entitlements="$(codesign -d --entitlements - "$app" 2>/dev/null)" || fail "$arch app has no readable entitlements"
+    entitlements="$(codesign -d --entitlements - --xml "$app" 2>/dev/null)" || fail "$arch app has no readable entitlements"
     python3 -c 'import plistlib,sys
 if plistlib.loads(sys.stdin.buffer.read()).get("com.apple.developer.system-extension.install") is not True:
     raise SystemExit(1)' <<< "$entitlements" || fail "$arch app cannot install its network filter"

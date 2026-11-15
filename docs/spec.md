@@ -7544,6 +7544,9 @@ opened" dialog and the Privacy & Security override.
   identical bytes for both archives, signatures and DMGs. Offline fixture tests
   use disposable keys and local command substitutes; they do not prove Apple trust
   or availability of a published release.
+- The release verifier requests XML explicitly when displaying signed entitlements.
+  A human-readable codesign display is not a property list; the system-extension
+  installation entitlement must still be present and true.
 - The updater installs with `ditto`, not `copyItem`: it carries a bundle across
   whole, and a bundle that arrives intact keeps both the signature the permission
   hangs on and the stapled ticket.
