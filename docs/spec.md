@@ -7547,6 +7547,9 @@ opened" dialog and the Privacy & Security override.
 - The updater installs with `ditto`, not `copyItem`: it carries a bundle across
   whole, and a bundle that arrives intact keeps both the signature the permission
   hangs on and the stapled ticket.
+- Release test coverage includes HopCoreTests, HopUITests and HopHardwareTests.
+  Every discovered case must start and pass exactly once; a missing, unexpected,
+  repeated, failed or skipped case prevents the source-bound gate from passing.
 
 ### Release
 

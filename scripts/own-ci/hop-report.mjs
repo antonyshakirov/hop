@@ -1,5 +1,5 @@
 export function summarizeTests(discovery, output, minimum = 1675) {
-  const cases = discovery.split(/\r?\n/).filter(line => /^Hop(?:Core|UI)Tests\.[^/\s]+\/\S+$/.test(line));
+  const cases = discovery.split(/\r?\n/).filter(line => /^Hop(?:Core|UI|Hardware)Tests\.[^/\s]+\/\S+$/.test(line));
   if (cases.length < minimum || new Set(cases).size !== cases.length) throw new Error('Incomplete Swift test discovery');
   const started = new Set(), finished = new Set();
   for (const match of output.matchAll(/^Test Case '-\[([^\s\]]+) ([^\s\]]+)\]' (started|passed|failed|skipped)(?:\.| \([^\n]*\)\.)$/gm)) {
