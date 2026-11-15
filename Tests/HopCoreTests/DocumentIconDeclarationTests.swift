@@ -8,6 +8,7 @@ import XCTest
 /// the only thing that keeps them in step.
 final class DocumentIconDeclarationTests: XCTestCase {
     private let torrentType = "org.bittorrent.torrent"
+    private let pluginType = "com.antonshakirov.hopplugin"
 
     private var repoRoot: URL {
         URL(fileURLWithPath: #filePath)
@@ -59,16 +60,40 @@ final class DocumentIconDeclarationTests: XCTestCase {
         XCTAssertEqual(declared, try generatedIconNames())
     }
 
-    func testEveryHandledArchiveTypeIsDeclaredExactlyOnce() throws {
+    func testEveryHandledDocumentTypeIsDeclaredExactlyOnce() throws {
         let declared = try documentTypes().flatMap { $0["LSItemContentTypes"] as? [String] ?? [] }
-        for type in ArchiveHandlerRules.handledContentTypes + [torrentType] {
+        for type in ArchiveHandlerRules.handledContentTypes + [torrentType, pluginType] {
             XCTAssertEqual(
                 declared.filter { $0 == type }.count, 1,
                 "\(type) must be declared once, with one icon")
         }
         XCTAssertEqual(
             Set(declared),
-            Set(ArchiveHandlerRules.handledContentTypes + [torrentType]),
+            Set(ArchiveHandlerRules.handledContentTypes + [torrentType, pluginType]),
             "the plist declares a type the app has no rules for")
+    }
+
+    func testPluginPackageDeclaresJSONAndItsOwnDocumentIcon() throws {
+        let entry = try XCTUnwrap(documentTypes().first {
+            ($0["LSItemContentTypes"] as? [String]) == [pluginType]
+        })
+        XCTAssertEqual(entry["CFBundleTypeIconFile"] as? String, "DocPlugin")
+        XCTAssertEqual(entry["CFBundleTypeExtensions"] as? [String], ["hopplugin"])
+        XCTAssertEqual(entry["CFBundleTypeRole"] as? String, "Viewer")
+        let data = try Data(contentsOf: repoRoot.appendingPathComponent("scripts/Info.plist"))
+        let plist = try XCTUnwrap(PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any])
+        let exported = try XCTUnwrap(plist["UTExportedTypeDeclarations"] as? [[String: Any]])
+        let type = try XCTUnwrap(exported.first { $0["UTTypeIdentifier"] as? String == pluginType })
+        XCTAssertEqual(type["UTTypeConformsTo"] as? [String], ["public.json"])
+        let tags = try XCTUnwrap(type["UTTypeTagSpecification"] as? [String: Any])
+        XCTAssertEqual(tags["public.filename-extension"] as? [String], ["hopplugin"])
+    }
+
+    func testEveryGeneratedDocumentIconIsBundled() throws {
+        let source = try String(contentsOf: repoRoot.appendingPathComponent("scripts/build-app.sh"), encoding: .utf8)
+        let pattern = try NSRegularExpression(pattern: #"DOC_ICONS=\(([^)]+)\)"#)
+        let match = try XCTUnwrap(pattern.firstMatch(in: source, range: NSRange(source.startIndex..., in: source)))
+        let range = try XCTUnwrap(Range(match.range(at: 1), in: source))
+        XCTAssertEqual(Set(source[range].split(whereSeparator: { $0.isWhitespace }).map(String.init)), try generatedIconNames())
     }
 }

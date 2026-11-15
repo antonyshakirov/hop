@@ -18,6 +18,7 @@ struct DocType {
 
 // Must stay in sync with CFBundleDocumentTypes in scripts/Info.plist.
 let types = [
+    DocType(iconName: "DocPlugin", label: "PLUGIN"),
     DocType(iconName: "DocTorrent", label: "TORRENT"),
     DocType(iconName: "DocRar", label: "RAR"),
     DocType(iconName: "DocZip", label: "ZIP"),

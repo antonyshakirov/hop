@@ -9,6 +9,7 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key><array><string>hopplugin</string></array>
 			<key>CFBundleTypeName</key><string>Hop Plugin</string>
+			<key>CFBundleTypeIconFile</key><string>DocPlugin</string>
 			<key>CFBundleTypeRole</key><string>Viewer</string>
 			<key>LSHandlerRank</key><string>Owner</string>
 			<key>LSItemContentTypes</key><array><string>com.antonshakirov.hopplugin</string></array>

@@ -99,9 +99,9 @@ if [[ ! -f assets/AppIcon.icns ]]; then
     ./scripts/make-icon.sh
 fi
 
-# Document icons are generated rather than stored: nine near-identical sheets
-# would be megabytes of binary in a repo that can redraw them in a second.
-DOC_ICONS=(DocTorrent DocRar DocZip Doc7z DocTar DocGz DocTgz DocBz2 DocXz)
+# Document icons are generated rather than stored: the matching sheets would
+# be megabytes of binary in a repo that can redraw them in a second.
+DOC_ICONS=(DocPlugin DocTorrent DocRar DocZip Doc7z DocTar DocGz DocTgz DocBz2 DocXz)
 for icon in "${DOC_ICONS[@]}"; do
     if [[ ! -f "assets/$icon.icns" ]]; then
         ./scripts/make-doc-icons.sh
