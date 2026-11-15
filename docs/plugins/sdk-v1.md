@@ -1,0 +1,23 @@
+# Plugin SDK v1 preview
+
+## Owner agreements
+
+| Date | Contract | Verification |
+| --- | --- | --- |
+| 2026-11-16 | Deep panel/theme customization; public per-plugin PR catalog; every new installation off; packages/settings survive app updates. | Plugin API/store/overlay tests and installed Dev preview. |
+| 2026-11-16 | Explicit import/catalog action and capability approval before execution. No JS, runtime or catalog requests for all-off startup. | Store/lifecycle tests; signed runtime probe. |
+| 2026-11-16 | Core preferences remain authoritative underneath reversible overlays. Recovery stays outside plugin UI. | Native renders/actions, timer revision and safe launch checks. |
+
+Settings → plugins lists installed packages and an explicitly refreshed signed catalog. Import/download validates a UTF-8 JSON `.hopplugin` package and leaves it off. Enable shows its exact capabilities; cancel leaves it inert. Disable removes its contributions and sessions while keeping settings. Removal deletes only that installed plugin. New versions require an explicit install; approval is bound to the package digest. Unknown API/capability retains data and never executes.
+
+Packages: formatVersion1, manifest {id,version,apiVersion1,name,description,author,capabilities,settings}, code. Maximum package 1MiB/code256KiB. Settings types integer/string/boolean, bounded integer ranges. Catalog schemaVersion1/revision, plugins metadata/packageURL/SHA-256, revokedSha256. Verify exact catalog bytes with Ed25519 before JSON; revisions cannot go backwards. No automatic catalog or package requests. Packages live outside the signed application.
+
+`definePlugin({activate(context),onEvent(event,context),onAction(action,context)})` registers synchronous handlers in bare JavaScriptCore. A separately signed sandbox XPC runtime owns each JS context. It exports no native I/O/process/Objective-C bridge. A separate native watchdog exits the shared runtime after 500ms activation/100ms callbacks, including serialization. A crash/hang pauses sessions, removes their overlays and quarantines the active digest without automatic retries. Other installed selections/settings survive. Safe mode and native recovery bypass execution.
+
+The shared runtime has an aggregate 128MiB native resident-memory high-water budget, sampled every100ms on a separate queue while JS contexts exist; exceeding it exits with125. It does not restrict JSC virtual address reservations. Reload serializes unload of the old generation before activation of a fresh context in the same process. Disabling the final plugin clears every context and runtime timer; the already-started XPC process may remain inert for a subsequent explicit enable. A fresh all-off launch never connects to it. Unexpected process death removes contributions immediately; when the cause cannot be attributed active sessions pause for explicit recovery. An explicit retry can encounter launchd throttling; availability failures do not quarantine innocent package digests or cause automatic retries. App shutdown waits for the old peer PID when reconnecting through the same client.
+
+Capabilities: ui.theme, ui.panel, timer.read, timer.control, system.read. Contributions are validated atomically before effects. Theme patches known dark/light tokens, panel replace/append uses at most256 native nodes/depth8/text4096/width300..800, module slots reuse activated built-ins. Host chrome and screen bounds remain host-owned. Missing theme/panel fields preserve prior contribution, null clears; missing handler/return is a no-op. Timer commands are one-shot and require the captured control revision plus active digest/grant/session/request generation. A manual change wins over a late response. Native timer completion notification runs before timer.finished publication; plugin-started breaks identify their origin and cannot create an auto-break loop.
+
+This is a local Dev2.6 preview. Stable Hop2.5 does not run plugins. No production app2.6 release or per-plugin OS process isolation is implied. The separately retained toy proof container is not an installed feature container.
+
+`context.settings` contains validated package settings. With timer.read, context.timer contains state, remaining/duration seconds, session, revision, startedByPlugin. The timer.finished event has type, session, revision, startedByPlugin. With system.read, context.system contains cpu and memory fractions0...1 or null when unavailable or the system module is disabled. These are existing snapshots; a plugin never enables the monitor or starts another collector. Caller fields never authorize another session or a future timer revision.

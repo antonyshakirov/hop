@@ -2,6 +2,7 @@ import Combine
 import Foundation
 import CoreGraphics
 import HopCore
+import HopPluginAPI
 
 @MainActor
 final class AppModel: ObservableObject {
@@ -9,6 +10,24 @@ final class AppModel: ObservableObject {
     static var sharedKeepAwake: KeepAwakeController?
 
     let engine = TimerEngine()
+    lazy var plugins = PluginManager(engine: engine,
+        directory: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(Bundle.storageIdentifier).appendingPathComponent("Plugins", isDirectory: true),
+        transport: PluginRuntimeClient(), system: { [weak self] in
+            guard let self, ModuleActivation.isOn("system") else { return .object(["cpu": .null, "memory": .null]) }
+            let sample = self.stats.sample
+            let cpu = sample.cpuLoad.flatMap { $0.isFinite && (0...1).contains($0) ? $0 : nil }
+            var memory: Double?
+            if let used = sample.memUsed, let total = sample.memTotal, total > 0 {
+                let fraction = used / total
+                if fraction.isFinite && (0...1).contains(fraction) { memory = fraction }
+            }
+            return .object(["cpu": cpu.map(PluginValue.number) ?? .null, "memory": memory.map(PluginValue.number) ?? .null])
+        }, changed: { [weak self] themeChanged in
+            guard let self else { return }
+            if themeChanged { self.themeVersion += 1; self.refreshTheme?() }
+            self.objectWillChange.send()
+        })
     let keepAwake: KeepAwakeController
     let stats: SystemStatsController
     let clipboard: ClipboardController
@@ -276,12 +295,13 @@ final class AppModel: ObservableObject {
         forwarders.append(converter.$busy.dropFirst().sink { [weak self] _ in
             self?.activity.note()
         })
-        engine.onFinish = {
+        engine.onFinish = { [weak self] in
             MediaPauser.pauseIfEnabled() // silence first, then our alert
             // the finish sound plays EXACTLY ONCE — no repeat timer. The blink
             // (bell + digits) carries the "still finished" cue until the panel
             // is opened (acknowledged), reset, or a new start.
             Alerts.fire(mode: AlertMode.current)
+            self?.plugins.timerFinished()
         }
         engine.onPhaseChange = { nextIsWork in
             let lang = L10n.current

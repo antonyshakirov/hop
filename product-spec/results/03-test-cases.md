@@ -145,3 +145,15 @@ delivery still requires the installed Dev check.
 
 | HW-26 | Change Awake duration while lid enable reply is delayed, while off is pending, or after failed enable | Root receives the latest deadline for a live on-intent; pending off and failed enable cannot be rearmed by a duration change |
 | HW-27 | Start a new lease while an old lid sleep-request recovery is pending | Complete old recovery and report busy without active=true in the same transition; a later explicit request is independent |
+# Community plugin preview acceptance
+
+- Import/install leaves all plugins off; no JS/runtime/catalog work occurs on a new all-off launch.
+- Reject traversal IDs, native payloads, oversized packages, malformed versions/settings and unsupported capabilities/API without execution.
+- Verify catalog Ed25519 exact bytes, package digest/manifest equality, monotonic revisions and revocations before install/enable.
+- Enable requires exact digest-bound capabilities; cancel, disable, removal, update and restart invalidate old replies/actions.
+- Native theme and panel overlays apply in both themes and disappear on disable without changing base settings or enabled modules.
+- Complete a user timer: its native notification fires once, auto-break starts once; its own completion does not loop. Manual control between request/reply wins.
+- Infinite JS/crash kills only shared runtime within its deadline, quarantines the culprit and restores core UI without automatic restart.
+- Settings persistence, compatible/incompatible upgrades, catalog errors, permission expansion and safe recovery retain user data.
+- Native settings/catalog/import/grant/settings/actions render and work in both themes; screenshots/tests use the private native adapter.
+- Standard notarized Dev installation embeds a sandbox XPC with distinct identifier; signed app bytes remain unchanged after external package changes.

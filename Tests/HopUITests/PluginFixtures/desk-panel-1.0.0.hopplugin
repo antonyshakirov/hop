@@ -1,0 +1,30 @@
+{
+  "formatVersion": 1,
+  "manifest": {
+    "id": "desk-panel",
+    "version": "1.0.0",
+    "apiVersion": 1,
+    "name": "Desk panel",
+    "description": "A custom panel with your title, accent, timer and system monitor.",
+    "author": "Hop",
+    "capabilities": [
+      "ui.theme",
+      "ui.panel"
+    ],
+    "settings": [
+      {
+        "key": "title",
+        "label": "Panel title",
+        "type": "string",
+        "default": "My desk"
+      },
+      {
+        "key": "accent",
+        "label": "Accent color",
+        "type": "string",
+        "default": "#5279DB"
+      }
+    ]
+  },
+  "code": "definePlugin({\n  activate(context) {\n    const accent = /^#[0-9a-f]{6}$/i.test(context.settings.accent)\n      ? context.settings.accent : \"#5279DB\";\n    return {\n      theme: {light: {accent}, dark: {accent}},\n      panel: {mode: \"replace\", width: 420, nodes: [\n        {type: \"text\", text: context.settings.title, style: \"title\"},\n        {type: \"divider\"},\n        {type: \"module\", module: \"timer\"},\n        {type: \"module\", module: \"system\"}\n      ]}\n    };\n  }\n});\n"
+}

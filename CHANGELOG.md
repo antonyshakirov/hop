@@ -1,5 +1,11 @@
 # Hop - version history
 
+## 2.6.0 - Local preview
+
+- Optional plugins customize native panel layout and appearance, and automate timer breaks with explicit permissions. All plugins start disabled.
+- Import a local package or browse the signed community catalog on demand. Settings and selection survive app updates.
+- Plugin failures restore core UI; native menu recovery and safe mode remain available.
+
 ## 2.5.0 - 2026-11-16
 
 - Cooling: choose macOS control, maximum speed, fixed RPM or a CPU temperature curve on supported fans. Open the controls from the system monitor and hide their row in monitor settings.

@@ -5,7 +5,7 @@ import HopCore
 /// takes and what the window is left on.
 /// SPEC: docs/spec.md — "Settings window".
 enum SettingsSelection: Hashable {
-    case general, menuBar, spaces, hotkeys, permissions, updates, guide, about
+    case general, menuBar, spaces, hotkeys, permissions, updates, guide, about, plugins
     case module(String)
 
     var id: String {
@@ -16,6 +16,7 @@ enum SettingsSelection: Hashable {
         case .hotkeys: return "hotkeys"
         case .permissions: return "permissions"
         case .updates: return "updates"
+        case .plugins: return "plugins"
         case .guide: return "guide"
         case .about: return "about"
         case .module(let key): return "\(Self.modulePrefix)\(key)"
@@ -33,6 +34,7 @@ enum SettingsSelection: Hashable {
         case "hotkeys": self = .hotkeys
         case "permissions": self = .permissions
         case "updates": self = .updates
+        case "plugins": self = .plugins
         case "guide": self = .guide
         case "about": self = .about
         case "modules": self = .spaces
@@ -110,6 +112,7 @@ struct SettingsSidebar: View {
             Item(id: SettingsSelection.spaces.id, icon: "square.grid.2x2", title: t(.settingsTabLayout)),
             Item(id: SettingsSelection.hotkeys.id, icon: "command", title: t(.hotkeysLabel)),
             Item(id: SettingsSelection.permissions.id, icon: "lock.shield", title: t(.permTab)),
+            Item(id: SettingsSelection.plugins.id, icon: "puzzlepiece.extension", title: PluginCopy.text(.title, lang)),
             Item(id: SettingsSelection.updates.id, icon: "arrow.down.circle", title: t(.updatesLabel)),
             Item(id: SettingsSelection.guide.id, icon: "book", title: t(.guideTab)),
             Item(id: SettingsSelection.about.id, icon: "info.circle", title: t(.aboutTitle)),

@@ -7989,3 +7989,6 @@ Source rows use an 8pt gap. Main device selectors and per-app destinations share
 the same compact padded choice row, with content-fit height and capped scrolling.
 
 Menu-bar audio spacing, 3 November 2026: trim two trailing points after the last visible mixer symbol following live owner review. Image widths are now 22pt without mixers, 28pt for microphone only, 31pt for speaker only and 39pt for both. Symbol frames, the Hop artwork origin and the shared action remain unchanged. Raster checks at1x and2x retain the complete audio glyphs in both appearances.
+# Community plugin preview
+
+The local Hop Dev2.6 preview follows [Plugin SDK v1](plugins/sdk-v1.md). Plugins are off on installation, run only after explicit approval, and use reversible panel/theme overlays over base preferences. Signed catalog access is on demand. An isolated runtime has no hardware, AgentBridge or generic host access. Recovery is independent of plugin UI.

@@ -1,6 +1,13 @@
 import SwiftUI
+import HopPluginAPI
 
 enum Theme {
+    static var pluginOverlay: PluginTheme?
+    static func pluginColor(_ token: String) -> Color? {
+        guard let raw = (isDark ? pluginOverlay?.dark : pluginOverlay?.light)?[token],
+              let rgb = UInt32(raw.dropFirst(), radix: 16) else { return nil }
+        return Color(red: Double((rgb >> 16) & 255) / 255, green: Double((rgb >> 8) & 255) / 255, blue: Double(rgb & 255) / 255)
+    }
     static let themeKey = "appTheme" // auto | dark | light
     /// Transparent margin a floating card's window keeps around it, so its
     /// shadow fades out inside the window instead of ending on a straight edge.
@@ -16,13 +23,13 @@ enum Theme {
         }
     }
 
-    static var background: Color { isDark ? Color(white: 0.045) : Color(red: 0.973, green: 0.968, blue: 0.955) } // light theme: warm, near-white
+    static var background: Color { pluginColor("background") ?? (isDark ? Color(white: 0.045) : Color(red: 0.973, green: 0.968, blue: 0.955)) } // light theme: warm, near-white
     static var dotBright: Color { isDark ? .white : Color(white: 0.05) }
     static var dotHalo: Color { isDark ? Color.white.opacity(0.16) : .clear } // halos look smeared on light backgrounds
     static var dotDim: Color { isDark ? Color.white.opacity(0.30) : Color.black.opacity(0.27) }
     static var dotOff: Color { isDark ? Color.white.opacity(0.02) : Color.black.opacity(0.022) }
-    static var textPrimary: Color { isDark ? Color.white.opacity(0.92) : Color.black.opacity(0.88) }
-    static var textSecondary: Color { isDark ? Color.white.opacity(0.66) : Color.black.opacity(0.68) }
+    static var textPrimary: Color { pluginColor("foreground") ?? (isDark ? Color.white.opacity(0.92) : Color.black.opacity(0.88)) }
+    static var textSecondary: Color { pluginColor("secondary") ?? (isDark ? Color.white.opacity(0.66) : Color.black.opacity(0.68)) }
     /// Long help text: noticeably lighter than secondary — readable without glare.
     static var docText: Color { isDark ? Color.white.opacity(0.70) : Color.black.opacity(0.75) }
     /// List text (clipboard): gray rows are hard to read in the light theme.
@@ -37,12 +44,12 @@ enum Theme {
         Color(white: isDark ? (dimmed ? 0.42 : 0.96) : (dimmed ? 0.58 : 0.20))
     }
     static var controlStroke: Color { isDark ? Color.white.opacity(0.2) : Color.black.opacity(0.28) }
-    static var divider: Color { isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.1) }
+    static var divider: Color { pluginColor("line") ?? (isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.1)) }
 
     // fill backgrounds
     static var chipBg: Color { isDark ? Color.white.opacity(0.09) : Color.black.opacity(0.11) }
     static var fieldBg: Color { isDark ? Color.white.opacity(0.07) : Color.black.opacity(0.06) }
-    static var rowBg: Color { isDark ? Color.white.opacity(0.045) : Color.black.opacity(0.032) }
+    static var rowBg: Color { pluginColor("surface") ?? (isDark ? Color.white.opacity(0.045) : Color.black.opacity(0.032)) }
     static var hoverBg: Color { isDark ? Color.white.opacity(0.07) : Color.black.opacity(0.06) }
     static var switchOffBg: Color { isDark ? Color.white.opacity(0.14) : Color.black.opacity(0.15) }
     static var playBg: Color { isDark ? .white : Color(white: 0.1) }
@@ -73,7 +80,8 @@ enum Theme {
     /// face with monospaced digits, so figures still hold their column and the
     /// timer does not jitter.
     static func mono(_ size: CGFloat, weight: Font.Weight = .medium) -> Font {
-        L10n.current.isRTL
+        let size = size * (pluginOverlay?.fontScale ?? 1)
+        return L10n.current.isRTL
             ? .system(size: size, weight: weight).monospacedDigit()
             : .system(size: size, weight: weight, design: .monospaced)
     }
@@ -137,7 +145,7 @@ enum Theme {
     static let accentGreen = Color(nsColor: .systemGreen)
     static var accentYellow: Color {
         // light theme: dark yellow (goldenrod) — readable without turning orange
-        isDark ? Color(nsColor: .systemYellow) : Color(red: 0.85, green: 0.53, blue: 0.0) // light: amber, not brown
+        pluginColor("accent") ?? (isDark ? Color(nsColor: .systemYellow) : Color(red: 0.85, green: 0.53, blue: 0.0)) // light: amber, not brown
     }
     static var accentOrange: Color {
         // light: a notch darker than system orange — reads better on the

@@ -73,6 +73,24 @@ public final class TimerEngine: ObservableObject {
     }
 
     public var onFinish: (() -> Void)?
+    public private(set) var controlRevision: UInt64 = 0
+    public private(set) var controlSession = UUID()
+    public private(set) var startedByPlugin: String?
+
+    private func noteControl(newSession: Bool = false, preserveOrigin: Bool = false) {
+        controlRevision &+= 1
+        if !preserveOrigin { startedByPlugin = nil }
+        if newSession { controlSession = UUID() }
+    }
+
+    public func startPluginTimer(seconds: TimeInterval, owner: String) {
+        guard seconds.isFinite, (1...28_800).contains(seconds) else { return }
+        reset()
+        setStopwatch(false)
+        setDuration(seconds)
+        start()
+        startedByPlugin = owner
+    }
     /// Fired between cycle phases (the next phase starts on its own).
     public var onPhaseChange: ((_ nextIsWork: Bool) -> Void)?
 
@@ -129,6 +147,7 @@ public final class TimerEngine: ObservableObject {
         // switching from pause IS allowed: pause means "already stopped", and the
         // mode change deliberately abandons the unfinished timer. Only running is off-limits
         guard state != .running else { return }
+        noteControl()
         clearCycle()
         stash = nil
         stopTicker()
@@ -151,6 +170,7 @@ public final class TimerEngine: ObservableObject {
     /// the first phase, and start happens via the regular play button.
     public func prepareCycle(work: TimeInterval, rest: TimeInterval, rounds: Int) {
         guard state == .idle || state == .finished else { return }
+        noteControl(newSession: true)
         exitStopwatch()
         stash = nil
         stopTicker()
@@ -201,6 +221,7 @@ public final class TimerEngine: ObservableObject {
     public func setDuration(_ seconds: TimeInterval) {
         guard !isStopwatch else { return }
         guard state == .idle || state == .finished else { return }
+        noteControl()
         if state == .finished {
             stopTicker()
             state = .idle
@@ -209,6 +230,7 @@ public final class TimerEngine: ObservableObject {
     }
 
     public func setPreset(minutes: Int) {
+        noteControl()
         exitStopwatch()
         clearCycle()
         if state == .running || state == .paused {
@@ -225,6 +247,7 @@ public final class TimerEngine: ObservableObject {
     /// the preset selection interrupted it.
     public func restoreStash() {
         guard let s = stash else { return }
+        noteControl(newSession: true)
         stash = nil
         duration = s.duration
         pausedRemaining = nil
@@ -234,6 +257,7 @@ public final class TimerEngine: ObservableObject {
     }
 
     public func adjust(by delta: TimeInterval) {
+        noteControl(preserveOrigin: state == .running || state == .paused)
         switch state {
         case .idle:
             duration = max(Self.minimumDuration, duration + delta)
@@ -259,6 +283,7 @@ public final class TimerEngine: ObservableObject {
     }
 
     public func start() {
+        noteControl(newSession: true)
         if isStopwatch {
             stopwatchStartRef = now()
             state = .running
@@ -287,6 +312,7 @@ public final class TimerEngine: ObservableObject {
 
     public func pause() {
         guard state == .running else { return }
+        noteControl(preserveOrigin: true)
         if isStopwatch {
             stopwatchAccumulated = elapsed
             stopwatchStartRef = nil
@@ -302,6 +328,7 @@ public final class TimerEngine: ObservableObject {
 
     public func resume() {
         guard state == .paused else { return }
+        noteControl(preserveOrigin: true)
         if isStopwatch {
             stopwatchStartRef = now()
             state = .running
@@ -315,6 +342,7 @@ public final class TimerEngine: ObservableObject {
     }
 
     public func reset() {
+        noteControl()
         clearCycle()
         stopwatchAccumulated = 0
         stopwatchStartRef = nil

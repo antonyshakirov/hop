@@ -103,7 +103,7 @@ enum L10nKey: String, CaseIterable {
     case notifTorrentSeedingFinished
     case aboutTitle, aboutTimer, aboutAwake, aboutSystem, aboutFooter, aboutProductPage, aboutSupport
     case aboutHowTitle, aboutHowBody
-    case news25Cooling, news25Lid, news25Clipboard
+    case news25Cooling, news25Lid, news25Clipboard, news26Plugins
     case coolingTitle, coolingFan, coolingAutomaticHint, coolingAutomatic, coolingMaximum, coolingFixed, coolingCurve, coolingApply, coolingCurveHint, hardwareInstall, hardwareRemove, hardwareApprove, hardwareInstallHint, hardwareApprovalHint, hardwarePending, hardwareBattery, hardwareThermal, hardwareExpired, hardwareHeartbeat, hardwareSensor, hardwareUnsupported, hardwareBusy, hardwareFailure, hardwareSignedRequired, hardwareConnection, coolingExternal
     case tabClipboard, clipboardEmpty, clipboardClear, clipboardCopied, clipboardNoResults
     case clipboardLimit, tabOrderLabel, aboutClipboard
@@ -553,8 +553,12 @@ enum L10n {
         return HangingWords.glued(text, shortWords: shortWords(lang), trailing: trailingWords(lang))
     }
 
+    static func gluedPluginText(_ text: String, _ lang: AppLanguage) -> String {
+        HangingWords.glued(text, shortWords: shortWords(lang), trailing: trailingWords(lang))
+    }
+
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.0 – 2026-11-16\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
+        "2.6.0 – 2026-11-16\n\n• " + PluginCopy.text(.news, lang) + "\n\n2.5.0 – 2026-11-16\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
             + "\n\n" + previous
     }
 
@@ -590,6 +594,7 @@ enum L10n {
     }
 
     private static let enTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .en),
             .news25Cooling: news25Text(.en, 0),
             .news25Lid: news25Text(.en, 1),
             .news25Clipboard: news25Text(.en, 2),
@@ -1496,6 +1501,7 @@ enum L10n {
             ]
 
     private static let ruTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .ru),
             .news25Cooling: news25Text(.ru, 0),
             .news25Lid: news25Text(.ru, 1),
             .news25Clipboard: news25Text(.ru, 2),
@@ -2402,6 +2408,7 @@ enum L10n {
             ]
 
     private static let deTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .de),
             .news25Cooling: news25Text(.de, 0),
             .news25Lid: news25Text(.de, 1),
             .news25Clipboard: news25Text(.de, 2),
@@ -3308,6 +3315,7 @@ enum L10n {
             ]
 
     private static let esTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .es),
             .news25Cooling: news25Text(.es, 0),
             .news25Lid: news25Text(.es, 1),
             .news25Clipboard: news25Text(.es, 2),
@@ -4214,6 +4222,7 @@ enum L10n {
             ]
 
     private static let ptTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .pt),
             .news25Cooling: news25Text(.pt, 0),
             .news25Lid: news25Text(.pt, 1),
             .news25Clipboard: news25Text(.pt, 2),
@@ -5120,6 +5129,7 @@ enum L10n {
             ]
 
     private static let frTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .fr),
             .news25Cooling: news25Text(.fr, 0),
             .news25Lid: news25Text(.fr, 1),
             .news25Clipboard: news25Text(.fr, 2),
@@ -6026,6 +6036,7 @@ enum L10n {
             ]
 
     private static let itTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .it),
             .news25Cooling: news25Text(.it, 0),
             .news25Lid: news25Text(.it, 1),
             .news25Clipboard: news25Text(.it, 2),
@@ -6932,6 +6943,7 @@ enum L10n {
             ]
 
     private static let zhTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .zh),
             .news25Cooling: news25Text(.zh, 0),
             .news25Lid: news25Text(.zh, 1),
             .news25Clipboard: news25Text(.zh, 2),
@@ -7829,6 +7841,7 @@ enum L10n {
             ]
 
     private static let jaTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .ja),
             .news25Cooling: news25Text(.ja, 0),
             .news25Lid: news25Text(.ja, 1),
             .news25Clipboard: news25Text(.ja, 2),
@@ -8732,6 +8745,7 @@ enum L10n {
             ]
 
     private static let nlTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .nl),
             .news25Cooling: news25Text(.nl, 0),
             .news25Lid: news25Text(.nl, 1),
             .news25Clipboard: news25Text(.nl, 2),
@@ -9654,6 +9668,7 @@ enum L10n {
             ]
 
     private static let koTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .ko),
             .news25Cooling: news25Text(.ko, 0),
             .news25Lid: news25Text(.ko, 1),
             .news25Clipboard: news25Text(.ko, 2),
@@ -10557,6 +10572,7 @@ enum L10n {
             ]
 
     private static let thTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .th),
             .news25Cooling: news25Text(.th, 0),
             .news25Lid: news25Text(.th, 1),
             .news25Clipboard: news25Text(.th, 2),
@@ -11479,6 +11495,7 @@ enum L10n {
             ]
 
     private static let viTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .vi),
             .news25Cooling: news25Text(.vi, 0),
             .news25Lid: news25Text(.vi, 1),
             .news25Clipboard: news25Text(.vi, 2),
@@ -12401,6 +12418,7 @@ enum L10n {
             ]
 
     private static let hiTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .hi),
             .news25Cooling: news25Text(.hi, 0),
             .news25Lid: news25Text(.hi, 1),
             .news25Clipboard: news25Text(.hi, 2),
@@ -13323,6 +13341,7 @@ enum L10n {
             ]
 
     private static let idTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .id),
             .news25Cooling: news25Text(.id, 0),
             .news25Lid: news25Text(.id, 1),
             .news25Clipboard: news25Text(.id, 2),
@@ -14245,6 +14264,7 @@ enum L10n {
             ]
 
     private static let trTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .tr),
             .news25Cooling: news25Text(.tr, 0),
             .news25Lid: news25Text(.tr, 1),
             .news25Clipboard: news25Text(.tr, 2),
@@ -15167,6 +15187,7 @@ enum L10n {
             ]
 
     private static let plTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .pl),
             .news25Cooling: news25Text(.pl, 0),
             .news25Lid: news25Text(.pl, 1),
             .news25Clipboard: news25Text(.pl, 2),
@@ -16089,6 +16110,7 @@ enum L10n {
             ]
 
     private static let arTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .ar),
             .news25Cooling: news25Text(.ar, 0),
             .news25Lid: news25Text(.ar, 1),
             .news25Clipboard: news25Text(.ar, 2),
@@ -17070,6 +17092,7 @@ enum L10n {
             ]
 
     private static let heTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .he),
             .news25Cooling: news25Text(.he, 0),
             .news25Lid: news25Text(.he, 1),
             .news25Clipboard: news25Text(.he, 2),
@@ -18051,6 +18074,7 @@ enum L10n {
             ]
 
     private static let faTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .fa),
             .news25Cooling: news25Text(.fa, 0),
             .news25Lid: news25Text(.fa, 1),
             .news25Clipboard: news25Text(.fa, 2),
@@ -19032,6 +19056,7 @@ enum L10n {
             ]
 
     private static let urTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .ur),
             .news25Cooling: news25Text(.ur, 0),
             .news25Lid: news25Text(.ur, 1),
             .news25Clipboard: news25Text(.ur, 2),
@@ -20013,6 +20038,7 @@ enum L10n {
             ]
 
     private static let srTable: [L10nKey: String] = [
+            .news26Plugins: PluginCopy.text(.news, .sr),
             .news25Cooling: news25Text(.sr, 0),
             .news25Lid: news25Text(.sr, 1),
             .news25Clipboard: news25Text(.sr, 2),
@@ -21007,5 +21033,74 @@ extension String {
             !character.unicodeScalars.allSatisfy(\.properties.isDefaultIgnorableCodePoint)
         }) else { return self }
         return self[..<letter] + self[letter].uppercased() + self[index(after: letter)...]
+    }
+}
+
+enum PluginText: Int, CaseIterable {
+    case title, importFile, catalog, install, enable, disable, remove, approve, cancel, empty
+    case permissions, paused, off, running, incompatible, error, recovery, local, appearance, panel, timerRead, timerControl, systemRead, news
+    case memoryError
+}
+
+enum PluginCopy {
+    static func text(_ key: PluginText, _ language: AppLanguage = L10n.current) -> String {
+        if key == .memoryError { return L10n.gluedPluginText(memoryError(language), language) }
+        let values: [String]
+        switch language {
+        case .en: values = ["plugins", "import plugin", "browse catalog", "install", "enable", "disable", "remove", "allow and enable", "cancel", "No plugins installed.", "requested access", "paused — enable to retry", "off", "running", "requires a newer Hop", "The plugin could not run. Check the package or try again.", "disable all plugins", "local file", "appearance", "panel layout", "read timer", "start and stop timers", "read system readings", "plugins: customize panels. Automate timer breaks. Each plugin starts off"]
+        case .ru: values = ["плагины", "импортировать плагин", "открыть каталог", "установить", "включить", "выключить", "удалить", "разрешить и включить", "отмена", "Плагины не установлены.", "запрашиваемый доступ", "приостановлен — включи для повтора", "выключен", "работает", "нужна новая версия Hop", "Плагин не удалось запустить. Проверь файл или повтори попытку.", "выключить все плагины", "локальный файл", "оформление", "раскладка панели", "читать таймер", "запускать и останавливать таймеры", "читать показатели системы", "плагины: настройка панели и автоматические перерывы таймера; каждый плагин изначально выключен"]
+        case .de: values = ["Plugins", "Plugin importieren", "Katalog öffnen", "installieren", "aktivieren", "deaktivieren", "entfernen", "erlauben und aktivieren", "abbrechen", "Keine Plugins installiert.", "angeforderter Zugriff", "pausiert — zum Wiederholen aktivieren", "aus", "aktiv", "neueres Hop erforderlich", "Plugin konnte nicht starten. Datei prüfen oder erneut versuchen.", "alle Plugins deaktivieren", "lokale Datei", "Darstellung", "Panel-Anordnung", "Timer lesen", "Timer starten und stoppen", "Systemwerte lesen", "Plugins: Panel anpassen und Timerpausen automatisieren; jedes Plugin ist zunächst aus"]
+        case .es: values = ["plugins", "importar plugin", "abrir catálogo", "instalar", "activar", "desactivar", "eliminar", "permitir y activar", "cancelar", "No hay plugins instalados.", "acceso solicitado", "en pausa — activa para reintentar", "desactivado", "activo", "requiere un Hop más reciente", "No se pudo iniciar el plugin. Revisa el archivo o reintenta.", "desactivar todos los plugins", "archivo local", "apariencia", "disposición del panel", "leer temporizador", "iniciar y parar temporizadores", "leer datos del sistema", "plugins: personaliza el panel y automatiza descansos; todos empiezan desactivados"]
+        case .pt: values = ["plugins", "importar plugin", "abrir catálogo", "instalar", "ativar", "desativar", "remover", "permitir e ativar", "cancelar", "Nenhum plugin instalado.", "acesso solicitado", "em pausa — ative para tentar novamente", "desativado", "ativo", "requer um Hop mais recente", "Não foi possível iniciar o plugin. Verifique o ficheiro ou tente novamente.", "desativar todos os plugins", "ficheiro local", "aparência", "disposição do painel", "ler temporizador", "iniciar e parar temporizadores", "ler dados do sistema", "plugins: personalize o painel e automatize pausas; todos começam desativados"]
+        case .fr: values = ["plugins", "importer un plugin", "ouvrir le catalogue", "installer", "activer", "désactiver", "supprimer", "autoriser et activer", "annuler", "Aucun plugin installé.", "accès demandé", "en pause — activer pour réessayer", "désactivé", "actif", "nécessite un Hop plus récent", "Le plugin n’a pas pu démarrer. Vérifiez le fichier ou réessayez.", "désactiver tous les plugins", "fichier local", "apparence", "disposition du panneau", "lire le minuteur", "démarrer et arrêter les minuteurs", "lire les données système", "plugins : personnalisez le panneau et automatisez les pauses ; tous sont désactivés au départ"]
+        case .it: values = ["plugin", "importa plugin", "apri catalogo", "installa", "attiva", "disattiva", "rimuovi", "consenti e attiva", "annulla", "Nessun plugin installato.", "accesso richiesto", "in pausa — attiva per riprovare", "disattivato", "attivo", "richiede un Hop più recente", "Impossibile avviare il plugin. Controlla il file o riprova.", "disattiva tutti i plugin", "file locale", "aspetto", "disposizione pannello", "leggere timer", "avviare e fermare timer", "leggere dati di sistema", "plugin: personalizza il pannello e automatizza le pause; ogni plugin parte disattivato"]
+        case .zh: values = ["插件", "导入插件", "打开目录", "安装", "启用", "停用", "移除", "允许并启用", "取消", "尚未安装插件。", "请求的权限", "已暂停 — 启用以重试", "已停用", "运行中", "需要更新版本的 Hop", "插件无法运行。请检查文件或重试。", "停用所有插件", "本地文件", "外观", "面板布局", "读取计时器", "启动和停止计时器", "读取系统数据", "插件：自定义面板并自动安排计时休息；所有插件默认停用"]
+        case .ja: values = ["プラグイン", "プラグインを読み込む", "カタログを開く", "インストール", "有効にする", "無効にする", "削除", "許可して有効にする", "キャンセル", "プラグインは未インストールです。", "要求するアクセス", "一時停止 — 有効にして再試行", "無効", "実行中", "新しい Hop が必要です", "プラグインを起動できません。ファイルを確認するか再試行してください。", "すべてのプラグインを無効にする", "ローカルファイル", "外観", "パネル配置", "タイマーの読み取り", "タイマーの開始と停止", "システム情報の読み取り", "プラグイン：パネルを変更し休憩タイマーを自動化。初期状態ではすべて無効です"]
+        case .nl: values = ["plugins", "plugin importeren", "catalogus openen", "installeren", "inschakelen", "uitschakelen", "verwijderen", "toestaan en inschakelen", "annuleren", "Geen plugins geïnstalleerd.", "gevraagde toegang", "gepauzeerd — inschakelen om opnieuw te proberen", "uit", "actief", "nieuwere Hop vereist", "De plugin kon niet starten. Controleer het bestand of probeer opnieuw.", "alle plugins uitschakelen", "lokaal bestand", "vormgeving", "paneelindeling", "timer lezen", "timers starten en stoppen", "systeemgegevens lezen", "plugins: pas het paneel aan en automatiseer pauzes; elke plugin begint uitgeschakeld"]
+        case .ko: values = ["플러그인", "플러그인 가져오기", "카탈로그 열기", "설치", "켜기", "끄기", "제거", "허용하고 켜기", "취소", "설치된 플러그인이 없습니다.", "요청한 접근 권한", "일시 중지 — 켜서 다시 시도", "꺼짐", "실행 중", "최신 Hop이 필요합니다", "플러그인을 실행할 수 없습니다. 파일을 확인하거나 다시 시도하세요.", "모든 플러그인 끄기", "로컬 파일", "모양", "패널 배치", "타이머 읽기", "타이머 시작 및 중지", "시스템 정보 읽기", "플러그인: 패널 변경과 자동 휴식 타이머. 모든 플러그인은 처음에 꺼져 있습니다"]
+        case .th: values = ["ปลั๊กอิน", "นำเข้าปลั๊กอิน", "เปิดแค็ตตาล็อก", "ติดตั้ง", "เปิดใช้", "ปิดใช้", "นำออก", "อนุญาตและเปิดใช้", "ยกเลิก", "ยังไม่ได้ติดตั้งปลั๊กอิน", "สิทธิ์ที่ร้องขอ", "หยุดชั่วคราว — เปิดใช้เพื่อลองใหม่", "ปิด", "กำลังทำงาน", "ต้องใช้ Hop รุ่นใหม่กว่า", "เริ่มปลั๊กอินไม่ได้ ตรวจสอบไฟล์หรือลองใหม่", "ปิดปลั๊กอินทั้งหมด", "ไฟล์ในเครื่อง", "รูปลักษณ์", "เค้าโครงแผง", "อ่านตัวจับเวลา", "เริ่มและหยุดตัวจับเวลา", "อ่านข้อมูลระบบ", "ปลั๊กอิน: ปรับแต่งแผงและตั้งเวลาพักอัตโนมัติ โดยเริ่มต้นปิดไว้ทั้งหมด"]
+        case .vi: values = ["phần mở rộng", "nhập phần mở rộng", "mở danh mục", "cài đặt", "bật", "tắt", "gỡ", "cho phép và bật", "hủy", "Chưa cài phần mở rộng.", "quyền yêu cầu", "tạm dừng — bật để thử lại", "tắt", "đang chạy", "cần Hop mới hơn", "Không thể chạy phần mở rộng. Kiểm tra tệp hoặc thử lại.", "tắt mọi phần mở rộng", "tệp cục bộ", "giao diện", "bố cục bảng", "đọc bộ hẹn giờ", "bắt đầu và dừng hẹn giờ", "đọc dữ liệu hệ thống", "phần mở rộng: tùy chỉnh bảng và tự động hẹn giờ nghỉ; ban đầu đều tắt"]
+        case .hi: values = ["प्लगइन", "प्लगइन आयात करें", "कैटलॉग खोलें", "इंस्टॉल करें", "चालू करें", "बंद करें", "हटाएँ", "अनुमति देकर चालू करें", "रद्द करें", "कोई प्लगइन इंस्टॉल नहीं है।", "माँगी गई पहुँच", "रुका — फिर प्रयास के लिए चालू करें", "बंद", "चल रहा है", "नया Hop चाहिए", "प्लगइन शुरू नहीं हुआ। फ़ाइल जाँचें या फिर प्रयास करें।", "सभी प्लगइन बंद करें", "स्थानीय फ़ाइल", "रंग-रूप", "पैनल लेआउट", "टाइमर पढ़ें", "टाइमर शुरू और बंद करें", "सिस्टम आँकड़े पढ़ें", "प्लगइन: पैनल बदलें और विराम टाइमर स्वचालित करें; शुरुआत में सभी बंद हैं"]
+        case .id: values = ["plugin", "impor plugin", "buka katalog", "pasang", "aktifkan", "nonaktifkan", "hapus", "izinkan dan aktifkan", "batal", "Belum ada plugin terpasang.", "akses yang diminta", "dijeda — aktifkan untuk mencoba lagi", "nonaktif", "berjalan", "perlu Hop lebih baru", "Plugin tidak dapat berjalan. Periksa berkas atau coba lagi.", "nonaktifkan semua plugin", "berkas lokal", "tampilan", "tata letak panel", "baca pewaktu", "mulai dan hentikan pewaktu", "baca data sistem", "plugin: sesuaikan panel dan otomatisasi jeda pewaktu; semuanya awalnya nonaktif"]
+        case .tr: values = ["eklentiler", "eklenti içe aktar", "kataloğu aç", "yükle", "etkinleştir", "devre dışı bırak", "kaldır", "izin ver ve etkinleştir", "iptal", "Yüklü eklenti yok.", "istenen erişim", "duraklatıldı — yeniden denemek için etkinleştir", "kapalı", "çalışıyor", "daha yeni Hop gerekli", "Eklenti başlatılamadı. Dosyayı kontrol edin veya yeniden deneyin.", "tüm eklentileri kapat", "yerel dosya", "görünüm", "panel düzeni", "zamanlayıcıyı oku", "zamanlayıcı başlat ve durdur", "sistem verilerini oku", "eklentiler: paneli özelleştirin ve molaları otomatikleştirin; hepsi başlangıçta kapalıdır"]
+        case .pl: values = ["wtyczki", "importuj wtyczkę", "otwórz katalog", "zainstaluj", "włącz", "wyłącz", "usuń", "zezwól i włącz", "anuluj", "Brak zainstalowanych wtyczek.", "żądany dostęp", "wstrzymana — włącz, aby ponowić", "wyłączona", "działa", "wymaga nowszego Hop", "Nie można uruchomić wtyczki. Sprawdź plik lub spróbuj ponownie.", "wyłącz wszystkie wtyczki", "plik lokalny", "wygląd", "układ panelu", "odczyt timera", "uruchamianie i zatrzymywanie timerów", "odczyt danych systemu", "wtyczki: dostosuj panel i automatyzuj przerwy; początkowo wszystkie są wyłączone"]
+        case .sr: values = ["додаци", "увези додатак", "отвори каталог", "инсталирај", "укључи", "искључи", "уклони", "дозволи и укључи", "откажи", "Нема инсталираних додатака.", "тражени приступ", "паузиран — укључи за нови покушај", "искључен", "ради", "потребан је новији Hop", "Додатак није покренут. Провери датотеку или покушај поново.", "искључи све додатке", "локална датотека", "изглед", "распоред панела", "читање тајмера", "покретање и заустављање тајмера", "читање системских података", "додаци: прилагоди панел и аутоматизуј паузе; сви су испрва искључени"]
+        case .ar: values = ["الإضافات", "استيراد إضافة", "فتح الكتالوج", "تثبيت", "تفعيل", "تعطيل", "إزالة", "السماح والتفعيل", "إلغاء", "لا توجد إضافات مثبتة.", "الوصول المطلوب", "متوقفة — فعّل لإعادة المحاولة", "معطلة", "تعمل", "تتطلب Hop أحدث", "تعذر تشغيل الإضافة. تحقق من الملف أو أعد المحاولة.", "تعطيل كل الإضافات", "ملف محلي", "المظهر", "تخطيط اللوحة", "قراءة المؤقت", "بدء وإيقاف المؤقتات", "قراءة بيانات النظام", "الإضافات: خصّص اللوحة وأتمت فترات الراحة؛ كلها معطلة في البداية"]
+        case .he: values = ["תוספים", "ייבוא תוסף", "פתיחת קטלוג", "התקנה", "הפעלה", "השבתה", "הסרה", "אישור והפעלה", "ביטול", "אין תוספים מותקנים.", "גישה מבוקשת", "מושהה — הפעל כדי לנסות שוב", "מושבת", "פועל", "נדרשת גרסת Hop חדשה יותר", "לא ניתן להפעיל את התוסף. בדוק את הקובץ או נסה שוב.", "השבתת כל התוספים", "קובץ מקומי", "מראה", "פריסת הלוח", "קריאת טיימר", "הפעלה ועצירה של טיימרים", "קריאת נתוני מערכת", "תוספים: התאמת הלוח והפסקות אוטומטיות; כולם מושבתים בתחילה"]
+        case .fa: values = ["افزونه‌ها", "وارد کردن افزونه", "باز کردن فهرست", "نصب", "فعال کردن", "غیرفعال کردن", "حذف", "اجازه و فعال‌سازی", "انصراف", "افزونه‌ای نصب نشده است.", "دسترسی درخواستی", "متوقف — برای تلاش دوباره فعال کنید", "غیرفعال", "در حال اجرا", "به Hop جدیدتر نیاز دارد", "افزونه اجرا نشد. فایل را بررسی کنید یا دوباره تلاش کنید.", "غیرفعال کردن همهٔ افزونه‌ها", "فایل محلی", "ظاهر", "چیدمان پنل", "خواندن زمان‌سنج", "شروع و توقف زمان‌سنج‌ها", "خواندن داده‌های سیستم", "افزونه‌ها: پنل را تنظیم و استراحت را خودکار کنید؛ همه در ابتدا غیرفعال‌اند"]
+        case .ur: values = ["پلگ ان", "پلگ ان درآمد کریں", "کیٹلاگ کھولیں", "انسٹال کریں", "فعال کریں", "غیر فعال کریں", "ہٹائیں", "اجازت دے کر فعال کریں", "منسوخ", "کوئی پلگ ان انسٹال نہیں۔", "درخواست کردہ رسائی", "رکا ہوا — دوبارہ کوشش کے لیے فعال کریں", "غیر فعال", "چل رہا ہے", "نیا Hop درکار ہے", "پلگ ان نہیں چل سکا۔ فائل چیک کریں یا دوبارہ کوشش کریں۔", "تمام پلگ ان بند کریں", "مقامی فائل", "ظاہری شکل", "پینل ترتیب", "ٹائمر پڑھیں", "ٹائمر شروع اور بند کریں", "سسٹم معلومات پڑھیں", "پلگ ان: پینل بدلیں اور وقفے خودکار بنائیں؛ ابتدا میں سب بند ہیں"]
+        }
+        return L10n.gluedPluginText(values[key.rawValue], language)
+    }
+    static func capability(_ value: String, _ lang: AppLanguage) -> String {
+        let key: PluginText
+        switch value { case "ui.theme": key = .appearance; case "ui.panel": key = .panel; case "timer.read": key = .timerRead; case "timer.control": key = .timerControl; case "system.read": key = .systemRead; default: return value }
+        return text(key, lang)
+    }
+    private static func memoryError(_ lang: AppLanguage) -> String {
+        switch lang {
+        case .en: return "Plugins paused after reaching the memory limit. Enable a plugin to try again."
+        case .ru: return "Плагины приостановлены: превышен лимит памяти. Включи нужный плагин для повтора."
+        case .de: return "Plugins nach Erreichen des Speicherlimits pausiert. Zum Wiederholen ein Plugin aktivieren."
+        case .es: return "Plugins en pausa por alcanzar el límite de memoria. Activa uno para reintentar."
+        case .pt: return "Plugins em pausa por atingir o limite de memória. Ative um para tentar novamente."
+        case .fr: return "Plugins suspendus après avoir atteint la limite de mémoire. Activez un plugin pour réessayer."
+        case .it: return "Plugin in pausa per il limite di memoria. Attiva un plugin per riprovare."
+        case .zh: return "插件因达到内存上限而暂停。启用插件可重试。"
+        case .ja: return "メモリ上限に達したためプラグインを一時停止しました。有効にして再試行してください。"
+        case .nl: return "Plugins gepauzeerd na het bereiken van de geheugenlimiet. Schakel een plugin in om opnieuw te proberen."
+        case .ko: return "메모리 한도에 도달해 플러그인을 일시 중지했습니다. 플러그인을 켜서 다시 시도하세요."
+        case .th: return "หยุดปลั๊กอินชั่วคราวเมื่อใช้หน่วยความจำถึงขีดจำกัด เปิดใช้ปลั๊กอินเพื่อลองใหม่"
+        case .vi: return "Phần mở rộng tạm dừng do đạt giới hạn bộ nhớ. Bật một phần mở rộng để thử lại."
+        case .hi: return "मेमोरी सीमा पूरी होने पर प्लगइन रोक दिए गए। फिर प्रयास के लिए प्लगइन चालू करें।"
+        case .id: return "Plugin dijeda karena mencapai batas memori. Aktifkan plugin untuk mencoba lagi."
+        case .tr: return "Bellek sınırına ulaşıldığı için eklentiler duraklatıldı. Yeniden denemek için bir eklentiyi etkinleştirin."
+        case .pl: return "Wtyczki wstrzymane po osiągnięciu limitu pamięci. Włącz wtyczkę, aby ponowić próbę."
+        case .sr: return "Додаци су паузирани због ограничења меморије. Укључи додатак за нови покушај."
+        case .ar: return "أوقفت الإضافات بعد بلوغ حد الذاكرة. فعّل إضافة لإعادة المحاولة."
+        case .he: return "התוספים הושהו לאחר הגעה למגבלת הזיכרון. הפעל תוסף כדי לנסות שוב."
+        case .fa: return "افزونه‌ها با رسیدن به سقف حافظه متوقف شدند. برای تلاش دوباره افزونه‌ای را فعال کنید."
+        case .ur: return "میموری کی حد پوری ہونے پر پلگ ان روک دیے گئے۔ دوبارہ کوشش کے لیے پلگ ان فعال کریں۔"
+        }
     }
 }

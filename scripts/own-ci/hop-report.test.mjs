@@ -41,3 +41,11 @@ test('hardware cases participate in complete Swift test coverage', () => {
   assert.throws(() => summarizeTests(list, hardwarePassed, 2));
   assert.throws(() => summarizeTests(hardwareList, hardwarePassed.replace("testHardware]' passed", "testHardware]' failed"), 3));
 });
+
+for (const target of ['HopPluginAPITests', 'HopPluginRuntimeTests']) test(target + ' cannot disappear from discovery or execution', () => {
+  const discovered = list + target + '.PluginTests/testPlugin\n';
+  const executed = passed.replace("Test Suite 'All tests' passed", `Test Case '-[${target}.PluginTests testPlugin]' started.\nTest Case '-[${target}.PluginTests testPlugin]' passed (0.001 seconds).\nTest Suite 'All tests' passed`);
+  assert.equal(summarizeTests(discovered, executed, 3).passed, 3);
+  assert.throws(() => summarizeTests(discovered, passed, 2));
+  assert.throws(() => summarizeTests(list, executed, 2));
+});

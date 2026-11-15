@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import SwiftUI
 import HopCore
+import HopPluginAPI
 import OSLog
 
 /// What asked Hop to quit, for the line `applicationShouldTerminate` logs.
@@ -251,7 +252,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + LaunchGuard.stableAfter) {
             LaunchGuard.markStable()
         }
-        if crashLoop {
+        if crashLoop || CommandLine.arguments.contains("--safe-mode") {
             enterSafeMode()
             return
         }
@@ -599,6 +600,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // the add sheet is wired. Only now flush any .torrent/magnet URLs that
         // arrived during a cold launch (see `application(_:open:)`). Not reached in
         // safe mode — that path returns above, so buffered opens stay dropped.
+        model.plugins.start()
         flushPendingOpens()
 
         // Repopulate the torrent list from the engine's persisted session, so a
@@ -1440,6 +1442,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        if appDidFinishLaunching { model.plugins.shutdown() }
         LaunchGuard.markStable()
         // Kill the torrent engine on a clean quit: rqbit is a child process that
         // would otherwise be reparented to launchd and keep holding its fixed
@@ -1495,6 +1498,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// compact progress window, while non-archive URLs keep their existing
     /// torrent/magnet route.
     private func processOpenBatch(_ urls: [URL]) {
+        let plugins = urls.filter { $0.isFileURL && $0.pathExtension.lowercased() == "hopplugin" }
+        for url in plugins {
+            do {
+                let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? Int.max
+                guard size <= 1_048_576 else { throw PluginError.invalidPackage }
+                model.plugins.install(try Data(contentsOf: url), origin: "local")
+            } catch { model.plugins.error = PluginError.invalidPackage.rawValue }
+        }
+        if !plugins.isEmpty { model.settingsSectionRequest = "plugins"; showSettingsWindow() }
         // hop:// links come from Shortcuts, scripts, or anything that can run
         // `open`. Same command vocabulary as the command file, one parser for both.
         let hopLinks = urls.filter { $0.scheme?.lowercased() == "hop" }
@@ -1876,6 +1888,7 @@ struct HopApp: App {
     init() {
         AwakeUpdateHandoff.runIfRequested()
         HardwareDiagnostics.runIfRequested()
+        PluginDiagnostics.runIfRequested()
         // SPEC: docs/spec.md — "Versioning": packaging reads metadata without launching the app.
         if CommandLine.arguments.contains("--preparing-version") {
             guard let version = ReleaseNews.preparing(notes: L10n.t(.docNews, .en),

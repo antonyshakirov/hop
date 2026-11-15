@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "manifest": {
+    "id": "auto-break",
+    "version": "1.0.0",
+    "apiVersion": 1,
+    "name": "Auto break",
+    "description": "Start one break when your countdown finishes. Your manual timer changes take priority.",
+    "author": "Hop",
+    "capabilities": [
+      "timer.read",
+      "timer.control"
+    ],
+    "settings": [
+      {
+        "key": "breakMinutes",
+        "label": "Break minutes",
+        "type": "integer",
+        "default": 5,
+        "min": 1,
+        "max": 60
+      }
+    ]
+  },
+  "code": "definePlugin({\n  onEvent(event, context) {\n    if (event.type !== \"timer.finished\" || event.startedByPlugin) return;\n    return {commands: [{\n      type: \"timer.start\",\n      seconds: context.settings.breakMinutes * 60\n    }]};\n  }\n});\n"
+}

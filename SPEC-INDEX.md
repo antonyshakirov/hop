@@ -5,6 +5,7 @@ Read only the area being changed. The existing behavioral specification remains
 
 | Area | Read |
 | --- | --- |
+| Community plugin preview | `docs/plugins/sdk-v1.md`; plugin acceptance in `product-spec/results/03-test-cases.md` |
 | Menu bar readings and settings | `docs/spec.md` - Configurable menu bar readings |
 | Panel, appearance, geometry, lifecycle | `docs/spec.md` — Hard invariants of the panel |
 | Sound device controls and output routing | `docs/spec.md` — Sound and Sound quick mixer controls |

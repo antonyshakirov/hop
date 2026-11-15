@@ -4,6 +4,7 @@ import CoreServices
 import ServiceManagement
 import SwiftUI
 import HopCore
+import HopPluginAPI
 
 struct PanelView: View {
     /// A panel screen: one of the user's spaces.
@@ -170,6 +171,7 @@ struct PanelView: View {
     @AppStorage("newsSeen.2.4") private var news24Seen = false
     @AppStorage("newsSeen.2.4.5") private var news245Seen = false
     @AppStorage("newsSeen.2.5") private var news25Seen = false
+    @AppStorage("newsSeen.2.6") private var news26Seen = false
     /// Whether THIS opening has already been counted against the card's two.
     @State private var releaseCardCounted = false
     // Two-step "what's new" card: step 1 = opt-in (enable/hide), step 2 = the
@@ -292,7 +294,7 @@ struct PanelView: View {
             }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .frame(width: 368)
+                .frame(width: panelWidth)
                 .background(Theme.panelBackground)
                 .allowsHitTesting(false)   // a picture, not a control
                 .id(model.themeVersion)
@@ -345,7 +347,7 @@ struct PanelView: View {
                 .background(chromeFrameLogReader)
             panelScrollRegion
         }
-        .frame(width: 368)
+        .frame(width: panelWidth)
         .background(Theme.panelBackground)
         .onAppear { dropOrphanedShelfKeys() }
         .simultaneousGesture(TapGesture().onEnded {
@@ -493,6 +495,7 @@ struct PanelView: View {
         ReleaseCard(id: "2.4.5", lines: [.news245Bar, .news245Groups, .news245Panel],
                     destination: .menuBar, action: .news245Action),
         ReleaseCard(id: "2.5", lines: [.news25Cooling, .news25Lid, .news25Clipboard]),
+        ReleaseCard(id: "2.6", lines: [.news26Plugins]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -553,6 +556,7 @@ struct PanelView: View {
         _ = news24Seen
         _ = news245Seen
         _ = news25Seen
+        _ = news26Seen
         guard pendingAnnouncement == nil else { return nil }
         let defaults = UserDefaults.standard
         guard defaults.bool(forKey: "onboardingDone") else { return nil }
@@ -756,6 +760,7 @@ struct PanelView: View {
         news24Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.4"))
         news245Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.4.5"))
         news25Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.5"))
+        news26Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("2.6"))
     }
 
     /// The full notes for the release; the card is a summary of what the updates
@@ -1257,7 +1262,7 @@ struct PanelView: View {
         .padding(.horizontal, 14)
         .padding(.top, 18)
         .padding(.bottom, hasPanelChrome ? 16 : 0)
-        .frame(width: 368)
+        .frame(width: panelWidth)
     }
 
     /// The scrollable region — ONLY the active space's module stack (or the
@@ -1293,15 +1298,37 @@ struct PanelView: View {
 
     /// The body of the active screen — the space's module stack, or the
     /// settings/about overlay content. This is the ONLY part that scrolls.
+    private var pluginModuleIDs: Set<String> {
+        func collect(_ nodes: [PluginNode]) -> Set<String> {
+            nodes.reduce(into: Set<String>()) { result, node in
+                if let module = node.module { result.insert(module) }
+                result.formUnion(collect(node.children ?? []))
+            }
+        }
+        return collect(model.plugins.panel?.panel.nodes ?? [])
+    }
+
+    private var panelWidth: CGFloat {
+        let screenLimit = NSScreen.screens.map { $0.visibleFrame.width - 32 }.min() ?? 800
+        return min(screenLimit, model.plugins.panel?.panel.width ?? 368)
+    }
+
     private var panelContent: some View {
         VStack(spacing: 16) {
+            if let contribution = model.plugins.panel {
+                PluginNodeView(nodes: contribution.panel.nodes,
+                    action: { model.plugins.action(contribution.owner, generation: contribution.generation, action: $0) },
+                    module: { key in
+                        ModuleActivation.isOn(key) ? AnyView(moduleBlock(key, in: currentSpaceID ?? tabsModel.tabs[0].id)) : AnyView(EmptyView())
+                    })
+            }
             switch screen {
             case .space(let rawID):
                 // resolve a possibly-dead id (its space may have been deleted
                 // from the settings window since this panel was built)
                 let id = effectiveSpaceID(rawID)
-                let modules = visibleModules(in: id)
-                if modules.isEmpty {
+                let modules = model.plugins.panel?.panel.mode == "replace" ? [] : visibleModules(in: id).filter { !pluginModuleIDs.contains($0) }
+                if modules.isEmpty && model.plugins.panel == nil {
                     Text(t(.tabEmptyHint))
                         .font(Theme.mono(11))
                         .foregroundStyle(Theme.textTertiary)
@@ -1333,7 +1360,7 @@ struct PanelView: View {
         }
         .padding(.horizontal, 14)
         .padding(.bottom, 18)
-        .frame(width: 368)
+        .frame(width: panelWidth)
     }
 
     /// Fresh ScrollView identity per screen so switching always starts at the top.
@@ -1586,7 +1613,7 @@ struct PanelView: View {
             guard scrollResetKey == measuredSpace else { return }
             chromeHeight = rounded
             model.panelContentSizeChanged?(CGSize(
-                width: 368, height: min(maxPanelHeight, rounded + contentHeight)))
+                width: panelWidth, height: min(maxPanelHeight, rounded + contentHeight)))
         }
     }
 
@@ -1611,7 +1638,7 @@ struct PanelView: View {
                 contentHeight = rounded
             }
             model.panelContentSizeChanged?(CGSize(
-                width: 368, height: min(maxPanelHeight, chromeHeight + rounded)))
+                width: panelWidth, height: min(maxPanelHeight, chromeHeight + rounded)))
         }
     }
 
@@ -1756,7 +1783,7 @@ struct PanelView: View {
         awaitingUncachedSpaceHeight = currentSpaceID
         if #available(macOS 27.0, *) {
             let height = min(chromeHeight + contentHeight, maxPanelHeight)
-            model.panelContentSizeWillChange?(CGSize(width: 368, height: max(1, height - 1)))
+            model.panelContentSizeWillChange?(CGSize(width: panelWidth, height: max(1, height - 1)))
         }
     }
 
@@ -1792,7 +1819,7 @@ struct PanelView: View {
         // popover until AppKit sees a window-size change. A one-point nudge
         // starts the first visit's measurement; its actual height replaces it.
         PanelFrameLog.write("resizeStart", "space=\(id.uuidString) height=\(preferredHeight)")
-        model.panelContentSizeWillChange?(CGSize(width: 368, height: preferredHeight))
+        model.panelContentSizeWillChange?(CGSize(width: panelWidth, height: preferredHeight))
         PanelFrameLog.write("switchEnd", "space=\(id.uuidString) cached=\(cachedHeight != nil)")
     }
 
@@ -4031,6 +4058,8 @@ struct PanelView: View {
             }
         case .updates:
             page("arrow.down.circle", t(.updatesLabel)) { updatesSection }
+        case .plugins:
+            page("puzzlepiece.extension", PluginCopy.text(.title, lang)) { PluginSettingsView(manager: model.plugins, lang: lang) }
         case .guide:
             page("book", t(.guideTab)) { guidePage }
         case .about:

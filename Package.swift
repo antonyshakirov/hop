@@ -12,6 +12,11 @@ let package = Package(
         // everything else with tests behind it lives here, and it costs seconds.
         .target(name: "HopCore"),
         .target(name: "HopHardwareKit"),
+        .target(name: "HopPluginAPI"),
+        .target(name: "HopPluginProcess", publicHeadersPath: "include"),
+        .testTarget(name: "HopPluginAPITests", dependencies: ["HopPluginAPI"], resources: [.copy("Fixtures")]),
+        .executableTarget(name: "HopPluginRuntime", dependencies: ["HopPluginAPI"]),
+        .testTarget(name: "HopPluginRuntimeTests", dependencies: ["HopPluginRuntime", "HopPluginAPI"], resources: [.copy("Fixtures")]),
         .executableTarget(name: "HopHardwareHelper", dependencies: ["HopHardwareKit"]),
         // The app layer builds with -Osize, and that is a 27× difference measured
         // on this tree (2026-07-26): a release build of the UI module took 16m46s
@@ -24,7 +29,7 @@ let package = Package(
         // optimization level ("Optimize for size" in Xcode), not a debug setting.
         .executableTarget(
             name: "Hop",
-            dependencies: ["HopCore", "HopAudioDSP", "HopAudioEngine", "HopHardwareKit"],
+            dependencies: ["HopCore", "HopAudioDSP", "HopAudioEngine", "HopHardwareKit", "HopPluginAPI", "HopPluginProcess"],
             swiftSettings: [.unsafeFlags(["-Osize"], .when(configuration: .release))]
         ),
         // SPEC: docs/spec.md — "Network access". The content filter, shipped
@@ -35,7 +40,7 @@ let package = Package(
             swiftSettings: [.unsafeFlags(["-Osize"], .when(configuration: .release))]
         ),
         .testTarget(name: "HopCoreTests", dependencies: ["HopCore"], resources: [.copy("Fixtures")]),
-        .testTarget(name: "HopUITests", dependencies: ["Hop", "HopAudioDSP"]),
+        .testTarget(name: "HopUITests", dependencies: ["Hop", "HopAudioDSP", "HopPluginRuntime"], resources: [.copy("PluginFixtures")]),
         .testTarget(name: "HopHardwareTests", dependencies: ["HopHardwareKit"]),
     ]
 )

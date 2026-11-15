@@ -835,6 +835,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
         menu.addItem(item(L10n.t(.menuOpen, lang).capitalizedFirst, #selector(menuOpenPanel)))
         menu.addItem(item(L10n.t(.settingsTitle, lang).capitalizedFirst, #selector(menuOpenSettings)))
+        menu.addItem(item(PluginCopy.text(.recovery, lang).capitalizedFirst, #selector(menuDisablePlugins)))
         // the same words the sidebar uses for those two pages: one screen, one name
         menu.addItem(item(L10n.t(.guideTab, lang).capitalizedFirst, #selector(menuOpenGuide)))
         menu.addItem(item(L10n.t(.menuShareHop, lang).capitalizedFirst, #selector(menuShareHop)))
@@ -857,6 +858,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     @objc private func menuOpenPanel() { togglePopover(opening: .spaceContaining("timer")) }
     @objc private func menuOpenSettings() { model.openSettingsWindow?() }
+    @objc private func menuDisablePlugins() { model.plugins.disableAll() }
     @objc private func menuOpenGuide() { openSettings(at: .guide) }
     @objc private func menuOpenAbout() { openSettings(at: .about) }
 
@@ -1368,9 +1370,11 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private func debugLogPanelFrame(_ tag: String, frame: NSRect) {
         let topEdge = frame.origin.y + frame.height
         PanelFrameLog.write(tag, String(
-            format: "x=%.2f y=%.2f w=%.2f h=%.2f top=%.2f",
-            frame.origin.x, frame.origin.y, frame.width, frame.height, topEdge
-        ))
+            format: "x=%.2f y=%.2f w=%.2f h=%.2f top=%.2f contentW=%.2f contentH=%.2f",
+            frame.origin.x, frame.origin.y, frame.width, frame.height, topEdge,
+            popover.contentSize.width, popover.contentSize.height
+        ) + " activePlugins=\(model.plugins.active.sorted().joined(separator: ","))"
+            + " visible=\(popover.contentViewController?.view.window?.occlusionState.contains(.visible) == true) hidden=\(NSApp.isHidden)")
     }
 
     private func debugLogPanelAnchor(_ tag: String) {

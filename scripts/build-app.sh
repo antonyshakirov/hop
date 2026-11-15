@@ -63,7 +63,8 @@ swift build "${BUILD_ARGS[@]}"
 BINARY="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)/Hop"
 WORKER_BINARY="${BINARY%/Hop}/HopAudioWorker"
 HARDWARE_BINARY="${BINARY%/Hop}/HopHardwareHelper"
-for EXECUTABLE in "$BINARY" "$WORKER_BINARY" "$HARDWARE_BINARY"; do
+PLUGIN_BINARY="${BINARY%/Hop}/HopPluginRuntime"
+for EXECUTABLE in "$BINARY" "$WORKER_BINARY" "$HARDWARE_BINARY" "$PLUGIN_BINARY"; do
     if [[ ! -f "$EXECUTABLE" ]]; then
         echo "❌ swift build did not produce $EXECUTABLE"
         exit 1
@@ -85,7 +86,7 @@ if [[ -n "$STALE" ]]; then
     exit 1
 fi
 if [[ $DEV != 1 ]]; then
-    for EXECUTABLE in "$BINARY" "$WORKER_BINARY" "$HARDWARE_BINARY"; do
+    for EXECUTABLE in "$BINARY" "$WORKER_BINARY" "$HARDWARE_BINARY" "$PLUGIN_BINARY"; do
         ARCHS="$(lipo -archs "$EXECUTABLE")"
         if [[ "$ARCHS" != *arm64* || "$ARCHS" != *x86_64* ]]; then
             echo "❌ $EXECUTABLE is not universal ($ARCHS)"
@@ -128,6 +129,10 @@ HARDWARE_APP="$APP/Contents/Helpers/HopHardwareHelper.app"
 mkdir -p "$HARDWARE_APP/Contents/MacOS" "$APP/Contents/Library/LaunchDaemons"
 cp "$HARDWARE_BINARY" "$HARDWARE_APP/Contents/MacOS/HopHardwareHelper"
 cp scripts/HopHardwareHelper-Info.plist "$HARDWARE_APP/Contents/Info.plist"
+PLUGIN_XPC="$APP/Contents/XPCServices/HopPluginRuntime.xpc"
+mkdir -p "$PLUGIN_XPC/Contents/MacOS"
+cp "$PLUGIN_BINARY" "$PLUGIN_XPC/Contents/MacOS/HopPluginRuntime"
+cp scripts/HopPluginRuntime-Info.plist "$PLUGIN_XPC/Contents/Info.plist"
 cp scripts/com.antonshakirov.minimo.hardware.plist "$APP/Contents/Library/LaunchDaemons/com.antonshakirov.minimo.hardware.plist"
 cp docs/third-party/ClamDown-LICENSE.txt "$APP/Contents/Resources/ClamDown-LICENSE.txt"
 for icon in "${DOC_ICONS[@]}"; do
@@ -142,6 +147,8 @@ if [[ $DEV == 1 ]]; then
     plutil -replace HopHardwareDiagnosticsVersion -integer 1 "$APP/Contents/Info.plist"
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.audio-worker" "$WORKER_APP/Contents/Info.plist"
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.hardware-helper" "$HARDWARE_APP/Contents/Info.plist"
+    plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.plugin-runtime" "$PLUGIN_XPC/Contents/Info.plist"
+    plutil -replace HopPluginParentIdentifier -string "com.antonshakirov.minimo.dev" "$PLUGIN_XPC/Contents/Info.plist"
     python3 - "$APP/Contents/Library/LaunchDaemons" <<'PYHARDWARE'
 import pathlib, plistlib, sys
 directory = pathlib.Path(sys.argv[1])
@@ -194,7 +201,11 @@ elif [[ $DEV == 0 ]]; then
 fi
 hop_sign_app "$WORKER_APP" "$IDENTITY" "$TIMESTAMP" scripts/HopAudioWorker.entitlements
 hop_sign_app "$HARDWARE_APP" "$IDENTITY" "$TIMESTAMP" scripts/HopHardwareHelper.entitlements
+PLUGIN_TEAM="$(codesign -dvv "$HARDWARE_APP" 2>&1 | sed -n 's/^TeamIdentifier=//p')"
+plutil -replace HopPluginSigningTeam -string "$PLUGIN_TEAM" "$PLUGIN_XPC/Contents/Info.plist"
+hop_sign_app "$PLUGIN_XPC" "$IDENTITY" "$TIMESTAMP" scripts/HopPluginRuntime.entitlements
 hop_sign_app "$APP" "$IDENTITY" "$TIMESTAMP" "$APP_ENTITLEMENTS"
+codesign --verify --deep --strict "$APP"
 
 if [[ "${HOP_NOTARIZE:-}" == "1" ]]; then
     [[ -f .env ]] || { echo "❌ HOP_NOTARIZE=1 needs .env with the notary credentials"; exit 1; }
