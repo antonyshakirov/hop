@@ -40,7 +40,7 @@ sistema, un gestore degli appunti, un convertitore di file drag-and-drop, uno st
 app nativa e leggera, con i moduli che usi distribuiti su fino a quattro
 schede dell'icona.
 
-**2.5.2:** L’avviso di autorizzazione per il raffreddamento e la modalità a coperchio chiuso si aggiorna riaprendo il pannello. La modalità a coperchio chiuso cambia più rapidamente mantenendo la conferma del sistema. Cambiando uscita audio, il rilascio del motore precedente non blocca più il menu o la chiusura di Hop. Passa il puntatore su una voce degli appunti per vedere il testo con i paragrafi anziché la descrizione del modulo.
+**2.5.2:** L’avviso di autorizzazione per il raffreddamento e la modalità a coperchio chiuso si aggiorna riaprendo il pannello. La modalità a coperchio chiuso cambia più rapidamente con conferma del sistema. Gli errori appaiono sotto Awake. Cambiando uscita audio, il rilascio del motore precedente non blocca più il menu o la chiusura di Hop. Appunti: passa il puntatore per vedere testo o immagini. L’anteprima si adatta al contenuto e abbrevia i testi lunghi.
 
 ## Download
 
@@ -217,6 +217,8 @@ ricopiarle o incollarle direttamente nell'app precedente. I file copiati
 vengono ricordati per nome (più file insieme appaiono come «nome +N»), e
 incollando torna il file vero e proprio. Le password e gli altri input
 nascosti non vengono mai salvati.
+
+Passa il puntatore per vedere testo o immagini. L’anteprima si adatta al contenuto e abbrevia i testi lunghi.
 
 <div align="center">
 <img src="https://hop.tools/screens/it/clipboard.webp" width="420" alt="Hop – Cronologia degli appunti">

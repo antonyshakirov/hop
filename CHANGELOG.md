@@ -2,8 +2,8 @@
 
 ## 2.5.2 - 2026-11-16
 
-- Hover a clipboard entry to preview its text and paragraphs instead of the module description.
-- Closed-lid mode switches faster while retaining system confirmation.
+- Clipboard: hover to preview text or an image. Previews fit their content and truncate long text.
+- Closed-lid mode switches faster with system confirmation. Errors appear under Awake.
 - Switching audio outputs no longer blocks the menu or Quit while an old audio engine is released.
 - The permission banner for cooling and closed-lid mode updates when you reopen the panel.
 

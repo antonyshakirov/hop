@@ -39,7 +39,7 @@ takibi, caffeinate benzeri bir uyku engelleyici, sistem monitörü, pano
 yöneticisi, sürükle-bırak dosya dönüştürücü, pencere yerleştirici, bir uygulama güvenlik duvarı ve hafif bir torrent istemcisi – tek bir hafif, yerel uygulama; kullandığınız
 modüller simgedeki en fazla dört sekmeye dağılmış.
 
-**2.5.2:** Soğutma ve kapak kapalı modu için izin bildirimi, panel yeniden açıldığında güncellenir. Kapak kapalı modu, sistem onayını koruyarak daha hızlı değişir. Ses çıkışı değiştirilirken eski ses motorunun serbest bırakılması artık menüyü veya Hop’tan çıkışı engellemez. Pano kaydının üzerine gelince modül açıklaması yerine metni ve paragrafları görünür.
+**2.5.2:** Soğutma ve kapak kapalı modu için izin bildirimi, panel yeniden açıldığında güncellenir. Kapak kapalı modu sistem onayıyla daha hızlı değişir. Hatalar Awake altında görünür. Ses çıkışı değiştirilirken eski ses motorunun serbest bırakılması artık menüyü veya Hop’tan çıkışı engellemez. Pano: metni veya resmi önizlemek için üzerine gelin. Önizleme içeriğe göre boyutlanır ve uzun metni kısaltır.
 
 ## İndir
 
@@ -213,6 +213,8 @@ tek tıkla yeniden kopyalayın ya da doğrudan önceki uygulamaya yapıştırın
 Kopyalanan dosyalar adıyla saklanır (birden fazlası «ad +N» olarak görünür)
 ve yapıştırınca dosyanın kendisi geri gelir. Parolalar ve diğer gizli
 girişler asla saklanmaz.
+
+Metni veya resmi önizlemek için üzerine gelin. Önizleme içeriğe göre boyutlanır ve uzun metni kısaltır.
 
 <div align="center">
 <img src="https://hop.tools/screens/tr/clipboard.webp" width="420" alt="Hop – Pano geçmişi">

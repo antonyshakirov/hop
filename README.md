@@ -40,7 +40,7 @@ converter, a window snapper, an app firewall and a lite torrent client – one
 native app, with the modules you use arranged across up to four tabs on the
 icon.
 
-**2.5.2:** The permission banner for cooling and closed-lid mode updates when you reopen the panel. Closed-lid mode switches faster while retaining system confirmation. Switching audio outputs no longer blocks the menu or Quit while an old audio engine is released. Hover a clipboard entry to preview its text and paragraphs instead of the module description.
+**2.5.2:** The permission banner for cooling and closed-lid mode updates when you reopen the panel. Closed-lid mode switches faster with system confirmation. Errors appear under Awake. Switching audio outputs no longer blocks the menu or Quit while an old audio engine is released. Clipboard: hover to preview text or an image. Previews fit their content and truncate long text.
 
 ## Download
 
@@ -225,8 +225,7 @@ Press Command-Shift-C to search history in its own window. Command-1 through
 Command-9 copies a result; arrows and Return select and copy, and Escape closes
 the picker. The opening shortcut can be changed in settings.
 
-Hover over a text entry to preview its text or an image for a thumbnail.
-The preview appears after half a second and fits its content.
+Hover to preview text or an image. Previews fit their content and truncate long text.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – Clipboard history">

@@ -42,7 +42,7 @@ arrastar e soltar, um organizador de janelas, um firewall de apps e um cliente 
 um único app nativo e leve, com os módulos que você usa distribuídos em até
 quatro abas no ícone.
 
-**2.5.2:** O aviso de permissão para o arrefecimento e o modo de tampa fechada é atualizado ao reabrir o painel. O modo de tampa fechada muda mais depressa e mantém a confirmação do sistema. Ao mudar a saída de áudio, libertar o motor anterior deixa de bloquear o menu ou a saída do Hop. Ao passar o cursor sobre uma entrada da área de transferência, aparece o seu texto com parágrafos em vez da descrição do módulo.
+**2.5.2:** O aviso de permissão para o arrefecimento e o modo de tampa fechada é atualizado ao reabrir o painel. O modo de tampa fechada muda mais depressa com confirmação do sistema. Os erros aparecem sob Awake. Ao mudar a saída de áudio, libertar o motor anterior deixa de bloquear o menu ou a saída do Hop. Área de transferência: passa o cursor para ver texto ou imagens. A pré-visualização ajusta-se ao conteúdo e encurta textos longos.
 
 ## Download
 
@@ -215,6 +215,8 @@ com um clique para copiar de novo ou colar direto no app anterior. Arquivos
 copiados são guardados pelo nome (vários de uma vez aparecem como
 «nome +N»), e ao colar o arquivo em si volta. Senhas e outras entradas
 ocultas nunca são armazenadas.
+
+Passa o cursor para ver texto ou imagens. A pré-visualização ajusta-se ao conteúdo e encurta textos longos.
 
 <div align="center">
 <img src="https://hop.tools/screens/pt/clipboard.webp" width="420" alt="Hop – Histórico da área de transferência">

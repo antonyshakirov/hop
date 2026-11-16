@@ -42,7 +42,7 @@ glisser-déposer, un outil d'ancrage de fenêtres, un pare-feu applicatif et un 
 une seule app native et légère, dont les modules se répartissent sur jusqu'à
 quatre onglets de l'icône.
 
-**2.5.2:** Le statut des autorisations des ventilateurs et du mode capot fermé s’actualise à l’ouverture du panneau. Le mode capot fermé bascule plus vite en conservant la confirmation du système. Après un changement de sortie audio, la libération de l’ancien moteur ne bloque plus le menu ni la fermeture de Hop. Survolez un élément copié : son texte apparaît avec ses paragraphes. L’aide du module reste sur le titre.
+**2.5.2:** Le statut des autorisations des ventilateurs et du mode capot fermé s’actualise à l’ouverture du panneau. Le mode capot fermé bascule plus vite. Le système confirme chaque changement. Les erreurs apparaissent sous Awake. Après un changement de sortie audio, la libération de l’ancien moteur ne bloque plus le menu ni la fermeture de Hop. Presse-papiers : survolez un élément pour voir son texte ou son image. L’aperçu s’adapte au contenu et abrège les textes longs.
 
 ## Téléchargement
 
@@ -220,6 +220,8 @@ un clic pour les recopier ou les coller directement dans l'app précédente.
 Les fichiers copiés sont retenus par leur nom (plusieurs à la fois
 apparaissent en « nom +N »), et le collage ramène le fichier lui-même. Les
 mots de passe et autres saisies masquées ne sont jamais enregistrés.
+
+Survolez un élément pour voir son texte ou son image. L’aperçu s’adapte au contenu et abrège les textes longs.
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/clipboard.webp" width="420" alt="Hop – Historique du presse-papiers">

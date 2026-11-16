@@ -39,7 +39,7 @@ takenlijst, een slaapblokkering à la caffeinate, een systeemmonitor, een
 klembordbeheerder, een drag-and-drop-bestandsconverter, een venster-snapper, een app-firewall en een lichte torrentclient – één lichtgewicht native app, met de modules
 die je gebruikt verdeeld over tot vier tabbladen op het icoon.
 
-**2.5.2:** De toestemmingsmelding voor koeling en werken met gesloten klep wordt bijgewerkt wanneer je het paneel opnieuw opent. De modus voor een gesloten klep schakelt sneller en behoudt de systeembevestiging. Bij het wisselen van audio-uitgang blokkeert het vrijgeven van de vorige audio-engine het menu en afsluiten niet meer. Beweeg de aanwijzer over een klemborditem om de tekst met alinea’s te bekijken in plaats van de modulebeschrijving.
+**2.5.2:** De toestemmingsmelding voor koeling en werken met gesloten klep wordt bijgewerkt wanneer je het paneel opnieuw opent. De modus voor een gesloten klep schakelt sneller met systeembevestiging. Fouten verschijnen onder Awake. Bij het wisselen van audio-uitgang blokkeert het vrijgeven van de vorige audio-engine het menu en afsluiten niet meer. Klembord: beweeg de aanwijzer over een item voor een tekst- of afbeeldingsvoorbeeld. Het voorbeeld past bij de inhoud en kort lange tekst in.
 
 ## Downloaden
 
@@ -215,6 +215,8 @@ bestanden – met één klik terug te kopiëren of direct te plakken in de vorig
 app. Gekopieerde bestanden worden op naam onthouden (meerdere tegelijk
 verschijnen als «naam +N»), en bij het plakken komt het bestand zelf terug.
 Wachtwoorden en andere verborgen invoer worden nooit opgeslagen.
+
+Beweeg de aanwijzer over een item voor een tekst- of afbeeldingsvoorbeeld. Het voorbeeld past bij de inhoud en kort lange tekst in.
 
 <div align="center">
 <img src="https://hop.tools/screens/nl/clipboard.webp" width="420" alt="Hop – Klembordgeschiedenis">

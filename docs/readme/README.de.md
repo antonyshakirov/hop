@@ -40,7 +40,7 @@ Zwischenablage-Manager, einen Drag-and-drop-Dateikonverter, einen
 Fenster-Snapper, eine App-Firewall und einen leichten Torrent-Client – eine leichtgewichtige
 native App, deren Module du auf bis zu vier Tabs am Symbol verteilst.
 
-**2.5.2:** Die Freigabeanzeige für Lüfter und Deckelmodus wird beim Öffnen des Panels aktualisiert. Der Deckelmodus wechselt schneller. Das System bestätigt weiterhin jeden Wechsel. Beim Freigeben der bisherigen Audio-Engine bleiben Menü und Beenden nach einem Ausgangswechsel verfügbar. Zwischenablage: Einträge zeigen beim Überfahren ihren Text mit Absätzen. Die Modulhilfe steht am Titel.
+**2.5.2:** Die Freigabeanzeige für Lüfter und Deckelmodus wird beim Öffnen des Panels aktualisiert. Der Deckelmodus wechselt schneller. Das System bestätigt weiterhin jeden Wechsel. Fehler erscheinen unter Awake. Beim Freigeben der bisherigen Audio-Engine bleiben Menü und Beenden nach einem Ausgangswechsel verfügbar. Zwischenablage: Vorschauen zeigen Text und Bilder. Ihre Größe passt zum Inhalt; lange Texte werden gekürzt.
 
 ## Download
 
@@ -216,6 +216,8 @@ ein Klick zum erneuten Kopieren oder zum direkten Einfügen in die vorherige
 App. Kopierte Dateien werden mit Namen gemerkt (mehrere zeigen sich als
 „Name +N“), und beim Einfügen kommt die eigentliche Datei zurück. Passwörter
 und andere verdeckte Eingaben werden niemals gespeichert.
+
+Vorschauen zeigen Text und Bilder. Ihre Größe passt zum Inhalt; lange Texte werden gekürzt.
 
 <div align="center">
 <img src="https://hop.tools/screens/de/clipboard.webp" width="420" alt="Hop – Zwischenablage-Verlauf">

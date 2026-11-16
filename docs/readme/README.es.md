@@ -41,7 +41,7 @@ del sistema, un gestor del portapapeles, un conversor de archivos por
 arrastrar y soltar, un organizador de ventanas, un cortafuegos de aplicaciones y un cliente de torrents ligero – una sola app nativa y ligera, con los módulos que usas repartidos en
 hasta cuatro pestañas del icono.
 
-**2.5.2:** El aviso de permiso para la refrigeración y el modo de tapa cerrada se actualiza al volver a abrir el panel. El modo de tapa cerrada cambia más rápido y conserva la confirmación del sistema. Al cambiar la salida de audio, liberar el motor anterior ya no bloquea el menú ni la salida de Hop. Al pasar el cursor sobre una entrada del portapapeles, aparece su texto con párrafos en lugar de la descripción del módulo.
+**2.5.2:** El aviso de permiso para la refrigeración y el modo de tapa cerrada se actualiza al volver a abrir el panel. El modo de tapa cerrada cambia más rápido con confirmación del sistema. Los errores aparecen debajo de Awake. Al cambiar la salida de audio, liberar el motor anterior ya no bloquea el menú ni la salida de Hop. Portapapeles: pasa el cursor para ver texto o imágenes. La vista previa se ajusta al contenido y recorta textos largos.
 
 ## Descarga
 
@@ -217,6 +217,8 @@ con un clic para volver a copiarlas o pegarlas directamente en la app
 anterior. Los archivos copiados se guardan por su nombre (varios a la vez
 aparecen como «nombre +N»), y al pegar vuelve el archivo en sí. Las
 contraseñas y otras entradas ocultas nunca se guardan.
+
+Pasa el cursor para ver texto o imágenes. La vista previa se ajusta al contenido y recorta textos largos.
 
 <div align="center">
 <img src="https://hop.tools/screens/es/clipboard.webp" width="420" alt="Hop – Historial del portapapeles">

@@ -39,7 +39,7 @@ cần làm, trình chặn ngủ kiểu caffeinate, trình giám sát hệ thốn
 quản lý clipboard, trình chuyển đổi tệp kéo-thả, công cụ sắp xếp cửa sổ, một tường lửa ứng dụng và trình torrent gọn nhẹ – một ứng dụng native nhẹ nhàng, với các mô-đun bạn
 dùng được trải trên tối đa bốn tab ở biểu tượng.
 
-**2.5.2:** Thông báo quyền cho tính năng làm mát và chế độ đóng nắp được cập nhật khi mở lại bảng điều khiển. Chế độ đóng nắp chuyển nhanh hơn và vẫn chờ hệ thống xác nhận. Khi đổi đầu ra âm thanh, việc giải phóng bộ máy âm thanh cũ không còn làm treo menu hoặc thao tác thoát Hop. Di chuột lên mục trong bộ nhớ tạm để xem văn bản giữ nguyên đoạn thay vì mô tả mô-đun.
+**2.5.2:** Thông báo quyền cho tính năng làm mát và chế độ đóng nắp được cập nhật khi mở lại bảng điều khiển. Chế độ đóng nắp chuyển nhanh hơn với xác nhận của hệ thống. Lỗi xuất hiện bên dưới Awake. Khi đổi đầu ra âm thanh, việc giải phóng bộ máy âm thanh cũ không còn làm treo menu hoặc thao tác thoát Hop. Bộ nhớ tạm: di chuột để xem trước văn bản hoặc hình ảnh. Kích thước phù hợp nội dung và văn bản dài được rút gọn.
 
 ## Tải về
 
@@ -209,6 +209,8 @@ cú nhấp để sao chép lại hoặc dán thẳng vào ứng dụng trước 
 chép được nhớ theo tên (nhiều tệp cùng lúc hiện là «tên +N»), và khi dán thì
 chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác không bao giờ
 được lưu.
+
+Di chuột để xem trước văn bản hoặc hình ảnh. Kích thước phù hợp nội dung và văn bản dài được rút gọn.
 
 <div align="center">
 <img src="https://hop.tools/screens/vi/clipboard.webp" width="420" alt="Hop – Lịch sử clipboard">

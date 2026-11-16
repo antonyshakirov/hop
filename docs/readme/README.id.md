@@ -40,7 +40,7 @@ drag-and-drop, penata jendela, firewall aplikasi, dan klien torrent ringan – s
 native yang ringan, dengan modul yang kamu pakai tersebar di hingga empat
 tab pada ikon.
 
-**2.5.2:** Pemberitahuan izin untuk pendinginan dan mode tutup tertutup diperbarui saat panel dibuka kembali. Mode tutup tertutup berganti lebih cepat dan tetap menunggu konfirmasi sistem. Saat mengganti keluaran audio, pelepasan mesin audio lama tidak lagi membekukan menu atau penutupan Hop. Arahkan penunjuk ke entri papan klip untuk melihat teks beserta paragrafnya, bukan deskripsi modul.
+**2.5.2:** Pemberitahuan izin untuk pendinginan dan mode tutup tertutup diperbarui saat panel dibuka kembali. Mode tutup tertutup berganti lebih cepat dengan konfirmasi sistem. Kesalahan muncul di bawah Awake. Saat mengganti keluaran audio, pelepasan mesin audio lama tidak lagi membekukan menu atau penutupan Hop. Papan klip: arahkan penunjuk untuk melihat teks atau gambar. Pratinjau menyesuaikan isinya dan memotong teks panjang.
 
 ## Unduh
 
@@ -216,6 +216,8 @@ sekali klik untuk menyalin kembali atau menempel langsung ke aplikasi
 sebelumnya. File yang disalin diingat berdasarkan namanya (beberapa sekaligus
 tampil sebagai «nama +N»), dan menempel akan mengembalikan file itu sendiri.
 Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
+
+Arahkan penunjuk untuk melihat teks atau gambar. Pratinjau menyesuaikan isinya dan memotong teks panjang.
 
 <div align="center">
 <img src="https://hop.tools/screens/id/clipboard.webp" width="420" alt="Hop – Riwayat clipboard">
