@@ -5188,6 +5188,9 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   fan/closed-lid capabilities; ordinary monitoring and idle-sleep prevention still
   work. Reopening the panel or returning to Hop rechecks the actual OS state.
   The banner disappears when access works or both relevant modules are disabled.
+  The native popover will-show event rechecks approval on every reopening,
+  including a retained panel that does not activate Hop or repeat SwiftUI appearance.
+  This check adds no idle polling and never registers or rearms hardware controls.
   No automatic permission check rearms fan/lid control or bypasses update fences.
   Snapshots and onboarding do not request or open system permission UI.
 - Ending a protected lid lease restores fan settings and the sleep override before

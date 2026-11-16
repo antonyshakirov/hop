@@ -1,3 +1,4 @@
+import AppKit
 import Darwin
 import Foundation
 import HopCore
@@ -125,6 +126,41 @@ final class CoolingControllerTests: XCTestCase {
         XCTAssertEqual(service.registrationAttempts, 0)
         XCTAssertFalse(service.calls.contains(.configure))
         XCTAssertFalse(service.hardware.sleep)
+    }
+
+    func testReopeningNonactivatingPopoverRechecksApprovalWithoutRegisteringOrRearming() async throws {
+        let defaults = UserDefaults.standard
+        let keys = [SettingsKey.panelTabs, "onboardingDone"]
+        let saved = keys.map { defaults.object(forKey: $0) }
+        defer {
+            for (key, value) in zip(keys, saved) {
+                if let value { defaults.set(value, forKey: key) } else { defaults.removeObject(forKey: key) }
+            }
+        }
+        defaults.set(true, forKey: "onboardingDone")
+        defaults.set(PanelTabsModel(tabs: [PanelTab(icon: "house", moduleKeys: ["system", "awake"])]).encoded(),
+                     forKey: SettingsKey.panelTabs)
+        let notifications = NotificationCenter()
+        let (controller, service) = try fixture(observing: notifications)
+        service.state = .approval
+        controller.checkPermissions()
+        XCTAssertEqual(controller.permissionIssue, .approval)
+
+        service.state = .enabled
+        notifications.post(name: NSPopover.willShowNotification, object: NSPopover())
+        for _ in 0..<3 { await Task.yield() }
+        XCTAssertNil(controller.permissionIssue)
+        XCTAssertTrue(controller.serviceEnabled)
+
+        service.state = .approval
+        notifications.post(name: NSPopover.willShowNotification, object: NSPopover())
+        for _ in 0..<3 { await Task.yield() }
+        XCTAssertEqual(controller.permissionIssue, .approval)
+        XCTAssertFalse(controller.serviceEnabled)
+        XCTAssertEqual(service.registrationAttempts, 0)
+        XCTAssertFalse(service.calls.contains(.configure))
+        XCTAssertFalse(service.hardware.sleep)
+        XCTAssertTrue(service.hardware.targets.isEmpty)
     }
 
     func testModuleSetupDoesNotCompeteWithMaintenance() async throws {
