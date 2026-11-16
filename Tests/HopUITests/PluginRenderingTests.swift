@@ -50,8 +50,12 @@ final class PluginRenderingTests: XCTestCase {
         let paused = try XCTUnwrap(store.record(installed.id))
         XCTAssertTrue(paused.wantedEnabled)
         var requested = 0, disabled = 0, removed = 0
-        let host = NSHostingView(rootView: PluginInstalledActions(record: paused, active: false, lang: .en,
-            requestEnable: { requested += 1 }, disable: { disabled += 1 }, remove: { removed += 1 }).frame(width: 160, height: 140))
+        let host = NSHostingView(rootView: VStack {
+            PluginInstalledActions(record: paused, active: false, lang: .en,
+                requestEnable: { requested += 1 }, disable: { disabled += 1 })
+            PluginRemoveButton(id: paused.id, name: paused.package.manifest.name, lang: .en, action: { removed += 1 })
+                .frame(width: 24, height: 24)
+        }.frame(width: 160, height: 140))
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 160, height: 140), styleMask: [.borderless], backing: .buffered, defer: false)
         window.isReleasedWhenClosed = false; window.contentView = host
         defer { window.close() }
@@ -80,8 +84,12 @@ final class PluginRenderingTests: XCTestCase {
         }
         func card() throws -> NSView {
             let record = try XCTUnwrap(manager.records.first)
-            return host(AnyView(PluginInstalledActions(record: record, active: manager.active.contains(record.id), lang: .en,
-                requestEnable: { requested = record }, disable: { manager.disable(record.id) }, remove: { manager.remove(record.id) })))
+            return host(AnyView(VStack {
+                PluginInstalledActions(record: record, active: manager.active.contains(record.id), lang: .en,
+                    requestEnable: { requested = record }, disable: { manager.disable(record.id) })
+                PluginRemoveButton(id: record.id, name: record.package.manifest.name, lang: .en, action: { manager.remove(record.id) })
+                    .frame(width: 24, height: 24)
+            }))
         }
         func toggle(_ view: NSView, enabled: Bool) throws {
             let control = try XCTUnwrap(controls(view, NSSwitch.self).first)
@@ -114,6 +122,33 @@ final class PluginRenderingTests: XCTestCase {
         let id = try XCTUnwrap(manager.records.first).id
         try click(card(), "hop.plugins.remove." + id)
         XCTAssertTrue(manager.records.isEmpty); XCTAssertTrue(manager.active.isEmpty); XCTAssertNil(Theme.pluginOverlay)
+        XCTAssertTrue(try PluginStore(directory: directory).state.records.isEmpty)
+    }
+    func testRemovalIsAnIconBelowTheToggleInTheRealInstalledCard() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let manager = PluginManager(engine: TimerEngine(), directory: directory, transport: RenderingPluginTransport())
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let fixtures = try XCTUnwrap(Bundle.module.url(forResource: "PluginFixtures", withExtension: nil))
+        manager.install(try Data(contentsOf: fixtures.appendingPathComponent("desk-panel-1.0.0.hopplugin")), origin: "local")
+        let id = try XCTUnwrap(manager.records.first).id
+        let host = NSHostingView(rootView: PluginSettingsView(manager: manager, lang: .en).padding(20).frame(width: 650, height: 500))
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 650, height: 500), styleMask: [.borderless], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false; window.contentView = host
+        defer { window.close() }
+        host.layoutSubtreeIfNeeded()
+        func controls<T: NSView>(_ view: NSView, _ type: T.Type) -> [T] {
+            (view as? T).map { [$0] } ?? view.subviews.flatMap { controls($0, type) }
+        }
+        let toggle = try XCTUnwrap(controls(host, NSSwitch.self).first)
+        let remove = try XCTUnwrap(controls(host, NSButton.self).first { $0.identifier?.rawValue == "hop.plugins.remove." + id })
+        XCTAssertEqual(remove.title, ""); XCTAssertNotNil(remove.image)
+        XCTAssertEqual(remove.toolTip, PluginCopy.text(.remove, .en))
+        let toggleFrame = host.convert(toggle.bounds, from: toggle), removeFrame = host.convert(remove.bounds, from: remove)
+        XCTAssertGreaterThan(abs(removeFrame.midY - toggleFrame.midY), 60)
+        XCTAssertGreaterThan(removeFrame.midX, 590)
+        XCTAssertTrue(host.isFlipped ? removeFrame.minY > toggleFrame.maxY : removeFrame.maxY < toggleFrame.minY)
+        remove.performClick(nil)
+        XCTAssertTrue(manager.records.isEmpty)
         XCTAssertTrue(try PluginStore(directory: directory).state.records.isEmpty)
     }
     func testLongInstalledMetadataKeepsTheLibraryCompact() throws {

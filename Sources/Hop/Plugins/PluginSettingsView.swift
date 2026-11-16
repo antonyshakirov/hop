@@ -40,7 +40,7 @@ struct PluginSettingsView: View {
                         }.fixedSize(horizontal: false, vertical: true)
                         Spacer(minLength: 10)
                         PluginInstalledActions(record: record, active: manager.active.contains(record.id), lang: lang,
-                            requestEnable: { approving = record }, disable: { manager.disable(record.id) }, remove: { manager.remove(record.id) })
+                            requestEnable: { approving = record }, disable: { manager.disable(record.id) })
                             .fixedSize()
                     }
                     DisclosureGroup(t(.permissions)) {
@@ -49,6 +49,12 @@ struct PluginSettingsView: View {
                         }
                     }
                     ForEach(record.package.manifest.settings, id: \.key) { descriptor in setting(record, descriptor) }
+                    HStack {
+                        Spacer()
+                        PluginRemoveButton(id: record.id, name: record.package.manifest.name, lang: lang,
+                                           action: { manager.remove(record.id) })
+                            .frame(width: 24, height: 24)
+                    }
                 }
             }
             if !manager.active.isEmpty { Button(t(.recovery)) { manager.disableAll() }.buttonStyle(.plain).hoverDim() }
@@ -144,7 +150,6 @@ struct PluginInstalledActions: View {
     let lang: AppLanguage
     let requestEnable: () -> Void
     let disable: () -> Void
-    let remove: () -> Void
     var body: some View {
         VStack(alignment: .trailing, spacing: 8) {
             PluginEnableToggle(enabled: record.wantedEnabled, available: record.package.compatibilityIssue == nil || record.wantedEnabled,
@@ -159,9 +164,6 @@ struct PluginInstalledActions: View {
                     .fixedSize()
                     .disabled(record.package.compatibilityIssue != nil)
             }
-            PluginActionButton(title: PluginCopy.text(.remove, lang), action: remove, bordered: false,
-                               accessibilityID: "hop.plugins.remove." + record.id)
-                .fixedSize()
         }
     }
 }
