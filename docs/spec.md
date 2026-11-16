@@ -1397,6 +1397,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   show an actual aspect-preserving miniature, without a dimensions placeholder.
   The window follows natural text/image dimensions, up to its available screen
   space; short entries have neither a fixed-width empty area nor an action footer.
+  Text previews never scroll: the window is at most360pt wide/high and shrinks
+  to the available screen space. Wrapped overflow ends with a native ellipsis,
+  including long unbroken strings; copying still restores the complete entry.
   Copy, paste and save buttons keep their own action hints. The generic module
   purpose belongs to the clipboard heading and never covers entry previews.
   Each row uses its own native tracking area and a shared nonactivating preview

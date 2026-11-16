@@ -1,4 +1,5 @@
 import AppKit
+import HopCore
 import SwiftUI
 import XCTest
 @testable import Hop
@@ -320,6 +321,59 @@ final class ClipboardHoverControllerTests: XCTestCase {
                     content.cacheDisplay(in: content.bounds, to: rep)
                     try XCTUnwrap(rep.representation(using: .png, properties: [:]))
                         .write(to: url.appendingPathComponent("\(name)-\(dark ? "dark" : "light").png"))
+                }
+            }
+        }
+    }
+
+    func testBookAndUnbrokenTextStayOnScreenWithoutScrollViews() throws {
+        let saved = UserDefaults.standard.object(forKey: Theme.themeKey)
+        defer {
+            if let saved { UserDefaults.standard.set(saved, forKey: Theme.themeKey) }
+            else { UserDefaults.standard.removeObject(forKey: Theme.themeKey) }
+        }
+        let bodies = [
+            ("book", String(repeating: "A chapter with many words and detailed descriptions. ", count: 20000)),
+            ("unbroken", String(repeating: "W", count: 1_000_000)),
+            ("newlines", String(repeating: "A line of the copied book.\n", count: 20000))
+        ]
+        for dark in [false, true] {
+            UserDefaults.standard.set(dark ? "dark" : "light", forKey: Theme.themeKey)
+            for short in [false, true] {
+                let screen = NSRect(x: -10000, y: -10000, width: 800, height: short ? 170 : 1400)
+                let pointer = NSPoint(x: -9700, y: short ? -9915 : -9300)
+                for (name, body) in bodies {
+                    let item = ClipboardItem(text: body)
+                    let preview = ClipboardHoverPreview.text(for: item)
+                    XCTAssertLessThanOrEqual(preview.count, 1501)
+                    XCTAssertLessThanOrEqual(preview.components(separatedBy: "\n").count, 20)
+                    XCTAssertTrue(preview.hasSuffix("…"))
+                    XCTAssertEqual(item.text, body)
+                    let fixture = Fixture(text: preview, screen: screen, pointer: pointer)
+                    defer { fixture.finish() }
+                    fixture.controller.request(from: fixture.anchor); fixture.clock.advance(0.5)
+                    let panel = try XCTUnwrap(fixture.controller.panel)
+                    let content = try XCTUnwrap(panel.contentView)
+                    let label = try XCTUnwrap(content.subviews.first as? NSTextField)
+                    XCTAssertTrue(screen.contains(panel.frame))
+                    XCTAssertFalse(panel.frame.contains(pointer))
+                    XCTAssertLessThanOrEqual(panel.frame.width, 360)
+                    XCTAssertLessThanOrEqual(panel.frame.height, short ? 65 : 360)
+                    if !short && name != "newlines" { XCTAssertEqual(panel.frame.height, 360) }
+                    XCTAssertNil(label.enclosingScrollView)
+                    XCTAssertFalse(label.isEditable)
+                    if name != "newlines" || short {
+                        XCTAssertGreaterThan(label.maximumNumberOfLines, 0)
+                        XCTAssertTrue(label.cell?.truncatesLastVisibleLine == true)
+                    }
+                    if let directory = ProcessInfo.processInfo.environment["HOP_HOVER_RENDER_DIR"] {
+                        let url = URL(fileURLWithPath: directory)
+                        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+                        let rep = try XCTUnwrap(content.bitmapImageRepForCachingDisplay(in: content.bounds))
+                        content.cacheDisplay(in: content.bounds, to: rep)
+                        try XCTUnwrap(rep.representation(using: .png, properties: [:])).write(to:
+                            url.appendingPathComponent("bounded-\(name)-\(short ? "short" : "regular")-\(dark ? "dark" : "light").png"))
+                    }
                 }
             }
         }
