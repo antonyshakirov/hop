@@ -116,6 +116,8 @@ delivery still requires the installed Dev check.
 | CL-14 | Hover short text, a small image, a large image, then another row while loading | Content determines window size, image aspect/color are retained and no dimensions placeholder or empty footer appears; late image cannot replace the next row |
 | CL-15 | Supply traversal/symlink/non-PNG/oversized or unsafe-dimension image data; load many images | Reject unsafe files before thumbnail decoding; actor serializes work, thumbnails stay bounded and cache remains within12 entries/8MiB |
 
+| CL-16 | Hover a book-sized text, a long unbroken string or thousands of newlines on regular/short screens in both themes | Preview is bounded to1500 characters/20 source lines; rendered window fits the screen and360pt limits, has no scroll view and ellipsizes wrapped overflow; original copied content remains intact |
+
 ## Protected lid sessions and cooling
 
 | ID | Given / action | Expected observable result |
