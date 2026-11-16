@@ -1,6 +1,10 @@
-export function summarizeTests(discovery, output, minimum = 1675) {
-  const cases = discovery.split(/\r?\n/).filter(line => /^Hop(?:Core|UI|Hardware|PluginAPI|PluginRuntime)Tests\.[^/\s]+\/\S+$/.test(line));
-  if (cases.length < minimum || new Set(cases).size !== cases.length) throw new Error('Incomplete Swift test discovery');
+function discoveredCases(discovery, minimum) {
+  const cases = discovery.split(/\r?\n/).filter(line => line.length);
+  if (cases.some(line => !/^Hop(?:Core|UI|Hardware|PluginAPI|PluginRuntime)Tests\.[^/\s]+\/\S+$/.test(line)) || cases.length < minimum || new Set(cases).size !== cases.length) throw new Error('Incomplete Swift test discovery');
+  return cases;
+}
+
+function completedCases(cases, output, suite) {
   const started = new Set(), finished = new Set();
   for (const match of output.matchAll(/^Test Case '-\[([^\s\]]+) ([^\s\]]+)\]' (started|passed|failed|skipped)(?:\.| \([^\n]*\)\.)$/gm)) {
     const id = match[1] + '/' + match[2], status = match[3];
@@ -13,8 +17,36 @@ export function summarizeTests(discovery, output, minimum = 1675) {
       finished.add(id);
     }
   }
-  if (finished.size !== cases.length || started.size !== cases.length || !/^Test Suite 'All tests' passed at /m.test(output)) throw new Error('Swift test run incomplete');
+  if (finished.size !== cases.length || started.size !== cases.length || !output.split(/\r?\n/).some(line => line.startsWith(`Test Suite '${suite}' passed at `))) throw new Error('Swift test run incomplete');
   return { passed: finished.size, skipped: 0, cases: [...finished].sort() };
+}
+
+export function summarizeTests(discovery, output, minimum = 1675) {
+  return completedCases(discoveredCases(discovery, minimum), output, 'All tests');
+}
+
+export function swiftTestBatches(discovery, minimum = 1675) {
+  const groups = new Map();
+  for (const id of discoveredCases(discovery, minimum)) {
+    const suite = id.split('/')[0];
+    const group = id.startsWith('HopUITests.') ? suite : suite.split('.')[0];
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group).push(id);
+  }
+  return [...groups].sort(([a], [b]) => a.localeCompare(b)).map(([id, cases]) => ({
+    id, cases: cases.sort(), filter: '^' + id.replaceAll('.', '\\.') + (id.startsWith('HopUITests.') ? '/' : '\\.'),
+  }));
+}
+
+export function summarizeTestBatches(discovery, reports, minimum = 1675) {
+  const batches = swiftTestBatches(discovery, minimum);
+  if (reports.length !== batches.length || new Set(reports.map(report => report.id)).size !== batches.length) throw new Error('Incomplete Swift test batches');
+  const cases = batches.flatMap(batch => {
+    const report = reports.find(report => report.id === batch.id);
+    if (!report) throw new Error('Missing Swift test batch');
+    return completedCases(batch.cases, report.output, 'Selected tests').cases;
+  });
+  return { passed: cases.length, skipped: 0, cases: cases.sort(), batches: batches.map(batch => batch.id) };
 }
 
 export function validateMessages(messages) {

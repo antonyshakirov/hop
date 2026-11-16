@@ -30,6 +30,7 @@
         "--test-reporter=tap",
         "scripts/own-ci/native.test.mjs",
         "scripts/own-ci/hop-report.test.mjs",
+        "scripts/own-ci/swift-test-batches.test.mjs",
         "scripts/own-ci/codeql.test.mjs",
         "scripts/own-ci/codeql-coverage.test.mjs",
         "scripts/own-ci/codeql-sdk-tree.test.mjs",
@@ -87,7 +88,7 @@
         "scripts/own-ci/hop-step.mjs",
         "tests"
       ],
-      "timeoutMs": 900000,
+      "timeoutMs": 1200000,
       "tapMinimum": 1720
     },
     {

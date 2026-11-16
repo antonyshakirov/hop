@@ -7,7 +7,7 @@ import { isolatedRun, nativeEnvironment, sandboxProfile, prepareNativeTemporary,
 import { verifyCodeqlTree } from './codeql-sdk-tree.mjs';
 import { prepareCodeqlBuild } from './codeql-build.mjs';
 import { runCodeql } from './codeql.mjs';
-import { summarizeTests, validateMessages, parsePreparingVersion } from './hop-report.mjs';
+import { swiftTestBatches, summarizeTestBatches, validateMessages, parsePreparingVersion } from './hop-report.mjs';
 
 const mode = process.argv[2];
 if (process.platform !== 'darwin' || process.argv.length !== 3 || !['toolchain', 'messages', 'build', 'tests', 'canvas', 'export', 'live', 'translations', 'version', 'codeql'].includes(mode)) throw new Error('Usage on macOS: hop-step.mjs toolchain|messages|build|tests|canvas|export|live|translations|version|codeql');
@@ -84,9 +84,14 @@ if (mode === 'messages') {
 } else if (mode === 'tests') {
   const list = await command(swiftExecutable, ['test', ...swiftArguments, 'list']);
   await writeFile('hop-test-discovery.txt', list.stdout, { flag: 'wx', mode: 0o600 });
-  const result = await command(swiftExecutable, ['test', ...swiftArguments]);
-  await writeFile('hop-test-output.txt', result.stdout + result.stderr, { flag: 'wx', mode: 0o600 });
-  const summary = summarizeTests(list.stdout, result.stdout + result.stderr);
+  const reports = [];
+  for (const batch of swiftTestBatches(list.stdout)) {
+    console.log('Swift test batch: ' + batch.id);
+    const result = await command(swiftExecutable, ['test', ...swiftArguments, '--skip-build', '--filter', batch.filter]);
+    reports.push({ id: batch.id, output: result.stdout + result.stderr });
+  }
+  await writeFile('hop-test-output.txt', reports.map(report => report.output).join('\n'), { flag: 'wx', mode: 0o600 });
+  const summary = summarizeTestBatches(list.stdout, reports);
   await writeFile('hop-test-summary.json', JSON.stringify(summary) + '\n', { flag: 'wx', mode: 0o600 });
   console.log(`1..${summary.passed}\n# tests ${summary.passed}\n# fail 0\n# skipped 0`);
 } else if (mode === 'codeql') {

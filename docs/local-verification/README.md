@@ -47,6 +47,16 @@ The gate includes:
 - English-only incoming commit messages with no generated/co-author trailers.
 - A separate fresh full Swift build for CodeQL, the pinned default 29-query suite, SARIF validation and successful-extraction diagnostics for every Swift file under `Sources`. A nonempty but partial database cannot pass. The original report is retained, including the official CLI's empty baseline and telemetry records. Only the four reviewed informational metadata kinds can have empty text; error, fatal, extraction-failure, malformed or unknown blank notifications are rejected. Analysis/extraction failures and error-level findings fail the gate; warnings remain visible in the saved report.
 
+XCTest discovery builds all test products first. Each UI suite then runs in a fresh
+process to bound AppKit animation and dispatch state; other targets run once per
+target. Execution stays sequential under the same build budget and sandbox.
+The test step has a bounded 20-minute budget for compilation, sequential process
+startup and execution. Individual test deadlines remain unchanged.
+Every discovered case must pass exactly once in its assigned batch, and each batch
+must report successful completion. Unknown discovery entries, missing or repeated
+batches, foreign cases, failures and skips fail the gate. Filtered runs do not
+replace or reduce the complete discovery requirement.
+
 Native commands use a mandatory macOS sandbox. Only system/toolchain/verified SDK and private-run content can be read, only the run can be written, and network access is limited to loopback. HOME, Foundation home, module caches and temporary files belong to the run. Preferences and Keychain services are denied. Only the existing export self-test can contact the pasteboard service: it creates a UUID-named board, verifies its own synthetic image and releases it; it does not access the general clipboard. Other native modes deny that service too. The OS permission is service-wide, so the dedicated self-test entry point and inspected source are part of this boundary.
 
 A process-local universal temporary adapter keeps Foundation's atomic replacements and standard temporary-directory APIs inside the owned TMPDIR. The macOS sandbox still rejects paths outside it. Cached adapter files require canonical no-follow regular-file reads. SwiftPM's nested sandbox is disabled inside the mandatory outer sandbox, and its native backend avoids the external build service; the backend's deprecation notice stays visible.
