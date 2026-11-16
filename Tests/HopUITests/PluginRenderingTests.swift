@@ -116,6 +116,18 @@ final class PluginRenderingTests: XCTestCase {
         XCTAssertTrue(manager.records.isEmpty); XCTAssertTrue(manager.active.isEmpty); XCTAssertNil(Theme.pluginOverlay)
         XCTAssertTrue(try PluginStore(directory: directory).state.records.isEmpty)
     }
+    func testLongInstalledMetadataKeepsTheLibraryCompact() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let manager = PluginManager(engine: TimerEngine(), directory: directory, transport: RenderingPluginTransport())
+        let manifest: [String: Any] = ["id": "long-card", "version": "1.0.0", "apiVersion": 1,
+            "name": String(repeating: "Long name ", count: 12), "description": String(repeating: "Long description ", count: 230),
+            "author": String(repeating: "Author ", count: 30), "capabilities": [String](), "settings": [[String: Any]]()]
+        manager.install(try JSONSerialization.data(withJSONObject: ["formatVersion": 1, "manifest": manifest, "code": "definePlugin({});"]), origin: "local")
+        XCTAssertEqual(manager.records.count, 1)
+        try render(AnyView(PluginSettingsView(manager: manager, lang: .en).padding(20).frame(width: 650).background(Theme.background)),
+                   name: "plugins-long-metadata", maximumHeight: 500)
+    }
     func testNativeLibraryLinksOpenOnlyTheirPublicDestination() throws {
         var opened: [URL] = []
         let root = PluginLibraryLinks(lang: .en)

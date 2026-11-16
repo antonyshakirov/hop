@@ -14,7 +14,7 @@ struct PluginSettingsView: View {
                 .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
-                Button(t(.importFile), action: importFile)
+                Button(t(.importFile), action: importFile).buttonStyle(.plain).hoverDim()
                 Spacer()
             }
             if manager.error != nil {
@@ -32,10 +32,10 @@ struct PluginSettingsView: View {
                 SettingsCard {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 5) {
-                            Text(record.package.manifest.name).font(Theme.mono(13, weight: .semibold))
-                            Text(record.package.manifest.description).font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
+                            Text(record.package.manifest.name).font(Theme.mono(13, weight: .semibold)).lineLimit(2)
+                            Text(record.package.manifest.description).font(Theme.mono(11)).foregroundStyle(Theme.textSecondary).lineLimit(3)
                             Text(metadata(record))
-                                .font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+                                .font(Theme.mono(10)).foregroundStyle(Theme.textTertiary).lineLimit(2)
                             Text(status(record)).font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
                         }.fixedSize(horizontal: false, vertical: true)
                         Spacer(minLength: 10)
@@ -51,7 +51,7 @@ struct PluginSettingsView: View {
                     ForEach(record.package.manifest.settings, id: \.key) { descriptor in setting(record, descriptor) }
                 }
             }
-            if !manager.active.isEmpty { Button(t(.recovery)) { manager.disableAll() } }
+            if !manager.active.isEmpty { Button(t(.recovery)) { manager.disableAll() }.buttonStyle(.plain).hoverDim() }
             PluginLibraryLinks(lang: lang)
         }
         .font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
@@ -154,12 +154,12 @@ struct PluginInstalledActions: View {
                 .fixedSize()
                 .help(PluginCopy.text(record.wantedEnabled ? .disable : .enable, lang))
             if record.wantedEnabled && !active {
-                PluginActionButton(title: PluginCopy.text(.enable, lang), action: requestEnable,
+                PluginActionButton(title: PluginCopy.text(.enable, lang), action: requestEnable, bordered: false,
                                    accessibilityID: "hop.plugins.retry." + record.id)
                     .fixedSize()
                     .disabled(record.package.compatibilityIssue != nil)
             }
-            PluginActionButton(title: PluginCopy.text(.remove, lang), action: remove,
+            PluginActionButton(title: PluginCopy.text(.remove, lang), action: remove, bordered: false,
                                accessibilityID: "hop.plugins.remove." + record.id)
                 .fixedSize()
         }
@@ -208,10 +208,10 @@ struct PluginApprovalView: View {
                 Text("• " + PluginCopy.capability(capability, lang)).font(Theme.mono(12))
             }
             HStack {
-                PluginActionButton(title: PluginCopy.text(.cancel, lang), action: cancel,
+                PluginActionButton(title: PluginCopy.text(.cancel, lang), action: cancel, bordered: false,
                                    accessibilityID: "hop.plugins.cancel", keyEquivalent: "\u{1b}")
                 Spacer()
-                PluginActionButton(title: PluginCopy.text(.approve, lang), action: approve,
+                PluginActionButton(title: PluginCopy.text(.approve, lang), action: approve, bordered: false,
                                    accessibilityID: "hop.plugins.approve", keyEquivalent: "\r")
             }.padding(.top, 8)
         }.padding(24).frame(width: 430).background(Theme.background).foregroundStyle(Theme.textPrimary)
