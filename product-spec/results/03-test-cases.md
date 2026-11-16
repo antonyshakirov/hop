@@ -108,11 +108,13 @@ delivery still requires the installed Dev check.
 | CL-06 | Open in light/dark themes and with long localized labels | Search, selection and numbered hints are readable and fit the window |
 | CL-07 | Compose Japanese/Chinese text in the search editor, press arrows/Return/Escape | Native composition receives those keys and history is not copied or dismissed |
 | CL-08 | Rebind the picker opener to Command-1, open, then press it again | First result is copied through the picker selection path |
-| CL-09 | Hover a truncated multiline text entry in the panel and quick picker | Tooltip contains the actual text and paragraphs, not the clipboard module purpose; panel copy/paste/save controls retain their action hints |
-| CL-10 | Hover external long text, newline flood, file list, image or color | Bounded preview uses stored content without loading a large body; omitted tail has an ellipsis, files show paths, image/color labels remain accurate |
+| CL-09 | Hover a truncated multiline text entry in the panel and quick picker | Preview contains the actual text and paragraphs, not the clipboard module purpose; panel copy/paste/save controls retain their action hints |
+| CL-10 | Hover external long text, newline flood, file list, image or color | Text preview uses the stored head without loading a large body; omitted tail has an ellipsis, files show paths, images show miniatures and colors retain their notation |
 | CL-11 | Hover a row for0.49s, then0.5s; move within it, leave/reenter and switch rows repeatedly | No early preview; actual preview appears at0.5s for each current row, independent of native tooltip cooldown; within-row movement does not postpone it |
 | CL-12 | Leave, click, scroll, hide/close panel, replace an item or remove its view during the delay/preview | No late or stale preview, no focus/pasteboard/copy change, and the parent panel stays in place |
-| CL-13 | Show the preview in both themes near screen edges or on a short display | Regular10pt body, secondary9pt hint and0.5pt border; preview follows the pointer's screen, stays nearby and fits without covering the hovered point |
+| CL-13 | Show the preview in both themes near screen edges or on a short display | Regular10pt body and0.5pt border; preview follows the pointer's screen, stays nearby and fits without covering the hovered point |
+| CL-14 | Hover short text, a small image, a large image, then another row while loading | Content determines window size, image aspect/color are retained and no dimensions placeholder or empty footer appears; late image cannot replace the next row |
+| CL-15 | Supply traversal/symlink/non-PNG/oversized or unsafe-dimension image data; load many images | Reject unsafe files before thumbnail decoding; actor serializes work, thumbnails stay bounded and cache remains within12 entries/8MiB |
 
 ## Protected lid sessions and cooling
 
@@ -150,6 +152,7 @@ delivery still requires the installed Dev check.
 
 | HW-26 | Toggle protected lid on/off with an idle approved service | Confirm actual readback before the active indicator; bounded direct system commands avoid the former Process launch delay without weakening durable restoration |
 | HW-27 | System command times out, floods output, exits nonzero or loses its child status | Reject the reply, release descriptors, reap only the owned child and preserve coordinator restoration/readback rules |
+| HW-28 | Lid enable fails or another Hop owns the service; retry/off supersedes a late reply | Show the reason beneath Awake without opening Cooling or taking over another session; the current intent owns the error, successful retry/off clears it |
 
 ## Output engine retirement
 

@@ -113,4 +113,47 @@ final class ProtectedLidIntentTests: XCTestCase {
         XCTAssertFalse(awake.isActive)
         XCTAssertEqual(calls, 0)
     }
+
+    func testFailedEnableReportsContextualReasonAndSuccessfulRetryClearsIt() async {
+        let wasSnapshot = Snapshot.active
+        Snapshot.active = true
+        defer { Snapshot.active = wasSnapshot }
+        var fail = true
+        let awake = KeepAwakeController(demo: true, protectedLid: { _, _ in
+            if fail { throw HardwareReason.busy }
+            return true
+        })
+        defer { awake.deactivate(silent: true) }
+        let previous = awake.until
+        awake.setLidEnabled(true)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        XCTAssertEqual(awake.lidFailure, .busy)
+        XCTAssertFalse(awake.lidApplied)
+        XCTAssertEqual(awake.until, previous)
+        fail = false
+        awake.setLidEnabled(true)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        XCTAssertNil(awake.lidFailure)
+        XCTAssertTrue(awake.lidApplied)
+    }
+
+    func testLateFailureCannotReplaceTheResultOfNewerOffIntent() async {
+        let wasSnapshot = Snapshot.active
+        Snapshot.active = true
+        defer { Snapshot.active = wasSnapshot }
+        var reply: CheckedContinuation<Bool, Error>?
+        let awake = KeepAwakeController(demo: true, protectedLid: { on, _ in
+            if on { return try await withCheckedThrowingContinuation { reply = $0 } }
+            return false
+        })
+        defer { awake.deactivate(silent: true) }
+        awake.setLidEnabled(true)
+        for _ in 0..<100 where reply == nil { await Task.yield() }
+        awake.setLidEnabled(false)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        reply?.resume(throwing: HardwareReason.busy)
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertNil(awake.lidFailure)
+        XCTAssertFalse(awake.lidApplied)
+    }
 }

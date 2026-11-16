@@ -175,7 +175,7 @@ See [docs/automation.md](docs/automation.md).
 
 Keeps the Mac awake from 15 minutes to ∞. “display stays on” also keeps the screen lit.
 
-The lid button starts closed-lid mode; if awake is off, it starts an unlimited session. A second click turns lid mode off. Amber means active.
+The lid button starts closed-lid mode; if awake is off, it starts an unlimited session. A second click turns lid mode off. Amber means active. Failures appear beneath the Awake controls with the reason.
 
 Closed-lid mode needs an administrator-approved service. It ends when battery charge reaches 10% on battery power, macOS reports excessive heat, or the session expires. After 90 seconds without Hop, the service restores sleep and fan control.
 
@@ -224,6 +224,9 @@ file back. Passwords and other concealed input are never stored.
 Press Command-Shift-C to search history in its own window. Command-1 through
 Command-9 copies a result; arrows and Return select and copy, and Escape closes
 the picker. The opening shortcut can be changed in settings.
+
+Hover over a text entry to preview its text or an image for a thumbnail.
+The preview appears after half a second and fits its content.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – Clipboard history">

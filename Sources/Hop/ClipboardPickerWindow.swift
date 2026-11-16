@@ -222,6 +222,6 @@ struct ClipboardPickerView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain).hoverHighlight(6)
-        .background(ClipboardHoverAnchor(id: item.id, text: ClipboardHoverPreview.text(for: item), lang: lang))
+        .background(ClipboardHoverAnchor(id: item.id, text: ClipboardHoverPreview.text(for: item), imageFile: item.imageFile, lang: lang))
     }
 }
