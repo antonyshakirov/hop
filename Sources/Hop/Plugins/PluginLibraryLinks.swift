@@ -14,10 +14,6 @@ struct PluginLibraryLinks: View {
     }
 
     @ViewBuilder private var links: some View {
-        PluginActionButton(title: PluginCopy.text(.repository, lang), action: { openURL(PluginLibraryResources.repository) },
-                           bordered: false, accessibilityID: "hop.plugins.repository")
-            .fixedSize()
-            .help(PluginLibraryResources.repository.absoluteString)
         PluginActionButton(title: PluginCopy.text(.contribute, lang), action: { openURL(PluginLibraryResources.contribute) },
                            bordered: false, accessibilityID: "hop.plugins.contribute")
             .fixedSize()

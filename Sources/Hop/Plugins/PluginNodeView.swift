@@ -32,6 +32,7 @@ struct PluginActionButton: NSViewRepresentable {
     let action: () -> Void
     var bordered = true
     var accessibilityID = "hop.plugin.action"
+    var keyEquivalent = ""
     final class Coordinator: NSObject {
         var action: () -> Void
         init(action: @escaping () -> Void) { self.action = action }
@@ -47,6 +48,9 @@ struct PluginActionButton: NSViewRepresentable {
     func updateNSView(_ button: NSButton, context: Context) {
         button.title = title; context.coordinator.action = action
         button.isBordered = bordered
+        button.isEnabled = context.environment.isEnabled
+        button.keyEquivalent = keyEquivalent
+        button.keyEquivalentModifierMask = []
         button.identifier = NSUserInterfaceItemIdentifier(accessibilityID)
         button.setAccessibilityIdentifier(accessibilityID)
         if !bordered {

@@ -21039,7 +21039,7 @@ extension String {
 enum PluginText: Int, CaseIterable {
     case title, importFile, catalog, install, enable, disable, remove, approve, cancel, empty
     case permissions, paused, off, running, incompatible, error, recovery, local, appearance, panel, timerRead, timerControl, systemRead, news
-    case memoryError, overview, repository, contribute
+    case memoryError, overview, repository, contribute, noMatches
 }
 
 enum PluginCopy {

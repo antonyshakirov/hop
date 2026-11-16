@@ -179,3 +179,5 @@ delivery still requires the installed Dev check.
 - Settings persistence, compatible/incompatible upgrades, catalog errors, permission expansion and safe recovery retain user data.
 - Native settings/catalog/import/grant/settings/actions render and work in both themes; screenshots/tests use the private native adapter.
 - Standard notarized Dev installation embeds a sandbox XPC with distinct identifier; signed app bytes remain unchanged after external package changes.
+
+- Personal plugins (2026-11-17): fresh settings show no suggested packages or catalog download action. Import stays off; card shows author/version/description/access, toggle requests approval, cancel leaves off, disable restores core UI and removal clears only that package. Search matches installed metadata case-insensitively. No-match, empty, long-text, both-theme and RTL layouts are checked.

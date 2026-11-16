@@ -6,6 +6,7 @@ struct PluginSettingsView: View {
     @ObservedObject var manager: PluginManager
     let lang: AppLanguage
     @State private var approving: PluginRecord?
+    @State private var query = ""
     private func t(_ key: PluginText) -> String { PluginCopy.text(key, lang) }
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -14,14 +15,20 @@ struct PluginSettingsView: View {
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Button(t(.importFile), action: importFile)
-                Button(t(.catalog)) { Task { await manager.refreshCatalog() } }.disabled(manager.busy)
                 Spacer()
             }
             if manager.error != nil {
                 Text(t(manager.error == PluginError.memoryLimit.rawValue ? .memoryError : .error)).font(Theme.mono(11)).foregroundStyle(Theme.accentOrange).fixedSize(horizontal: false, vertical: true)
             }
             if manager.records.isEmpty { SettingsCard { Text(t(.empty)).foregroundStyle(Theme.textSecondary) } }
-            ForEach(manager.records) { record in
+            if !manager.records.isEmpty {
+                SteadyField(text: $query, placeholder: L10n.t(.searchLabel, lang))
+                    .padding(8).background(Theme.fieldBg).clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+            if !manager.records.isEmpty && PluginInstalledQuery.filter(manager.records, query: query).isEmpty {
+                SettingsCard { Text(t(.noMatches)).foregroundStyle(Theme.textSecondary) }
+            }
+            ForEach(PluginInstalledQuery.filter(manager.records, query: query)) { record in
                 SettingsCard {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 5) {
@@ -32,29 +39,16 @@ struct PluginSettingsView: View {
                             Text(status(record)).font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
                         }.fixedSize(horizontal: false, vertical: true)
                         Spacer(minLength: 10)
-                        VStack(alignment: .trailing, spacing: 8) {
-                            if record.wantedEnabled && manager.active.contains(record.id) {
-                                Button(t(.disable)) { manager.disable(record.id) }
-                            } else {
-                                Button(t(.enable)) { approving = record }.disabled(record.package.compatibilityIssue != nil)
-                            }
-                            Button(t(.remove)) { manager.remove(record.id) }
+                        PluginInstalledActions(record: record, active: manager.active.contains(record.id), lang: lang,
+                            requestEnable: { approving = record }, disable: { manager.disable(record.id) }, remove: { manager.remove(record.id) })
+                            .fixedSize()
+                    }
+                    DisclosureGroup(t(.permissions)) {
+                        ForEach(record.package.manifest.capabilities, id: \.self) { capability in
+                            Text(PluginCopy.capability(capability, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
                         }
                     }
                     ForEach(record.package.manifest.settings, id: \.key) { descriptor in setting(record, descriptor) }
-                }
-            }
-            ForEach(manager.catalog) { entry in
-                SettingsCard {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(entry.name).font(Theme.mono(12, weight: .semibold))
-                            Text(entry.description).font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
-                            Text(entry.version + " · " + entry.author).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-                        }
-                        Spacer(minLength: 8)
-                        Button(t(.install)) { Task { await manager.installCatalog(entry) } }.disabled(manager.busy)
-                    }
                 }
             }
             if !manager.active.isEmpty { Button(t(.recovery)) { manager.disableAll() } }
@@ -62,19 +56,10 @@ struct PluginSettingsView: View {
         }
         .font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
         .sheet(item: $approving) { record in
-            VStack(alignment: .leading, spacing: 16) {
-                Text(record.package.manifest.name).font(Theme.mono(17, weight: .semibold))
-                Text(t(.permissions)).font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
-                ForEach(record.package.manifest.capabilities, id: \.self) { Text("• " + PluginCopy.capability($0, lang)).font(Theme.mono(12)) }
-                HStack {
-                    Button(t(.cancel)) { approving = nil }
-                    Spacer()
-                    Button(t(.approve)) {
-                        manager.approve(record.id, digest: record.digest, capabilities: Set(record.package.manifest.capabilities))
-                        approving = nil
-                    }.keyboardShortcut(.defaultAction)
-                }.padding(.top, 8)
-            }.padding(24).frame(width: 430).background(Theme.background).foregroundStyle(Theme.textPrimary)
+            PluginApprovalView(record: record, lang: lang, cancel: { approving = nil }, approve: {
+                manager.approve(record.id, digest: record.digest, capabilities: Set(record.package.manifest.capabilities))
+                approving = nil
+            })
         }
     }
     private func metadata(_ record: PluginRecord) -> String {
@@ -150,5 +135,85 @@ struct PluginStringSetting: View {
         guard draft != submitted else { return }
         submitted = draft
         commit(draft)
+    }
+}
+
+struct PluginInstalledActions: View {
+    let record: PluginRecord
+    let active: Bool
+    let lang: AppLanguage
+    let requestEnable: () -> Void
+    let disable: () -> Void
+    let remove: () -> Void
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 8) {
+            PluginEnableToggle(enabled: record.wantedEnabled, available: record.package.compatibilityIssue == nil || record.wantedEnabled,
+                name: record.package.manifest.name, id: record.id, change: { enabled in
+                    if enabled { requestEnable() } else { disable() }
+                })
+                .fixedSize()
+                .help(PluginCopy.text(record.wantedEnabled ? .disable : .enable, lang))
+            if record.wantedEnabled && !active {
+                PluginActionButton(title: PluginCopy.text(.enable, lang), action: requestEnable,
+                                   accessibilityID: "hop.plugins.retry." + record.id)
+                    .fixedSize()
+                    .disabled(record.package.compatibilityIssue != nil)
+            }
+            PluginActionButton(title: PluginCopy.text(.remove, lang), action: remove,
+                               accessibilityID: "hop.plugins.remove." + record.id)
+                .fixedSize()
+        }
+    }
+}
+
+struct PluginEnableToggle: NSViewRepresentable {
+    let enabled: Bool
+    let available: Bool
+    let name: String
+    let id: String
+    let change: (Bool) -> Void
+    final class Coordinator: NSObject {
+        var change: (Bool) -> Void
+        init(change: @escaping (Bool) -> Void) { self.change = change }
+        @objc func changed(_ sender: NSSwitch) { change(sender.state == .on) }
+    }
+    func makeCoordinator() -> Coordinator { Coordinator(change: change) }
+    func makeNSView(context: Context) -> NSSwitch {
+        let control = NSSwitch()
+        control.controlSize = .mini
+        control.target = context.coordinator
+        control.action = #selector(Coordinator.changed(_:))
+        return control
+    }
+    func updateNSView(_ control: NSSwitch, context: Context) {
+        context.coordinator.change = change
+        control.state = enabled ? .on : .off
+        control.isEnabled = available && context.environment.isEnabled
+        control.identifier = NSUserInterfaceItemIdentifier("hop.plugins.toggle." + id)
+        control.setAccessibilityIdentifier("hop.plugins.toggle." + id)
+        control.setAccessibilityLabel(name)
+    }
+}
+
+struct PluginApprovalView: View {
+    let record: PluginRecord
+    let lang: AppLanguage
+    let cancel: () -> Void
+    let approve: () -> Void
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(record.package.manifest.name).font(Theme.mono(17, weight: .semibold))
+            Text(PluginCopy.text(.permissions, lang)).font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
+            ForEach(record.package.manifest.capabilities, id: \.self) { capability in
+                Text("• " + PluginCopy.capability(capability, lang)).font(Theme.mono(12))
+            }
+            HStack {
+                PluginActionButton(title: PluginCopy.text(.cancel, lang), action: cancel,
+                                   accessibilityID: "hop.plugins.cancel", keyEquivalent: "\u{1b}")
+                Spacer()
+                PluginActionButton(title: PluginCopy.text(.approve, lang), action: approve,
+                                   accessibilityID: "hop.plugins.approve", keyEquivalent: "\r")
+            }.padding(.top, 8)
+        }.padding(24).frame(width: 430).background(Theme.background).foregroundStyle(Theme.textPrimary)
     }
 }

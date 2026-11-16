@@ -4,7 +4,7 @@
 
 # Hop
 
-Local Dev2.6 preview: [Plugin SDK and examples](docs/plugins/sdk-v1.md), [community catalog](https://github.com/antonyshakirov/hop-plugins). Stable Hop2.5 does not run plugins. Plugins are off by default and require your approval.
+Local Dev2.6 preview: [Plugin SDK and examples](docs/plugins/sdk-v1.md), [personal plugin and fork guide](docs/plugins/authoring.md). Stable Hop2.5 does not run plugins. Plugins are off by default and require your approval.
 
 **A tiny menu bar companion for macOS: timer, time tracker, to-dos,
 keep-awake, system monitor, clipboard history, file converter, window

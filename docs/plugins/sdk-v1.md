@@ -2,14 +2,16 @@
 
 ## Owner agreements
 
+Current distribution contract (2026-11-17): personal programmable plugins with manual file import and independent sharing; no official third-party catalog or pack PR intake. The installed-list UI provides search, information, permission-gated toggles and deletion. Agent instructions cover SDK customization and separate source forks. See [authoring](authoring.md). Legacy catalog APIs remain internal compatibility/test machinery, not a user-facing distribution service.
+
 | Date | Contract | Verification |
 | --- | --- | --- |
-| 2026-11-16 | Deep panel/theme customization; public per-plugin PR catalog; every new installation off; packages/settings survive app updates. | Plugin API/store/overlay tests and installed Dev preview. |
+| 2026-11-16 | Superseded on 2026-11-17 for distribution: deep panel/theme customization; public per-plugin PR catalog; every new installation off; packages/settings survive app updates. | Plugin API/store/overlay tests and installed Dev preview. |
 | 2026-11-16 | Explicit import/catalog action and capability approval before execution. No JS, runtime or catalog requests for all-off startup. | Store/lifecycle tests; signed runtime probe. |
 | 2026-11-16 | Core preferences remain authoritative underneath reversible overlays. Recovery stays outside plugin UI. | Native renders/actions, timer revision and safe launch checks. |
 | 2026-11-16 | Plugin settings explain customization and default-off installs, and link directly to the public repository and contribution guide. Reading the page does not fetch the catalog or execute plugins. | Native settings renders and default-off lifecycle regressions. |
 
-Settings → plugins lists installed packages and an explicitly refreshed signed catalog. Import/download validates a UTF-8 JSON `.hopplugin` package and leaves it off. Enable shows its exact capabilities; cancel leaves it inert. Disable removes its contributions and sessions while keeping settings. Removal deletes only that installed plugin. New versions require an explicit install; approval is bound to the package digest. Unknown API/capability retains data and never executes.
+Settings → plugins lists only installed packages. The former community-catalog UI and plugin-submission links are retired; no suggested or bundled packages appear. Users explicitly import files shared independently. Search matches name, description, author and id. Each card shows metadata, requested permissions, settings, a permission-gated enable switch and removal. Import/download validates a UTF-8 JSON `.hopplugin` package and leaves it off. Enable shows its exact capabilities; cancel leaves it inert. Disable removes its contributions and sessions while keeping settings. Removal deletes only that installed plugin. New versions require an explicit install; approval is bound to the package digest. Unknown API/capability retains data and never executes.
 
 Packages: formatVersion1, manifest {id,version,apiVersion1,name,description,author,capabilities,settings}, code. Maximum package 1MiB/code256KiB. Settings types integer/string/boolean, bounded integer ranges. Catalog schemaVersion1/revision, plugins metadata/packageURL/SHA-256, revokedSha256. Verify exact catalog bytes with Ed25519 before JSON; revisions cannot go backwards. No automatic catalog or package requests. Packages live outside the signed application.
 
