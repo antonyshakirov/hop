@@ -79,6 +79,7 @@ test('creates a fresh real-build plan, then analyzes and validates output throug
  assert.ok(create && analyze); assert.ok(create.args.includes('--begin-tracing'));
  const build = f.calls.find(c => c.executable === join(f.run, 'bin', 'swift'));
  assert.ok(build.args.includes('build') && build.args.includes(join(f.run, 'codeql-build')));
+ assert.equal(build.args[build.args.indexOf('--jobs') + 1], '2');
  assert.equal(build.environment.SEMMLE_COPY_EXECUTABLES_ROOT, join(f.run, 'c'));
  assert.ok(build.environment.DYLD_INSERT_LIBRARIES.endsWith('libtrace.dylib'));
  assert.ok(f.calls.find(c => c.args[1] === 'finalize').args.includes('--no-skip-empty'));
@@ -90,6 +91,12 @@ test('refuses a stale SARIF before any command', async t => { const f = await fi
 test('refuses a no-build Swift argument before any command', async t => { const f = await fixture(t);await assert.rejects(execute(f, { swiftBuildArgs: ['build', '--show-bin-path'] }));assert.equal(f.calls.length, 0); });
 
 test('refuses a partial target build before any command', async t => { const f = await fixture(t);await assert.rejects(execute(f, { swiftBuildArgs: ['build', '--target', 'HopCore'] }));assert.equal(f.calls.length, 0); });
+
+for (const jobs of [['-j10'], ['-j', '10'], ['--jobs=10'], ['--jobs', '10']]) test('refuses an overridden compiler job budget: ' + jobs.join(' '), async t => {
+ const f = await fixture(t);
+ await assert.rejects(execute(f, { swiftBuildArgs: ['build', ...jobs] }), /concurrency/);
+ assert.equal(f.calls.length, 0);
+});
 
 
 test('refuses a tracing environment that overrides HOME', async t => {

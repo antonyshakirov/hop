@@ -36,8 +36,8 @@ Launch at login: the "launch at login" toggle in the app settings.
 ## Development
 
 ```sh
-swift test        # core tests (HopCore)
-swift build       # dev build
+python3 -B scripts/build-budget.py swift test   # core tests (HopCore)
+python3 -B scripts/build-budget.py swift build  # dev build
 ./.build/debug/Hop --snapshot out.png   # render the panel to PNG
 ```
 

@@ -93,6 +93,7 @@ export async function runCodeql({ run, workspace, codeql, command, swiftBuildArg
   const metadata = await lstat(run);
   if (run !== actualRun || workspace !== actualWorkspace || workspace !== join(run, 'workspace') || !metadata.isDirectory() || metadata.isSymbolicLink() || metadata.uid !== process.getuid() || metadata.mode & 0o077 || /\s/.test(run)) throw new Error('CodeQL requires a private canonical run/workspace and a JVM-safe run path');
   if (!Array.isArray(swiftBuildArgs) || swiftBuildArgs[0] !== 'build' || swiftBuildArgs.some(arg => typeof arg !== 'string' || !arg || /[\x00-\x1f]/.test(arg) || /^(?:-h|--help|--version|--show-bin-path|--print-manifest-job-graph|--scratch-path|--build-path|--package-path|--target|--product)(?:=|$)/.test(arg))) throw new Error('CodeQL requires an actual Swift build with its own scratch path');
+  if (swiftBuildArgs.some(arg => /^(?:-j|--jobs)(?:[=0-9]|$)/.test(arg))) throw new Error('CodeQL build concurrency is fixed at two jobs');
   const expectedSources = await expectedSwiftSources(workspace);
   const database = join(run, 'codeql-database'), scratch = join(run, 'codeql-build');
   const output = join(workspace, 'hop-codeql.sarif'), summaryPath = join(workspace, 'hop-codeql-summary.json');
@@ -133,7 +134,7 @@ export async function runCodeql({ run, workspace, codeql, command, swiftBuildArg
   const copyRoot = join(run, 'c');
   await mkdir(copyRoot, { mode: 0o700 });
   tracing.SEMMLE_COPY_EXECUTABLES_ROOT = copyRoot;
-  await invoke(join(run, 'bin', 'swift'), [...swiftBuildArgs, '--sdk', '/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk', '--toolchain', run, '--package-path', workspace, '--scratch-path', scratch], tracing);
+  await invoke(join(run, 'bin', 'swift'), [...swiftBuildArgs, '--jobs', '2', '--sdk', '/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk', '--toolchain', run, '--package-path', workspace, '--scratch-path', scratch], tracing);
   const extractorLogs = join(database, 'log/swift/extractor');
   if (await realpath(extractorLogs) !== extractorLogs) throw new Error('Linked CodeQL extractor logs');
   const logNames = (await readdir(extractorLogs)).filter(name => name.endsWith('.log'));
