@@ -69,6 +69,7 @@ struct ClipboardView: View {
                         .font(Theme.mono(10))
                 }
                 .foregroundStyle(Theme.textTertiary)
+                .help(L10n.t(.tabClipboard, lang) + ": " + L10n.t(.purposeClipboard, lang))
                 if canExpand {
                     // expand — on the left, next to the title; clear — on the opposite edge
                     Button {
@@ -231,7 +232,7 @@ struct ClipboardView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(ClipboardRowStyle(isCopied: isCopied))
-            .help(L10n.t(.clipRowHint, lang))
+            .help(ClipboardHoverPreview.text(for: item) + "\n\n" + L10n.t(.clipRowHint, lang))
 
             // swap without changing geometry: the icons and the "copied" mark live
             // in one fixed-height layer — the row doesn't twitch

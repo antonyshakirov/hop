@@ -222,5 +222,6 @@ struct ClipboardPickerView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain).hoverHighlight(6)
+        .help(ClipboardHoverPreview.text(for: item))
     }
 }

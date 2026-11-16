@@ -1201,6 +1201,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Failure to restore remains visible and is retried; a pending recovery record
   survives helper restart. Ordinary keep-awake needs no helper. Screen locking
   continues to follow the established macOS setting.
+  Bounded system commands use direct process launch and immediate exit/readback
+  collection rather than Foundation process polling. Each command retains its
+  three-second deadline and 16 KiB output limit; durable recovery and actual
+  sleep-state verification still precede the confirmed lid indicator.
 - **Hardware service updates** wait until lid override and manual cooling
   are off and their restoration is confirmed. They restore, unregister the
   old service, replace the app safely and register/validate the new service.
@@ -1379,6 +1383,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   colours either way; only the menu bar badge is affected.
 
 ### Clipboard
+
+- **Entry hover preview**: hovering a history row shows the copied text with
+  paragraph breaks and the existing copy/context-menu hint, rather than the
+  module's purpose. The picker shows the same content preview. Long previews
+  stop at1500 characters or20 lines with an ellipsis; external text uses its
+  available stored head without reading the full body during rendering. File
+  entries show up to8 paths; image and color entries retain their content labels.
+  Copy, paste and save buttons keep their own action hints. The generic module
+  purpose belongs to the clipboard heading and never covers entry previews.
 
 - **Quick picker**: Command-Shift-C opens an independent, searchable history
   window; the combination can be changed in the existing shortcut settings.
@@ -6792,7 +6805,8 @@ its own database of known apps may do better on real software than it did here.
   a tooltip of its own shows the module's name and its one-line purpose — the
   same `purpose*` line the onboarding and the settings page use, so it exists
   in every language (`moduleHint`). A control's own tooltip still wins over it.
-  A clipboard entry says "click to copy, right-click for more".
+  A clipboard entry previews its own content, followed by "click to copy,
+  right-click for more"; the clipboard purpose is limited to its heading.
 - The panel window allows tooltips while Hop is not the active app
   (`allowsToolTipsWhenApplicationIsInactive`): on macOS 27 a click in the
   panel no longer activates Hop, so it is hovered from the background.
@@ -7789,6 +7803,12 @@ Actual signal activity remains independent for each application.
 For a following-system-default audible route, prepare the output engine and capture buffer with playback gated before guarding the original source and activating the prepared stream. Muted, zero-gain, explicit-destination and missing-device routes acquire the source guard immediately. An explicit destination never warms through the system default, even when both currently name the same device. Pending settings/device changes reconcile before readiness; stale or cancelled streams cannot activate. Replacing a process retains the previous stream/guard until the new stream can activate. Stop gates playback, explicitly releases capture/muting, then destroys playback; DSP reset follows consumer shutdown. Saved gain applies from the first consumed frame, including after empty preroll; later gain changes retain smoothing. This reduces avoidable setup gaps and initial gain bursts; separate HAL clocks still require real audible acceptance and do not promise sample-aligned handoff.
 
 A dev-only Info.plist flag `HopOpenSoundAtLaunch` follows the existing `--open-sound` diagnostic path so separate local review bundles can open Sound without manipulating a hidden status item. It does not enable capture and is ignored by production builds.
+
+Output engine destruction runs on a dedicated background lifecycle queue, including
+failed initialization, replacement, route loss and stream shutdown. Synchronous
+playback stop still precedes DSP buffer discard. Engine borrowing retains its
+lifetime owner, and queued configuration callbacks ignore stopped playback. A
+slow CoreAudio destructor must not prevent the main run loop from handling Quit.
 
 ### Physical device volume dispatch
 

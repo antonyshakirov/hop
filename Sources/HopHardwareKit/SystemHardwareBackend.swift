@@ -71,25 +71,7 @@ public final class SystemHardwareBackend: HardwareBackend {
     }
 
     private static func pmset(_ arguments: [String]) throws -> String {
-        let process = Process(), output = Pipe()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
-        process.arguments = arguments
-        process.standardInput = FileHandle.nullDevice
-        process.standardOutput = output
-        process.standardError = FileHandle.nullDevice
-        try process.run()
-        let deadline = ProcessInfo.processInfo.systemUptime + 3
-        while process.isRunning && ProcessInfo.processInfo.systemUptime < deadline { Thread.sleep(forTimeInterval: 0.02) }
-        if process.isRunning {
-            kill(process.processIdentifier, SIGKILL)
-            process.waitUntilExit()
-            throw HardwareReason.commandFailed
-        }
-        process.waitUntilExit()
-        let data = output.fileHandleForReading.readDataToEndOfFile()
-        guard process.terminationStatus == 0, data.count <= 16384,
-              let result = String(data: data, encoding: .utf8) else { throw HardwareReason.commandFailed }
-        return result
+        try HardwareCommand.run("/usr/bin/pmset", arguments: arguments)
     }
 
     private static func lidClosed() -> Bool? {
