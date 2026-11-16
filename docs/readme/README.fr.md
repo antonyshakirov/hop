@@ -42,6 +42,8 @@ glisser-déposer, un outil d'ancrage de fenêtres, un pare-feu applicatif et un 
 une seule app native et légère, dont les modules se répartissent sur jusqu'à
 quatre onglets de l'icône.
 
+**2.5.1:** La bannière d’autorisation du refroidissement et du mode capot fermé est actualisée à la réouverture du panneau.
+
 ## Téléchargement
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – ouvrez-le et glissez `Hop.app` dans Applications (recommandé)

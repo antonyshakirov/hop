@@ -40,6 +40,8 @@ drag-and-drop, penata jendela, firewall aplikasi, dan klien torrent ringan – s
 native yang ringan, dengan modul yang kamu pakai tersebar di hingga empat
 tab pada ikon.
 
+**2.5.1:** Pemberitahuan izin untuk pendinginan dan mode tutup tertutup diperbarui saat panel dibuka kembali.
+
 ## Unduh
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – buka lalu seret `Hop.app` ke Applications (disarankan)

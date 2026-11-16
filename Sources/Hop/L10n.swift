@@ -554,8 +554,40 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.0 – 2026-11-16\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
+        "2.5.1 – 2026-11-16\n\n• " + news251Text(lang) + "\n\n2.5.0 – 2026-11-16\n\n"
+            + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
             + "\n\n" + previous
+    }
+
+    private static func news251Text(_ lang: AppLanguage) -> String {
+        let text: String
+        switch lang {
+        case .en: text = "The permission banner for cooling and closed-lid mode updates when you reopen the panel."
+        case .ru: text = "Плашка разрешения для охлаждения и режима закрытой крышки обновляется при открытии панели."
+        case .de: text = "Der Berechtigungshinweis für Kühlung und Betrieb bei geschlossenem Deckel wird beim erneuten Öffnen des Panels aktualisiert."
+        case .es: text = "El aviso de permiso para la refrigeración y el modo de tapa cerrada se actualiza al volver a abrir el panel."
+        case .pt: text = "O aviso de permissão para o arrefecimento e o modo de tampa fechada é atualizado ao reabrir o painel."
+        case .fr: text = "La bannière d’autorisation du refroidissement et du mode capot fermé est actualisée à la réouverture du panneau."
+        case .it: text = "L’avviso di autorizzazione per il raffreddamento e la modalità a coperchio chiuso si aggiorna riaprendo il pannello."
+        case .zh: text = "重新打开面板时，会更新散热和合盖模式的权限提示。"
+        case .ja: text = "パネルを開き直すと、冷却と蓋を閉じた状態での動作に必要な許可の表示が更新されます。"
+        case .nl: text = "De toestemmingsmelding voor koeling en werken met gesloten klep wordt bijgewerkt wanneer je het paneel opnieuw opent."
+        case .ko: text = "패널을 다시 열면 냉각 및 덮개를 닫은 상태의 작동 권한 안내가 갱신됩니다."
+        case .th: text = "แถบแจ้งสิทธิ์สำหรับการระบายความร้อนและโหมดปิดฝาจะอัปเดตเมื่อเปิดแผงอีกครั้ง"
+        case .vi: text = "Thông báo quyền cho tính năng làm mát và chế độ đóng nắp được cập nhật khi mở lại bảng điều khiển."
+        case .hi: text = "पैनल दोबारा खोलने पर कूलिंग और बंद ढक्कन वाले मोड की अनुमति का संदेश अपडेट होता है।"
+        case .id: text = "Pemberitahuan izin untuk pendinginan dan mode tutup tertutup diperbarui saat panel dibuka kembali."
+        case .tr: text = "Soğutma ve kapak kapalı modu için izin bildirimi, panel yeniden açıldığında güncellenir."
+        case .pl: text = "Komunikat o uprawnieniu do chłodzenia i pracy z zamkniętą pokrywą odświeża się po ponownym otwarciu panelu."
+        case .ar: text = "يتحدث تنبيه الإذن للتبريد ووضع الغطاء المغلق عند فتح اللوحة من جديد."
+        case .he: text = "הודעת ההרשאה לקירור ולמצב מכסה סגור מתעדכנת כשפותחים שוב את החלונית."
+        case .fa: text = "پیام مجوز خنک‌سازی و حالت درِ بسته با باز کردن دوبارهٔ پنل به‌روز می‌شود."
+        case .ur: text = "پینل دوبارہ کھولنے پر کولنگ اور بند ڈھکن والے موڈ کی اجازت کا پیغام تازہ ہوتا ہے۔"
+        case .sr: text = "Обавештење о дозволи за хлађење и рад са затвореним поклопцем освежава се при поновном отварању панела."
+        }
+        let english: Set<String> = ["an", "the", "of", "to", "in", "on", "for", "with", "from", "and", "or"]
+        return HangingWords.glued(text, shortWords: shortWords(lang).union(lang == .en ? english : []),
+                                  trailing: trailingWords(lang))
     }
 
     private static func news25Text(_ lang: AppLanguage, _ index: Int) -> String {

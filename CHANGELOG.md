@@ -1,5 +1,9 @@
 # Hop - version history
 
+## 2.5.1 - 2026-11-16
+
+- The permission banner for cooling and closed-lid mode updates when you reopen the panel.
+
 ## 2.5.0 - 2026-11-16
 
 - Cooling: choose macOS control, maximum speed, fixed RPM or a CPU temperature curve on supported fans. Open the controls from the system monitor and hide their row in monitor settings.

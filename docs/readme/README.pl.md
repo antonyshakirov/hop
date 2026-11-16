@@ -39,6 +39,8 @@ uśpienia w duchu caffeinate, monitor systemu, menedżer schowka, konwerter
 plików „przeciągnij i upuść", przyciąganie okien, zaporę aplikacji oraz lekki klient torrentów – jedna lekka, natywna aplikacja, w której używane moduły
 rozkładasz na maksymalnie czterech kartach na ikonie.
 
+**2.5.1:** Komunikat o uprawnieniu do chłodzenia i pracy z zamkniętą pokrywą odświeża się po ponownym otwarciu panelu.
+
 ## Pobierz
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – otwórz i przeciągnij `Hop.app` do katalogu Aplikacje (zalecane)

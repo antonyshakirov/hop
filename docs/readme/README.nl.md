@@ -39,6 +39,8 @@ takenlijst, een slaapblokkering à la caffeinate, een systeemmonitor, een
 klembordbeheerder, een drag-and-drop-bestandsconverter, een venster-snapper, een app-firewall en een lichte torrentclient – één lichtgewicht native app, met de modules
 die je gebruikt verdeeld over tot vier tabbladen op het icoon.
 
+**2.5.1:** De toestemmingsmelding voor koeling en werken met gesloten klep wordt bijgewerkt wanneer je het paneel opnieuw opent.
+
 ## Downloaden
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – openen en `Hop.app` naar de map Apps slepen (aanbevolen)

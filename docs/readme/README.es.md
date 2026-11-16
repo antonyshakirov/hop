@@ -41,6 +41,8 @@ del sistema, un gestor del portapapeles, un conversor de archivos por
 arrastrar y soltar, un organizador de ventanas, un cortafuegos de aplicaciones y un cliente de torrents ligero – una sola app nativa y ligera, con los módulos que usas repartidos en
 hasta cuatro pestañas del icono.
 
+**2.5.1:** El aviso de permiso para la refrigeración y el modo de tapa cerrada se actualiza al volver a abrir el panel.
+
 ## Descarga
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – ábrelo y arrastra `Hop.app` a Aplicaciones (recomendado)

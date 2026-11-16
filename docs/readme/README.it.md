@@ -40,6 +40,8 @@ sistema, un gestore degli appunti, un convertitore di file drag-and-drop, uno st
 app nativa e leggera, con i moduli che usi distribuiti su fino a quattro
 schede dell'icona.
 
+**2.5.1:** L’avviso di autorizzazione per il raffreddamento e la modalità a coperchio chiuso si aggiorna riaprendo il pannello.
+
 ## Download
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – aprilo e trascina `Hop.app` in Applicazioni (consigliato)

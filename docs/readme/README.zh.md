@@ -36,6 +36,8 @@ Hop 常驻在 Mac 的菜单栏中，一个应用顶替一把小工具：
 剪贴板管理器、拖放式文件转换器、窗口吸附、应用防火墙和轻量 BT 客户端––
 一个轻量的原生应用，把你常用的模块分布在图标上多达四个标签里。
 
+**2.5.1:** 重新打开面板时，会更新散热和合盖模式的权限提示。
+
 ## 下载
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – 打开后把 `Hop.app` 拖入「应用程序」即可（推荐）

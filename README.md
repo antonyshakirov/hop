@@ -40,6 +40,8 @@ converter, a window snapper, an app firewall and a lite torrent client – one
 native app, with the modules you use arranged across up to four tabs on the
 icon.
 
+**2.5.1:** The permission banner for cooling and closed-lid mode updates when you reopen the panel.
+
 ## Download
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – open and drag `Hop.app` into Applications (recommended)

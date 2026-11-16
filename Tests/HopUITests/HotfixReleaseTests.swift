@@ -8,12 +8,22 @@ final class HotfixReleaseTests: XCTestCase {
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.5"))
         for lang in AppLanguage.allCases {
             let notes = L10n.t(.docNews, lang)
-            XCTAssertTrue(notes.hasPrefix("2.5.0 – 2026-11-16"), lang.rawValue)
+            XCTAssertTrue(notes.contains("2.5.0 – 2026-11-16"), lang.rawValue)
             for key in [L10nKey.news25Cooling, .news25Lid, .news25Clipboard] {
                 XCTAssertTrue(notes.contains("• " + L10n.t(key, lang)), lang.rawValue)
             }
         }
     }
+    func testHardwarePermissionPatchHasLocalizedNotesWithoutANewPanelCard() {
+        XCTAssertFalse(PanelView.releaseCardIDs.contains("2.5.1"))
+        for lang in AppLanguage.allCases {
+            let notes = L10n.t(.docNews, lang)
+            XCTAssertTrue(notes.hasPrefix("2.5.1 – 2026-11-16\n\n• "), lang.rawValue)
+            let current = notes.components(separatedBy: "2.5.0 – ")[0]
+            XCTAssertEqual(current.components(separatedBy: "• ").count - 1, 1, lang.rawValue)
+        }
+    }
+
     func testDevelopmentPreviewResetsOnlyTheCurrentReleaseCard() throws {
         let suite = "release-preview-\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
@@ -106,7 +116,7 @@ final class HotfixReleaseTests: XCTestCase {
     func testTheMinorReleaseHasItsCard() {
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.4.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.4"))
-        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.5.0")
+        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.5.1")
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.3.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.3"))
     }

@@ -40,6 +40,8 @@ Zwischenablage-Manager, einen Drag-and-drop-Dateikonverter, einen
 Fenster-Snapper, eine App-Firewall und einen leichten Torrent-Client – eine leichtgewichtige
 native App, deren Module du auf bis zu vier Tabs am Symbol verteilst.
 
+**2.5.1:** Der Berechtigungshinweis für Kühlung und Betrieb bei geschlossenem Deckel wird beim erneuten Öffnen des Panels aktualisiert.
+
 ## Download
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – öffnen und `Hop.app` in den Programme-Ordner ziehen (empfohlen)
