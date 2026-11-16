@@ -108,6 +108,8 @@ delivery still requires the installed Dev check.
 | CL-06 | Open in light/dark themes and with long localized labels | Search, selection and numbered hints are readable and fit the window |
 | CL-07 | Compose Japanese/Chinese text in the search editor, press arrows/Return/Escape | Native composition receives those keys and history is not copied or dismissed |
 | CL-08 | Rebind the picker opener to Command-1, open, then press it again | First result is copied through the picker selection path |
+| CL-09 | Hover a truncated multiline text entry in the panel and quick picker | Tooltip contains the actual text and paragraphs, not the clipboard module purpose; panel copy/paste/save controls retain their action hints |
+| CL-10 | Hover external long text, newline flood, file list, image or color | Bounded preview uses stored content without loading a large body; omitted tail has an ellipsis, files show paths, image/color labels remain accurate |
 
 ## Protected lid sessions and cooling
 

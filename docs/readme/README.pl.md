@@ -39,7 +39,7 @@ uśpienia w duchu caffeinate, monitor systemu, menedżer schowka, konwerter
 plików „przeciągnij i upuść", przyciąganie okien, zaporę aplikacji oraz lekki klient torrentów – jedna lekka, natywna aplikacja, w której używane moduły
 rozkładasz na maksymalnie czterech kartach na ikonie.
 
-**2.5.2:** Komunikat o uprawnieniu do chłodzenia i pracy z zamkniętą pokrywą odświeża się po ponownym otwarciu panelu. Tryb zamkniętej pokrywy przełącza się szybciej i nadal czeka na potwierdzenie systemu. Przy zmianie wyjścia audio zwalnianie poprzedniego silnika dźwięku nie blokuje już menu ani zamykania Hop.
+**2.5.2:** Komunikat o uprawnieniu do chłodzenia i pracy z zamkniętą pokrywą odświeża się po ponownym otwarciu panelu. Tryb zamkniętej pokrywy przełącza się szybciej i nadal czeka na potwierdzenie systemu. Przy zmianie wyjścia audio zwalnianie poprzedniego silnika dźwięku nie blokuje już menu ani zamykania Hop. Najedź na wpis schowka, aby zobaczyć jego tekst z akapitami zamiast opisu modułu.
 
 ## Pobierz
 

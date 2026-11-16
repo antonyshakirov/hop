@@ -42,7 +42,7 @@ arrastar e soltar, um organizador de janelas, um firewall de apps e um cliente 
 um único app nativo e leve, com os módulos que você usa distribuídos em até
 quatro abas no ícone.
 
-**2.5.2:** O aviso de permissão para o arrefecimento e o modo de tampa fechada é atualizado ao reabrir o painel. O modo de tampa fechada muda mais depressa e mantém a confirmação do sistema. Ao mudar a saída de áudio, libertar o motor anterior deixa de bloquear o menu ou a saída do Hop.
+**2.5.2:** O aviso de permissão para o arrefecimento e o modo de tampa fechada é atualizado ao reabrir o painel. O modo de tampa fechada muda mais depressa e mantém a confirmação do sistema. Ao mudar a saída de áudio, libertar o motor anterior deixa de bloquear o menu ou a saída do Hop. Ao passar o cursor sobre uma entrada da área de transferência, aparece o seu texto com parágrafos em vez da descrição do módulo.
 
 ## Download
 

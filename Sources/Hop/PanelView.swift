@@ -3450,8 +3450,8 @@ struct PanelView: View {
     }
 
     @ViewBuilder private func moduleContentWithHint(_ key: String, in tabID: UUID) -> some View {
-        if key == "sound" {
-            // Sound has independent quick controls; the module-wide help would override their actions.
+        if key == "sound" || key == "clipboard" {
+            // Independent controls and clipboard previews must not inherit module-wide help.
             moduleContent(key, in: tabID)
         } else {
             moduleContent(key, in: tabID).help(moduleHint(key))

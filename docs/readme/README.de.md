@@ -40,7 +40,7 @@ Zwischenablage-Manager, einen Drag-and-drop-Dateikonverter, einen
 Fenster-Snapper, eine App-Firewall und einen leichten Torrent-Client – eine leichtgewichtige
 native App, deren Module du auf bis zu vier Tabs am Symbol verteilst.
 
-**2.5.2:** Die Freigabeanzeige für Lüfter und Deckelmodus wird beim Öffnen des Panels aktualisiert. Der Deckelmodus wechselt schneller. Das System bestätigt weiterhin jeden Wechsel. Beim Freigeben der bisherigen Audio-Engine bleiben Menü und Beenden nach einem Ausgangswechsel verfügbar.
+**2.5.2:** Die Freigabeanzeige für Lüfter und Deckelmodus wird beim Öffnen des Panels aktualisiert. Der Deckelmodus wechselt schneller. Das System bestätigt weiterhin jeden Wechsel. Beim Freigeben der bisherigen Audio-Engine bleiben Menü und Beenden nach einem Ausgangswechsel verfügbar. Zwischenablage: Einträge zeigen beim Überfahren ihren Text mit Absätzen. Die Modulhilfe steht am Titel.
 
 ## Download
 

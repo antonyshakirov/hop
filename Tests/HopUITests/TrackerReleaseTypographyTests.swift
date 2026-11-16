@@ -36,11 +36,15 @@ final class TrackerReleaseTypographyTests: XCTestCase {
             let short: Set<String> = lang == .de
                 ? ["und", "oder", "der", "die", "das", "ein", "eine", "mit", "für", "von", "zu", "nach", "bei", "beim", "des"]
                 : ["le", "la", "les", "du", "de", "des", "un", "une", "au", "aux", "en", "et", "ou", "pour", "sur", "dans", "avec", "à"]
-            let text = String(L10n.t(.docNews, lang).components(separatedBy: "\n\n")[1].dropFirst(2))
-            for width in [280.0, 324.0, 328.0, 432.0, 640.0] {
-                for line in renderedLines(text, width: width, font: .monospacedSystemFont(ofSize: 12, weight: .medium)).dropLast() {
-                    let last = line.components(separatedBy: .whitespaces).last ?? ""
-                    XCTAssertFalse(short.contains(last.lowercased()), "\(lang.rawValue) \(width): \(line)")
+            let paragraphs = L10n.t(.docNews, lang).components(separatedBy: "2.5.1 – ")[0]
+                .components(separatedBy: "\n\n").filter { $0.hasPrefix("• ") }
+            for paragraph in paragraphs {
+                let text = String(paragraph.dropFirst(2))
+                for width in [280.0, 324.0, 328.0, 432.0, 640.0] {
+                    for line in renderedLines(text, width: width, font: .monospacedSystemFont(ofSize: 12, weight: .medium)).dropLast() {
+                        let last = line.components(separatedBy: .whitespaces).last ?? ""
+                        XCTAssertFalse(short.contains(last.lowercased()), "\(lang.rawValue) \(width): \(line)")
+                    }
                 }
             }
         }

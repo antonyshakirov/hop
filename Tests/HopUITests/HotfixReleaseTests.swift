@@ -24,13 +24,13 @@ final class HotfixReleaseTests: XCTestCase {
         }
     }
 
-    func testResponsivenessPatchHasTwoLocalizedNotesWithoutANewPanelCard() {
+    func testResponsivenessPatchHasThreeLocalizedNotesWithoutANewPanelCard() {
         XCTAssertFalse(PanelView.releaseCardIDs.contains("2.5.2"))
         for lang in AppLanguage.allCases {
             let notes = L10n.t(.docNews, lang)
             XCTAssertTrue(notes.hasPrefix("2.5.2 – 2026-11-16\n\n• "), lang.rawValue)
             let current = notes.components(separatedBy: "2.5.1 – ")[0]
-            XCTAssertEqual(current.components(separatedBy: "• ").count - 1, 2, lang.rawValue)
+            XCTAssertEqual(current.components(separatedBy: "• ").count - 1, 3, lang.rawValue)
         }
     }
 

@@ -1384,6 +1384,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Clipboard
 
+- **Entry hover preview**: hovering a history row shows the copied text with
+  paragraph breaks and the existing copy/context-menu hint, rather than the
+  module's purpose. The picker shows the same content preview. Long previews
+  stop at1500 characters or20 lines with an ellipsis; external text uses its
+  available stored head without reading the full body during rendering. File
+  entries show up to8 paths; image and color entries retain their content labels.
+  Copy, paste and save buttons keep their own action hints. The generic module
+  purpose belongs to the clipboard heading and never covers entry previews.
+
 - **Quick picker**: Command-Shift-C opens an independent, searchable history
   window; the combination can be changed in the existing shortcut settings.
   It opens history without issuing Copy to the preceding app. Command-1 through
@@ -6796,7 +6805,8 @@ its own database of known apps may do better on real software than it did here.
   a tooltip of its own shows the module's name and its one-line purpose — the
   same `purpose*` line the onboarding and the settings page use, so it exists
   in every language (`moduleHint`). A control's own tooltip still wins over it.
-  A clipboard entry says "click to copy, right-click for more".
+  A clipboard entry previews its own content, followed by "click to copy,
+  right-click for more"; the clipboard purpose is limited to its heading.
 - The panel window allows tooltips while Hop is not the active app
   (`allowsToolTipsWhenApplicationIsInactive`): on macOS 27 a click in the
   panel no longer activates Hop, so it is hovered from the background.

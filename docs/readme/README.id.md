@@ -40,7 +40,7 @@ drag-and-drop, penata jendela, firewall aplikasi, dan klien torrent ringan – s
 native yang ringan, dengan modul yang kamu pakai tersebar di hingga empat
 tab pada ikon.
 
-**2.5.2:** Pemberitahuan izin untuk pendinginan dan mode tutup tertutup diperbarui saat panel dibuka kembali. Mode tutup tertutup berganti lebih cepat dan tetap menunggu konfirmasi sistem. Saat mengganti keluaran audio, pelepasan mesin audio lama tidak lagi membekukan menu atau penutupan Hop.
+**2.5.2:** Pemberitahuan izin untuk pendinginan dan mode tutup tertutup diperbarui saat panel dibuka kembali. Mode tutup tertutup berganti lebih cepat dan tetap menunggu konfirmasi sistem. Saat mengganti keluaran audio, pelepasan mesin audio lama tidak lagi membekukan menu atau penutupan Hop. Arahkan penunjuk ke entri papan klip untuk melihat teks beserta paragrafnya, bukan deskripsi modul.
 
 ## Unduh
 
