@@ -12,8 +12,32 @@ python3 scripts/own-ci/codeql-setup.py --archive /absolute/path/codeql-bundle-sw
 
 Preparation requires Python's `zstandard` module for this archive and makes no network request. It verifies the official archive, all 7,761 original SDK tree records, the reviewed source-built extractor and all 7,761 derived tree records. Only the extractor executable changes. The exact source patches, input identities, build recipe and differential controls are documented in [CodeQL compatibility](codeql-compatibility.md). A different rebuild requires a new review and explicit pin; setup never trusts an arbitrary executable or silently falls back to the broken official extractor. Put the resulting `codeql` directory on PATH. Each analysis authenticates the complete SDK tree again before execution. Missing, extra or modified content fails; no SDK file is excluded from hashing.
 
+### Local build budget
+
+The build, test and CodeQL steps, app packaging and screenshot builds
+share `/private/tmp/hop-build-budget-<uid>.lock`. The lock is acquired outside
+the native sandbox and works across checkouts and isolated HOME/TMPDIR values.
+Only one protected build or check step runs at a time, with two Swift compiler jobs and
+lower scheduling priority. CodeQL finalization and analysis retain their existing
+two-thread limit. Waiting commands remain subject to the check step's timeout.
+Cancellation stops the protected process group before releasing the lock.
+Workers that deliberately create their own session are outside group cleanup.
+
+For manual builds and preflight recipes, use
+`python3 -B scripts/build-budget.py swift build` or replace `build` with `test`.
+This launcher caps explicit job requests too. Raw toolchain invocations and old
+standalone recipes do not automatically enter the queue; migrate them to this
+launcher or the updated `hop-step.mjs` before starting another build.
+
+Run the resource regressions without building Hop:
+`python3 -B -I scripts/build-budget.test.py`.
+
+### Release checks
+
 The gate includes:
 
+- Build-budget regressions covering serialization across checkouts, failures,
+  cancellation, process-group cleanup and the two-job Swift limit.
 - The frozen shared core's 26 regression tests, 74 adapter regressions and 13 offline SDK-preparation tests.
 - The normal debug build with compiler warnings rejected; complete XCTest discovery and execution, at least 1,720 passing cases, with no skipped, duplicate or missing cases.
 - Existing canvas, markup export, live-layer, translation and preparing-version self-tests.

@@ -642,9 +642,12 @@ Swift Package Manager, macOS 14+, no external dependencies:
 ```bash
 git clone https://github.com/antonyshakirov/hop.git
 cd hop
-swift build
+python3 -B scripts/build-budget.py swift build
 ./scripts/build-app.sh
 ```
+
+Local builds use two compiler jobs and a shared per-user queue across working
+copies. Run manual Swift tests through `python3 -B scripts/build-budget.py swift test`.
 
 Dev workflow, release pipeline and the behavioral spec live in
 [docs/development.md](docs/development.md) and [docs/spec.md](docs/spec.md).

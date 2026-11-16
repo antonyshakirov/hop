@@ -2,6 +2,7 @@ import { constants } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdir, readFile, realpath, writeFile, cp, chmod, lstat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { isolatedRun, nativeEnvironment, sandboxProfile, prepareNativeTemporary, readPrivateNativeFile } from './native.mjs';
 import { verifyCodeqlTree } from './codeql-sdk-tree.mjs';
 import { prepareCodeqlBuild } from './codeql-build.mjs';
@@ -10,6 +11,14 @@ import { summarizeTests, validateMessages, parsePreparingVersion } from './hop-r
 
 const mode = process.argv[2];
 if (process.platform !== 'darwin' || process.argv.length !== 3 || !['toolchain', 'messages', 'build', 'tests', 'canvas', 'export', 'live', 'translations', 'version', 'codeql'].includes(mode)) throw new Error('Usage on macOS: hop-step.mjs toolchain|messages|build|tests|canvas|export|live|translations|version|codeql');
+// Keep the budget for the entire step, including CodeQL tracing and finalization.
+if (['build', 'tests', 'codeql'].includes(mode) && process.env.HOP_BUILD_BUDGET_OWNER !== String(process.ppid)) {
+  const child = spawn('/usr/bin/python3', ['-B', fileURLToPath(new URL('../build-budget.py', import.meta.url)), process.execPath, fileURLToPath(import.meta.url), mode], { stdio: 'inherit' });
+  for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP']) process.on(signal, () => child.kill(signal));
+  child.once('error', error => { console.error(error.message); process.exitCode = 1; });
+  const result = await new Promise(resolve => child.once('close', (code, signal) => resolve({ code, signal })));
+  process.exit(result.code ?? (result.signal === 'SIGINT' ? 130 : result.signal === 'SIGHUP' ? 129 : 143));
+}
 const run = await isolatedRun({ home: process.env.HOME, temporary: process.env.TMPDIR, workspace: process.cwd() });
 const bin = join(run, 'bin');
 await mkdir(bin, { recursive: true });
@@ -18,7 +27,7 @@ try { await writeFile(join(bin, 'xcrun'), xcrun, { mode: 0o700, flag: 'wx' }); }
 catch (error) { if (error.code !== 'EEXIST' || (await readPrivateNativeFile(join(bin, 'xcrun'))).toString('utf8') !== xcrun) throw error; }
 const env = nativeEnvironment(run, { ...process.env, PATH: bin + ':' + process.env.PATH });
 const swiftExecutable = join(env.DEVELOPER_DIR, 'Toolchains/XcodeDefault.xctoolchain/usr/bin/swift');
-const swiftArguments = ['--disable-sandbox', '--build-system', 'native'];
+const swiftArguments = ['--disable-sandbox', '--build-system', 'native', '--jobs', '2'];
 const platformPlugins = join(env.DEVELOPER_DIR, 'Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins');
 const pluginServer = join(env.DEVELOPER_DIR, 'Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-plugin-server');
 try {
