@@ -229,10 +229,13 @@ struct ClipboardView: View {
                 // text truncates a bit earlier — the icons need breathing room
                 .padding(.trailing, 10)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(height: 32)
                 .contentShape(Rectangle())
             }
             .buttonStyle(ClipboardRowStyle(isCopied: isCopied))
-            .help(ClipboardHoverPreview.text(for: item) + "\n\n" + L10n.t(.clipRowHint, lang))
+            .accessibilityHint(L10n.t(.clipRowHint, lang))
+            .background(ClipboardHoverAnchor(id: item.id,
+                text: ClipboardHoverPreview.text(for: item) + "\n\n" + L10n.t(.clipRowHint, lang), lang: lang))
 
             // swap without changing geometry: the icons and the "copied" mark live
             // in one fixed-height layer — the row doesn't twitch
@@ -287,7 +290,6 @@ struct ClipboardView: View {
             .frame(height: 20)
         }
         .padding(.horizontal, 8)
-        .padding(.vertical, 6)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 5))
         .contentShape(Rectangle())
         .menuTargetOutline(5)

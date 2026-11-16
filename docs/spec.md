@@ -1392,6 +1392,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   entries show up to8 paths; image and color entries retain their content labels.
   Copy, paste and save buttons keep their own action hints. The generic module
   purpose belongs to the clipboard heading and never covers entry previews.
+  Each row uses its own native tracking area and a shared nonactivating preview
+  panel after0.5 seconds, independently of the macOS tooltip cooldown. Moving
+  within one row does not restart the delay; another row starts a fresh delay.
+  Leave, click, key press, scroll, row replacement, panel/tab closure and hidden
+  parent cancel pending/visible previews. The preview cannot take focus, consume
+  clicks or resize the parent. Its rendered height and screen position are bounded.
 
 - **Quick picker**: Command-Shift-C opens an independent, searchable history
   window; the combination can be changed in the existing shortcut settings.

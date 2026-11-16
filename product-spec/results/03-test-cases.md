@@ -110,6 +110,8 @@ delivery still requires the installed Dev check.
 | CL-08 | Rebind the picker opener to Command-1, open, then press it again | First result is copied through the picker selection path |
 | CL-09 | Hover a truncated multiline text entry in the panel and quick picker | Tooltip contains the actual text and paragraphs, not the clipboard module purpose; panel copy/paste/save controls retain their action hints |
 | CL-10 | Hover external long text, newline flood, file list, image or color | Bounded preview uses stored content without loading a large body; omitted tail has an ellipsis, files show paths, image/color labels remain accurate |
+| CL-11 | Hover a row for0.49s, then0.5s; move within it, leave/reenter and switch rows repeatedly | No early preview; actual preview appears at0.5s for each current row, independent of native tooltip cooldown; within-row movement does not postpone it |
+| CL-12 | Leave, click, scroll, hide/close panel, replace an item or remove its view during the delay/preview | No late or stale preview, no focus/pasteboard/copy change, and the parent panel stays in place |
 
 ## Protected lid sessions and cooling
 
