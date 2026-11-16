@@ -262,9 +262,18 @@ final class PluginRenderingTests: XCTestCase {
                     name: "plugins-empty-\(lang.rawValue)-\(dark ? "dark" : "light")", maximumHeight: 240)
             }
         }
-        for name in ["desk-panel", "auto-break"] {
+        for name in ["desk-panel", "auto-break", "pink-accent"] {
             manager.install(try Data(contentsOf: root.appendingPathComponent(name + "-1.0.0.hopplugin")), origin: "local")
         }
+        XCTAssertEqual(manager.records.count, 3)
+        XCTAssertTrue(manager.records.allSatisfy { !$0.wantedEnabled && !$0.canRun })
+        let pink = try XCTUnwrap(manager.records.first(where: { $0.id == "pink-accent" }))
+        manager.approve(pink.id, digest: pink.digest, capabilities: Set(pink.package.manifest.capabilities))
+        let pinkDeadline = Date().addingTimeInterval(3)
+        while !manager.active.contains(pink.id), Date() < pinkDeadline { try await Task.sleep(nanoseconds: 1_000_000) }
+        XCTAssertTrue(manager.active.contains(pink.id)); XCTAssertNotNil(Theme.pluginOverlay); XCTAssertNil(manager.panel)
+        manager.disable(pink.id)
+        XCTAssertNil(Theme.pluginOverlay)
         defaults.set("en", forKey: SettingsKey.appLanguage)
         _ = PanelView(initial: .firstSpace)
         let baseline = keys.map { defaults.object(forKey: $0) as? String }

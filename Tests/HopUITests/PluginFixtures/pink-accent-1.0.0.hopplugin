@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "manifest": {
+    "id": "pink-accent",
+    "version": "1.0.0",
+    "apiVersion": 1,
+    "name": "Pink accent",
+    "description": "Try pink highlights without changing your panel. Disable to restore Hop colors.",
+    "author": "Hop",
+    "capabilities": [
+      "ui.theme"
+    ],
+    "settings": [
+      {
+        "key": "soft",
+        "label": "Softer pink",
+        "type": "boolean",
+        "default": true
+      }
+    ]
+  },
+  "code": "/* SPDX-License-Identifier: MIT\nCopyright (c) 2026 Anton Shakirov\nSee the accompanying LICENSE file for the full license.\n*/\ndefinePlugin({\n  activate(context) {\n    const accent = context.settings.soft ? \"#B86B8E\" : \"#D14B91\";\n    return {theme: {light: {accent}, dark: {accent}}};\n  }\n});\n"
+}
