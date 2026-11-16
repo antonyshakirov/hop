@@ -7,6 +7,7 @@
 | 2026-11-16 | Deep panel/theme customization; public per-plugin PR catalog; every new installation off; packages/settings survive app updates. | Plugin API/store/overlay tests and installed Dev preview. |
 | 2026-11-16 | Explicit import/catalog action and capability approval before execution. No JS, runtime or catalog requests for all-off startup. | Store/lifecycle tests; signed runtime probe. |
 | 2026-11-16 | Core preferences remain authoritative underneath reversible overlays. Recovery stays outside plugin UI. | Native renders/actions, timer revision and safe launch checks. |
+| 2026-11-16 | Plugin settings explain customization and default-off installs, and link directly to the public repository and contribution guide. Reading the page does not fetch the catalog or execute plugins. | Native settings renders and default-off lifecycle regressions. |
 
 Settings → plugins lists installed packages and an explicitly refreshed signed catalog. Import/download validates a UTF-8 JSON `.hopplugin` package and leaves it off. Enable shows its exact capabilities; cancel leaves it inert. Disable removes its contributions and sessions while keeping settings. Removal deletes only that installed plugin. New versions require an explicit install; approval is bound to the package digest. Unknown API/capability retains data and never executes.
 

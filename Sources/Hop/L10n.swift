@@ -21039,11 +21039,12 @@ extension String {
 enum PluginText: Int, CaseIterable {
     case title, importFile, catalog, install, enable, disable, remove, approve, cancel, empty
     case permissions, paused, off, running, incompatible, error, recovery, local, appearance, panel, timerRead, timerControl, systemRead, news
-    case memoryError
+    case memoryError, overview, repository, contribute
 }
 
 enum PluginCopy {
     static func text(_ key: PluginText, _ language: AppLanguage = L10n.current) -> String {
+        if let library = PluginLibraryCopy.text(key, language) { return library }
         if key == .memoryError { return L10n.gluedPluginText(memoryError(language), language) }
         let values: [String]
         switch language {

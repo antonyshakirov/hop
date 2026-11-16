@@ -30,6 +30,8 @@ struct PluginNodeView: View {
 struct PluginActionButton: NSViewRepresentable {
     let title: String
     let action: () -> Void
+    var bordered = true
+    var accessibilityID = "hop.plugin.action"
     final class Coordinator: NSObject {
         var action: () -> Void
         init(action: @escaping () -> Void) { self.action = action }
@@ -44,5 +46,12 @@ struct PluginActionButton: NSViewRepresentable {
     }
     func updateNSView(_ button: NSButton, context: Context) {
         button.title = title; context.coordinator.action = action
+        button.isBordered = bordered
+        button.identifier = NSUserInterfaceItemIdentifier(accessibilityID)
+        button.setAccessibilityIdentifier(accessibilityID)
+        if !bordered {
+            button.font = L10n.current.isRTL ? .systemFont(ofSize: 11) : .monospacedSystemFont(ofSize: 11, weight: .medium)
+            button.contentTintColor = NSColor(Theme.textSecondary)
+        }
     }
 }

@@ -9,6 +9,9 @@ struct PluginSettingsView: View {
     private func t(_ key: PluginText) -> String { PluginCopy.text(key, lang) }
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
+            Text(t(.overview))
+                .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Button(t(.importFile), action: importFile)
                 Button(t(.catalog)) { Task { await manager.refreshCatalog() } }.disabled(manager.busy)
@@ -55,6 +58,7 @@ struct PluginSettingsView: View {
                 }
             }
             if !manager.active.isEmpty { Button(t(.recovery)) { manager.disableAll() } }
+            PluginLibraryLinks(lang: lang)
         }
         .font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
         .sheet(item: $approving) { record in

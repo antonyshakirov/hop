@@ -20,6 +20,24 @@ private final class RenderingPluginTransport: PluginRuntimeTransport {
 
 @MainActor
 final class PluginRenderingTests: XCTestCase {
+    func testNativeLibraryLinksOpenOnlyTheirPublicDestination() throws {
+        var opened: [URL] = []
+        let root = PluginLibraryLinks(lang: .en)
+            .environment(\.openURL, OpenURLAction { url in opened.append(url); return .handled })
+            .padding(20).frame(width: 650)
+        let host = NSHostingView(rootView: root)
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 650, height: 80), styleMask: [.borderless], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false; window.contentView = host
+        defer { window.close() }
+        host.layoutSubtreeIfNeeded()
+        func buttons(_ view: NSView) -> [NSButton] { (view as? NSButton).map { [$0] } ?? view.subviews.flatMap(buttons) }
+        for (id, expected) in [("hop.plugins.repository", PluginLibraryResources.repository), ("hop.plugins.contribute", PluginLibraryResources.contribute)] {
+            let link = try XCTUnwrap(buttons(host).first { $0.identifier?.rawValue == id })
+            link.performClick(nil)
+            XCTAssertEqual(opened.last, expected)
+        }
+        XCTAssertEqual(opened.count, 2)
+    }
     func testNativePluginButtonReallyInvokesItsAction() throws {
         let nodes = try JSONDecoder().decode([PluginNode].self, from: Data(#"[{"type":"button","title":"Run","action":"run"}]"#.utf8))
         var performed: [String] = []
@@ -93,11 +111,17 @@ final class PluginRenderingTests: XCTestCase {
         let root = try XCTUnwrap(Bundle.module.url(forResource: "PluginFixtures", withExtension: nil))
         for dark in [false, true] {
             defaults.set(dark ? "dark" : "light", forKey: Theme.themeKey)
-            try render(AnyView(PluginSettingsView(manager: manager, lang: .en).padding(20).frame(width: 650).background(Theme.background)), name: "plugins-empty-\(dark ? "dark" : "light")", maximumHeight: 240)
+            for lang in AppLanguage.allCases {
+                defaults.set(lang.rawValue, forKey: SettingsKey.appLanguage)
+                try render(AnyView(PluginSettingsView(manager: manager, lang: lang).padding(20).frame(width: 650).background(Theme.background)
+                    .environment(\.colorScheme, dark ? .dark : .light).environment(\.layoutDirection, lang.isRTL ? .rightToLeft : .leftToRight)),
+                    name: "plugins-empty-\(lang.rawValue)-\(dark ? "dark" : "light")", maximumHeight: 240)
+            }
         }
         for name in ["desk-panel", "auto-break"] {
             manager.install(try Data(contentsOf: root.appendingPathComponent(name + "-1.0.0.hopplugin")), origin: "local")
         }
+        defaults.set("en", forKey: SettingsKey.appLanguage)
         _ = PanelView(initial: .firstSpace)
         let baseline = keys.map { defaults.object(forKey: $0) as? String }
         let desk = try XCTUnwrap(manager.records.first(where: { $0.id == "desk-panel" }))
@@ -108,6 +132,7 @@ final class PluginRenderingTests: XCTestCase {
         for dark in [false, true] {
             defaults.set(dark ? "dark" : "light", forKey: Theme.themeKey)
             for lang in [AppLanguage.en, .ru, .de, .fr, .ar] {
+                defaults.set(lang.rawValue, forKey: SettingsKey.appLanguage)
                 try render(AnyView(PluginSettingsView(manager: manager, lang: lang).padding(20).frame(width: 650).background(Theme.background)
                     .environment(\.colorScheme, dark ? .dark : .light).environment(\.layoutDirection, lang.isRTL ? .rightToLeft : .leftToRight)),
                     name: "plugins-settings-\(lang.rawValue)-\(dark ? "dark" : "light")", maximumHeight: 1000)
@@ -115,11 +140,13 @@ final class PluginRenderingTests: XCTestCase {
             try render(AnyView(PanelView(initial: .firstSpace).environmentObject(model).environment(\.colorScheme, dark ? .dark : .light)),
                        name: "plugins-desk-panel-\(dark ? "dark" : "light")", maximumHeight: 1400)
         }
+        let chosenLanguage = defaults.string(forKey: SettingsKey.appLanguage)
         manager.disable(desk.id)
         XCTAssertNil(Theme.pluginOverlay)
         XCTAssertNil(manager.panel)
         XCTAssertEqual(defaults.string(forKey: SettingsKey.panelTabs), baseline[1])
-        XCTAssertEqual(defaults.string(forKey: SettingsKey.appLanguage), baseline[2])
+        XCTAssertEqual(defaults.string(forKey: SettingsKey.appLanguage), chosenLanguage)
+        defaults.set("en", forKey: SettingsKey.appLanguage)
         for dark in [false, true] {
             defaults.set(dark ? "dark" : "light", forKey: Theme.themeKey)
             Snapshot.active = false
