@@ -564,10 +564,10 @@ enum L10n {
         switch lang {
         case .en: text = "The permission banner for cooling and closed-lid mode updates when you reopen the panel."
         case .ru: text = "Плашка разрешения для охлаждения и режима закрытой крышки обновляется при открытии панели."
-        case .de: text = "Der Berechtigungshinweis für Kühlung und Betrieb bei geschlossenem Deckel wird beim erneuten Öffnen des Panels aktualisiert."
+        case .de: text = "Die Freigabeanzeige für Lüfter und Deckelmodus wird beim Öffnen des Panels aktualisiert."
         case .es: text = "El aviso de permiso para la refrigeración y el modo de tapa cerrada se actualiza al volver a abrir el panel."
         case .pt: text = "O aviso de permissão para o arrefecimento e o modo de tampa fechada é atualizado ao reabrir o painel."
-        case .fr: text = "La bannière d’autorisation du refroidissement et du mode capot fermé est actualisée à la réouverture du panneau."
+        case .fr: text = "Le statut des autorisations des ventilateurs et du mode capot fermé s’actualise à l’ouverture du panneau."
         case .it: text = "L’avviso di autorizzazione per il raffreddamento e la modalità a coperchio chiuso si aggiorna riaprendo il pannello."
         case .zh: text = "重新打开面板时，会更新散热和合盖模式的权限提示。"
         case .ja: text = "パネルを開き直すと、冷却と蓋を閉じた状態での動作に必要な許可の表示が更新されます。"
@@ -585,9 +585,14 @@ enum L10n {
         case .ur: text = "پینل دوبارہ کھولنے پر کولنگ اور بند ڈھکن والے موڈ کی اجازت کا پیغام تازہ ہوتا ہے۔"
         case .sr: text = "Обавештење о дозволи за хлађење и рад са затвореним поклопцем освежава се при поновном отварању панела."
         }
-        let english: Set<String> = ["an", "the", "of", "to", "in", "on", "for", "with", "from", "and", "or"]
-        return HangingWords.glued(text, shortWords: shortWords(lang).union(lang == .en ? english : []),
-                                  trailing: trailingWords(lang))
+        let additional: Set<String>
+        switch lang {
+        case .en: additional = ["an", "the", "of", "to", "in", "on", "for", "with", "from", "and", "or"]
+        case .de: additional = ["und", "oder", "der", "die", "das", "ein", "eine", "mit", "für", "von", "zu", "nach", "bei", "beim", "des"]
+        case .fr: additional = ["le", "la", "les", "du", "de", "des", "un", "une", "au", "aux", "en", "et", "ou", "pour", "sur", "dans", "avec", "à"]
+        default: additional = []
+        }
+        return HangingWords.glued(text, shortWords: shortWords(lang).union(additional), trailing: trailingWords(lang))
     }
 
     private static func news25Text(_ lang: AppLanguage, _ index: Int) -> String {

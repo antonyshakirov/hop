@@ -31,6 +31,21 @@ final class TrackerReleaseTypographyTests: XCTestCase {
         }
     }
 
+    func testPermissionPatchCopyKeepsGermanAndFrenchShortWordsWithTheirPhrase() {
+        for lang in [AppLanguage.de, .fr] {
+            let short: Set<String> = lang == .de
+                ? ["und", "oder", "der", "die", "das", "ein", "eine", "mit", "für", "von", "zu", "nach", "bei", "beim", "des"]
+                : ["le", "la", "les", "du", "de", "des", "un", "une", "au", "aux", "en", "et", "ou", "pour", "sur", "dans", "avec", "à"]
+            let text = String(L10n.t(.docNews, lang).components(separatedBy: "\n\n")[1].dropFirst(2))
+            for width in [280.0, 324.0, 328.0, 432.0, 640.0] {
+                for line in renderedLines(text, width: width, font: .monospacedSystemFont(ofSize: 12, weight: .medium)).dropLast() {
+                    let last = line.components(separatedBy: .whitespaces).last ?? ""
+                    XCTAssertFalse(short.contains(last.lowercased()), "\(lang.rawValue) \(width): \(line)")
+                }
+            }
+        }
+    }
+
     func testPreparedNotesRenderInBothThemes() throws {
         let directory = ProcessInfo.processInfo.environment["HOP_PATCH_RENDER_DIR"]
         if let directory {

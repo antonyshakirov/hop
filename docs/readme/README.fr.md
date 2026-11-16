@@ -42,7 +42,7 @@ glisser-déposer, un outil d'ancrage de fenêtres, un pare-feu applicatif et un 
 une seule app native et légère, dont les modules se répartissent sur jusqu'à
 quatre onglets de l'icône.
 
-**2.5.1:** La bannière d’autorisation du refroidissement et du mode capot fermé est actualisée à la réouverture du panneau.
+**2.5.1:** Le statut des autorisations des ventilateurs et du mode capot fermé s’actualise à l’ouverture du panneau.
 
 ## Téléchargement
 

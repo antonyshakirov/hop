@@ -40,7 +40,7 @@ Zwischenablage-Manager, einen Drag-and-drop-Dateikonverter, einen
 Fenster-Snapper, eine App-Firewall und einen leichten Torrent-Client – eine leichtgewichtige
 native App, deren Module du auf bis zu vier Tabs am Symbol verteilst.
 
-**2.5.1:** Der Berechtigungshinweis für Kühlung und Betrieb bei geschlossenem Deckel wird beim erneuten Öffnen des Panels aktualisiert.
+**2.5.1:** Die Freigabeanzeige für Lüfter und Deckelmodus wird beim Öffnen des Panels aktualisiert.
 
 ## Download
 
