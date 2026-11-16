@@ -33,6 +33,7 @@ final class CoolingController: ObservableObject {
     private let persistPreferences: () -> Bool
     private var activationObserver: NSObjectProtocol?
     private var focusObserver: NSObjectProtocol?
+    private var popoverObserver: NSObjectProtocol?
     private var hardwareModules: Set<String>
     private var serviceState = CoolingServiceState.unavailable
     private var connectionFailed = false
@@ -71,6 +72,10 @@ final class CoolingController: ObservableObject {
                 object: nil, queue: .main) { [weak self] _ in
                     Task { @MainActor in self?.checkPermissions() }
                 }
+            popoverObserver = notificationCenter.addObserver(forName: NSPopover.willShowNotification,
+                object: nil, queue: .main) { [weak self] _ in
+                    MainActor.assumeIsolated { self?.checkPermissions() }
+                }
         }
     }
 
@@ -78,6 +83,7 @@ final class CoolingController: ObservableObject {
         timer?.invalidate()
         if let activationObserver { notificationCenter.removeObserver(activationObserver) }
         if let focusObserver { notificationCenter.removeObserver(focusObserver) }
+        if let popoverObserver { notificationCenter.removeObserver(popoverObserver) }
     }
 
     var activeFanMode: FanPolicy.Mode? {

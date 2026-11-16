@@ -128,7 +128,7 @@ delivery still requires the installed Dev check.
 | HW-13 | Intel fan interface has an additional Ftst key; a sensor value read fails after takeover | Restore uses the same metadata-selected control scheme and does not leave the manual mask set |
 
 | HW-14 | Enable System or Keep Awake while the service is missing/pending approval | Start setup once per off-to-on transition; unrelated changes do not repeat the request; no hardware override is armed |
-| HW-15 | Reopen the panel after granting/revoking approval, or lose the XPC connection | Banner reflects actual access, offers the next action, and clears after recovery; basic module functions remain available |
+| HW-15 | Reopen a retained nonactivating panel after granting/revoking approval without an application-focus event, or lose the XPC connection | Banner reflects actual access, offers the next action, and clears after recovery; basic module functions remain available |
 | HW-16 | Enable modules during maintenance, render snapshots, or leave both modules off | No competing registration, no system permission UI in snapshots/onboarding, and no irrelevant banner |
 
 | HW-17 | Open cooling on a fanless Mac, then on a controllable-fan fixture | Unsupported state has no mode grid/Apply; actual native window matches measured content without a fixed empty footer |
