@@ -24,8 +24,8 @@ if [ ${#LANGS[@]} -eq 0 ]; then
 fi
 
 echo "building…"
-swift build >/dev/null
-BIN="$(swift build --show-bin-path)/Hop"
+/usr/bin/python3 -B scripts/build-budget.py swift build >/dev/null
+BIN="$(/usr/bin/python3 -B scripts/build-budget.py swift build --show-bin-path)/Hop"
 
 # Sample files for the converter window: real images and a real PDF, so the
 # rows carry genuine thumbnails and size estimates rather than placeholders.

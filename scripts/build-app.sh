@@ -58,9 +58,9 @@ if [[ $DEV == 1 ]]; then
 else
     BUILD_ARGS=(-c "$CONFIGURATION" --arch arm64 --arch x86_64)
 fi
-swift build "${BUILD_ARGS[@]}"
+/usr/bin/python3 -B scripts/build-budget.py swift build --jobs 2 "${BUILD_ARGS[@]}"
 # WORKAROUND: the bin path is asked of SwiftPM, never spelled out — Swift 6.4 moved it and 2.1.1 shipped a stale binary.
-BINARY="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)/Hop"
+BINARY="$(/usr/bin/python3 -B scripts/build-budget.py swift build --jobs 2 "${BUILD_ARGS[@]}" --show-bin-path)/Hop"
 WORKER_BINARY="${BINARY%/Hop}/HopAudioWorker"
 HARDWARE_BINARY="${BINARY%/Hop}/HopHardwareHelper"
 PLUGIN_BINARY="${BINARY%/Hop}/HopPluginRuntime"

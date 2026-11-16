@@ -3,6 +3,13 @@
   "project": "hop",
   "steps": [
     {
+      "id": "build-budget-self-tests",
+      "cwd": ".",
+      "command": "/usr/bin/python3",
+      "args": ["-B", "-I", "scripts/build-budget.test.py"],
+      "timeoutMs": 120000
+    },
+    {
       "id": "core-self-tests",
       "cwd": ".",
       "command": "{{node}}",
