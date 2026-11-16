@@ -5,12 +5,12 @@ import SwiftUI
 struct ClipboardHoverAnchor: NSViewRepresentable {
     let id: UUID
     let text: String
-    var hint: String? = nil
+    var imageFile: String? = nil
     let lang: AppLanguage
 
     func makeNSView(context: Context) -> ClipboardHoverAnchorView { ClipboardHoverAnchorView() }
     func updateNSView(_ view: ClipboardHoverAnchorView, context: Context) {
-        view.configure(id: id, text: text, rtl: lang.isRTL, hint: hint)
+        view.configure(id: id, text: text, rtl: lang.isRTL, imageFile: imageFile)
     }
     static func dismantleNSView(_ view: ClipboardHoverAnchorView, coordinator: ()) { view.cancelPreview() }
 }
@@ -20,15 +20,15 @@ final class ClipboardHoverAnchorView: NSView {
     private(set) var itemID = UUID()
     private(set) var previewText = ""
     private(set) var rtl = false
-    private(set) var actionHint: String?
+    private(set) var imageFile: String?
     private var dark = Theme.isDark
     var controller = ClipboardHoverController.shared
     private var area: NSTrackingArea?
 
-    func configure(id: UUID, text: String, rtl: Bool, hint: String? = nil) {
-        guard itemID != id || previewText != text || self.rtl != rtl || actionHint != hint || dark != Theme.isDark else { return }
+    func configure(id: UUID, text: String, rtl: Bool, imageFile: String? = nil) {
+        guard itemID != id || previewText != text || self.rtl != rtl || self.imageFile != imageFile || dark != Theme.isDark else { return }
         cancelPreview()
-        itemID = id; previewText = text; self.rtl = rtl; actionHint = hint; dark = Theme.isDark
+        itemID = id; previewText = text; self.rtl = rtl; self.imageFile = imageFile; dark = Theme.isDark
     }
     override func hitTest(_ point: NSPoint) -> NSView? { nil }
     override func updateTrackingAreas() {

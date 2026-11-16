@@ -3892,6 +3892,9 @@ struct PanelView: View {
                 .disabled(awake.lidChanging)
                 .padding(.leading, 1)
             }
+            if let failure = awake.lidFailure {
+                AwakeLidFailureView(reason: failure, lang: lang)
+            }
         }
     }
 

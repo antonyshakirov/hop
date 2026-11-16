@@ -39,14 +39,15 @@ final class ClipboardHoverControllerTests: XCTestCase {
         let controller: ClipboardHoverController
         init(text: String = "First paragraph\n\nDetailed second paragraph",
              screen: NSRect = NSRect(x: -10000, y: -10000, width: 800, height: 600),
-             pointer: NSPoint = NSPoint(x: -9700, y: -9550)) {
+             pointer: NSPoint = NSPoint(x: -9700, y: -9550),
+             loadImage: ((String) async -> ClipboardHoverBitmap?)? = nil) {
             self.screen = screen; self.pointer = pointer
             let clock = clock, screen = screen, pointer = pointer
             controller = ClipboardHoverController(schedule: { clock.schedule($0, $1) },
                 containsPointer: { _ in true }, visibleFrame: { _, actualPointer in
                     XCTAssertEqual(actualPointer, pointer)
                     return screen
-                }, pointerLocation: { pointer })
+                }, pointerLocation: { pointer }, loadImage: loadImage)
             parent.isReleasedWhenClosed = false
             let content = NSView(frame: NSRect(x: 0, y: 0, width: 360, height: 120))
             content.addSubview(anchor); parent.contentView = content
@@ -164,21 +165,87 @@ final class ClipboardHoverControllerTests: XCTestCase {
 
     func testCompactTypographyAndThinBorderStayCloseToThePointer() throws {
         let fixture = Fixture(text: "A copied message"); defer { fixture.finish() }
-        fixture.anchor.configure(id: UUID(), text: fixture.anchor.previewText, rtl: false, hint: "click to copy")
         fixture.controller.request(from: fixture.anchor); fixture.clock.advance(0.5)
         let panel = try XCTUnwrap(fixture.controller.panel)
         let content = try XCTUnwrap(panel.contentView)
         let label = try XCTUnwrap(content.subviews.first as? NSTextField)
-        XCTAssertEqual(label.stringValue, "A copied message\nclick to copy")
+        XCTAssertEqual(label.stringValue, "A copied message")
         let bodyFont = try XCTUnwrap(label.attributedStringValue.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)
-        let hintFont = try XCTUnwrap(label.attributedStringValue.attribute(.font, at: 17, effectiveRange: nil) as? NSFont)
         XCTAssertEqual(bodyFont.pointSize, 10)
         XCTAssertFalse(bodyFont.fontDescriptor.symbolicTraits.contains(.bold))
-        XCTAssertEqual(hintFont.pointSize, 9)
         XCTAssertEqual(content.layer?.borderWidth, 0.5)
         XCTAssertEqual(panel.frame.minX, fixture.pointer.x + 10, accuracy: 0.01)
         XCTAssertEqual(panel.frame.maxY, fixture.pointer.y - 12, accuracy: 0.01)
         XCTAssertLessThanOrEqual(panel.frame.width, fixture.parent.frame.width - 24)
+    }
+
+    func testShortTextUsesItsNaturalSizeWithoutAnEmptyFooter() throws {
+        let fixture = Fixture(text: "Short line"); defer { fixture.finish() }
+        fixture.controller.request(from: fixture.anchor); fixture.clock.advance(0.5)
+        let panel = try XCTUnwrap(fixture.controller.panel)
+        let label = try XCTUnwrap(panel.contentView?.subviews.first as? NSTextField)
+        XCTAssertEqual(label.stringValue, "Short line")
+        XCTAssertLessThan(panel.frame.width, 120)
+        XCTAssertLessThan(panel.frame.height, 36)
+        XCTAssertEqual(label.maximumNumberOfLines, 0)
+        XCTAssertFalse(label.cell?.truncatesLastVisibleLine ?? true)
+    }
+
+    func testImageEntryShowsTheActualBitmapWithItsAspectRatio() async throws {
+        let bitmap = try makeBitmap()
+        let fixture = Fixture(text: "200 × 100", loadImage: { _ in bitmap })
+        defer { fixture.finish() }
+        fixture.anchor.configure(id: UUID(), text: "200 × 100", rtl: false, imageFile: "sample.png")
+        fixture.controller.request(from: fixture.anchor); fixture.clock.advance(0.5)
+        for _ in 0..<100 where fixture.controller.panel == nil { await Task.yield() }
+        let content = try XCTUnwrap(fixture.controller.panel?.contentView)
+        let image = try XCTUnwrap(content.subviews.first as? NSImageView)
+        XCTAssertNotNil(image.image)
+        XCTAssertEqual(image.frame.width / image.frame.height, 2, accuracy: 0.01)
+        XCTAssertLessThan(content.bounds.width, 240)
+        XCTAssertFalse(content.subviews.contains { $0 is NSTextField })
+        let rendered = try XCTUnwrap(content.bitmapImageRepForCachingDisplay(in: content.bounds))
+        content.cacheDisplay(in: content.bounds, to: rendered)
+        let color = try XCTUnwrap(rendered.colorAt(x: rendered.pixelsWide / 2, y: rendered.pixelsHigh / 2)?.usingColorSpace(.sRGB))
+        // Compare in the same display profile; raw CGImage pixels use a different color space.
+        let referenceView = NSImageView(frame: image.frame)
+        referenceView.image = NSImage(cgImage: bitmap.image, size: try XCTUnwrap(image.image?.size))
+        referenceView.imageScaling = .scaleProportionallyDown
+        content.addSubview(referenceView)
+        defer { referenceView.removeFromSuperview() }
+        let reference = try XCTUnwrap(content.bitmapImageRepForCachingDisplay(in: content.bounds))
+        content.cacheDisplay(in: content.bounds, to: reference)
+        let expected = try XCTUnwrap(reference.colorAt(x: reference.pixelsWide / 2, y: reference.pixelsHigh / 2)?.usingColorSpace(.sRGB))
+        XCTAssertEqual(color.redComponent, expected.redComponent, accuracy: 0.02)
+        XCTAssertEqual(color.greenComponent, expected.greenComponent, accuracy: 0.02)
+        XCTAssertEqual(color.blueComponent, expected.blueComponent, accuracy: 0.02)
+    }
+
+    func testLateImageCannotReplaceTheNextRowsPreview() async throws {
+        var reply: CheckedContinuation<ClipboardHoverBitmap?, Never>?
+        let fixture = Fixture(text: "200 × 100", loadImage: { _ in
+            await withCheckedContinuation { reply = $0 }
+        })
+        defer { fixture.finish() }
+        fixture.anchor.configure(id: UUID(), text: "200 × 100", rtl: false, imageFile: "sample.png")
+        fixture.controller.request(from: fixture.anchor)
+        for _ in 0..<100 where reply == nil { await Task.yield() }
+        fixture.clock.advance(0.5)
+        XCTAssertNil(fixture.controller.panel)
+        fixture.anchor.configure(id: UUID(), text: "Next row", rtl: false)
+        fixture.controller.request(from: fixture.anchor); fixture.clock.advance(0.5)
+        reply?.resume(returning: try makeBitmap())
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertEqual(fixture.displayedText, "Next row")
+        XCTAssertFalse(fixture.controller.panel?.contentView?.subviews.first is NSImageView)
+    }
+
+    private func makeBitmap() throws -> ClipboardHoverBitmap {
+        let context = try XCTUnwrap(CGContext(data: nil, width: 200, height: 100, bitsPerComponent: 8,
+            bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        context.setFillColor(CGColor(red: 1, green: 0, blue: 0, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: 200, height: 100))
+        return ClipboardHoverBitmap(try XCTUnwrap(context.makeImage()))
     }
 
     func testLongPreviewOnShortScreenShrinksToKeepThePointerClear() throws {
@@ -222,6 +289,40 @@ final class ClipboardHoverControllerTests: XCTestCase {
         NotificationCenter.default.post(name: NSView.boundsDidChangeNotification, object: scroll.contentView)
         fixture.clock.advance(0.5)
         XCTAssertNil(fixture.controller.panel)
+    }
+
+
+    func testTextAndImagePreviewsRenderAtTheirContentSizeInBothThemes() throws {
+        let saved = UserDefaults.standard.object(forKey: Theme.themeKey)
+        defer {
+            if let saved { UserDefaults.standard.set(saved, forKey: Theme.themeKey) }
+            else { UserDefaults.standard.removeObject(forKey: Theme.themeKey) }
+        }
+        for dark in [false, true] {
+            UserDefaults.standard.set(dark ? "dark" : "light", forKey: Theme.themeKey)
+            let bitmap = try makeBitmap()
+            let cases: [(String, NSView)] = [
+                ("short", ClipboardHoverContent.text("Short line", rtl: false, maximum: NSSize(width: 400, height: 360))),
+                ("paragraphs", ClipboardHoverContent.text("Первая строка сообщения.\n\nЕщё один абзац с подробностями.", rtl: false, maximum: NSSize(width: 400, height: 360))),
+                ("image", try XCTUnwrap(ClipboardHoverContent.image(bitmap, maximum: NSSize(width: 400, height: 360), scale: 2)))
+            ]
+            for (name, content) in cases {
+                let fixture = Fixture(); defer { fixture.finish() }
+                let naturalSize = content.frame.size
+                fixture.parent.setContentSize(naturalSize)
+                fixture.parent.contentView = content
+                XCTAssertLessThan(content.frame.width, 400)
+                XCTAssertLessThan(content.frame.height, 120)
+                if let directory = ProcessInfo.processInfo.environment["HOP_HOVER_RENDER_DIR"] {
+                    let url = URL(fileURLWithPath: directory)
+                    try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+                    let rep = try XCTUnwrap(content.bitmapImageRepForCachingDisplay(in: content.bounds))
+                    content.cacheDisplay(in: content.bounds, to: rep)
+                    try XCTUnwrap(rep.representation(using: .png, properties: [:]))
+                        .write(to: url.appendingPathComponent("\(name)-\(dark ? "dark" : "light").png"))
+                }
+            }
+        }
     }
 
     func testRenderedPreviewFitsScreenAndSupportsBothThemesAndRTL() throws {

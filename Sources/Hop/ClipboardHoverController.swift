@@ -10,7 +10,11 @@ final class ClipboardHoverController {
     private let containsPointer: (ClipboardHoverAnchorView) -> Bool
     private let visibleFrame: (NSWindow, NSPoint) -> NSRect
     private let pointerLocation: () -> NSPoint
+    private let loadImage: (String) async -> ClipboardHoverBitmap?
     private var cancelPending: (() -> Void)?
+    private var imageTask: Task<Void, Never>?
+    private var bitmap: ClipboardHoverBitmap?
+    private var delayElapsed = false
     private weak var owner: ClipboardHoverAnchorView?
     private var token = UUID()
     private var observers: [NSObjectProtocol] = []
@@ -18,7 +22,8 @@ final class ClipboardHoverController {
     private(set) var panel: NSPanel?
 
     init(schedule: Scheduler? = nil, containsPointer: ((ClipboardHoverAnchorView) -> Bool)? = nil,
-         visibleFrame: ((NSWindow, NSPoint) -> NSRect)? = nil, pointerLocation: (() -> NSPoint)? = nil) {
+         visibleFrame: ((NSWindow, NSPoint) -> NSRect)? = nil, pointerLocation: (() -> NSPoint)? = nil,
+         loadImage: ((String) async -> ClipboardHoverBitmap?)? = nil) {
         self.schedule = schedule ?? { delay, action in
             let work = DispatchWorkItem(block: action)
             DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
@@ -30,27 +35,50 @@ final class ClipboardHoverController {
                 ?? parent.screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? parent.frame
         }
         self.pointerLocation = pointerLocation ?? { NSEvent.mouseLocation }
+        self.loadImage = loadImage ?? { file in
+            await ClipboardHoverImageLoader.shared.load(file: file, directory: ClipboardController.imagesDir)
+        }
     }
 
     func request(from anchor: ClipboardHoverAnchorView) {
         guard owner !== anchor else { return }
         cancel()
-        guard anchor.window != nil, !anchor.previewText.isEmpty else { return }
+        guard anchor.window != nil, !anchor.previewText.isEmpty || anchor.imageFile != nil else { return }
         owner = anchor
         let expected = UUID(); token = expected
         observe(anchor.window!)
+        if let file = anchor.imageFile {
+            let load = loadImage
+            imageTask = Task(priority: .userInitiated) { [weak self, weak anchor] in
+                let image = await load(file)
+                guard !Task.isCancelled, let self, let anchor, self.token == expected, self.owner === anchor else { return }
+                self.imageTask = nil; self.bitmap = image
+                if self.delayElapsed { self.present(anchor, expected: expected) }
+            }
+        }
         cancelPending = schedule(0.5) { [weak self, weak anchor] in
             guard let self, let anchor, self.token == expected, self.owner === anchor else { return }
             self.cancelPending = nil
-            guard let parent = anchor.window, parent.isVisible, !anchor.isHiddenOrHasHiddenAncestor,
-                  self.containsPointer(anchor) else { self.cancel(); return }
-            self.show(anchor, parent: parent)
+            self.delayElapsed = true
+            self.present(anchor, expected: expected)
         }
+    }
+
+    private func present(_ anchor: ClipboardHoverAnchorView, expected: UUID) {
+        guard token == expected, owner === anchor else { return }
+        guard let parent = anchor.window, parent.isVisible, !anchor.isHiddenOrHasHiddenAncestor,
+              containsPointer(anchor) else { cancel(); return }
+        if anchor.imageFile != nil, bitmap == nil {
+            if imageTask == nil { cancel() }
+            return
+        }
+        show(anchor, parent: parent)
     }
 
     func cancel(owner anchor: ClipboardHoverAnchorView? = nil) {
         if let anchor, owner !== anchor { return }
         token = UUID(); cancelPending?(); cancelPending = nil; owner = nil
+        imageTask?.cancel(); imageTask = nil; bitmap = nil; delayElapsed = false
         for observation in observers { NotificationCenter.default.removeObserver(observation) }
         observers.removeAll()
         if let eventMonitor { NSEvent.removeMonitor(eventMonitor) }; eventMonitor = nil
@@ -94,38 +122,21 @@ final class ClipboardHoverController {
     private func show(_ anchor: ClipboardHoverAnchorView, parent: NSWindow) {
         let pointer = pointerLocation()
         let screen = visibleFrame(parent, pointer)
-        let width = min(360, max(1, min(screen.width - 16, max(240, parent.frame.width - 24))))
-        let font = anchor.rtl ? NSFont.systemFont(ofSize: 10, weight: .regular) : NSFont.monospacedSystemFont(ofSize: 10, weight: .regular)
-        let style = NSMutableParagraphStyle()
-        style.alignment = anchor.rtl ? .right : .left
-        style.baseWritingDirection = anchor.rtl ? .rightToLeft : .leftToRight
-        let text = NSMutableAttributedString(string: anchor.previewText, attributes: [.font: font,
-            .foregroundColor: NSColor(Theme.textPrimary), .paragraphStyle: style])
-        if let hint = anchor.actionHint, !hint.isEmpty {
-            let hintStyle = NSMutableParagraphStyle()
-            hintStyle.alignment = style.alignment; hintStyle.baseWritingDirection = style.baseWritingDirection
-            hintStyle.paragraphSpacingBefore = 6
-            let hintFont = anchor.rtl ? NSFont.systemFont(ofSize: 9) : NSFont.monospacedSystemFont(ofSize: 9, weight: .regular)
-            text.append(NSAttributedString(string: "\n" + hint, attributes: [.font: hintFont,
-                .foregroundColor: NSColor(Theme.textSecondary), .paragraphStyle: hintStyle]))
-        }
-        let measured = text.boundingRect(with: NSSize(width: max(1, width - 20), height: .greatestFiniteMagnitude),
-            options: [.usesLineFragmentOrigin, .usesFontLeading]).height
+        let maximumWidth = min(360, max(1, min(screen.width - 16, max(240, parent.frame.width - 24))))
         let belowRoom = max(0, pointer.y - 12 - screen.minY - 8)
         let aboveRoom = max(0, screen.maxY - 8 - pointer.y - 18)
         let availableHeight = max(belowRoom, aboveRoom)
         guard availableHeight >= 28 else { cancel(); return }
-        let height = min(max(28, ceil(measured) + 16), min(360, availableHeight))
-        let content = NSView(frame: NSRect(x: 0, y: 0, width: width, height: height))
-        content.wantsLayer = true; content.layer?.cornerRadius = 8
-        content.layer?.backgroundColor = NSColor(Theme.background).cgColor
-        content.layer?.borderWidth = 0.5; content.layer?.borderColor = NSColor(Theme.divider).cgColor
-        let label = NSTextField(wrappingLabelWithString: "")
-        label.attributedStringValue = text
-        label.frame = content.bounds.insetBy(dx: 10, dy: 8)
-        label.maximumNumberOfLines = max(1, Int((height - 16) / ceil(font.ascender - font.descender + font.leading)))
-        label.cell?.truncatesLastVisibleLine = true
-        content.addSubview(label)
+        let maximum = NSSize(width: maximumWidth, height: min(360, availableHeight))
+        let content: NSView
+        if anchor.imageFile != nil {
+            guard let bitmap, let image = ClipboardHoverContent.image(bitmap, maximum: maximum,
+                scale: parent.backingScaleFactor) else { cancel(); return }
+            content = image
+        } else {
+            content = ClipboardHoverContent.text(anchor.previewText, rtl: anchor.rtl, maximum: maximum)
+        }
+        let width = content.bounds.width, height = content.bounds.height
         let preview = panel ?? ClipboardHoverPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         preview.isReleasedWhenClosed = false; preview.hidesOnDeactivate = false
         preview.backgroundColor = .clear; preview.isOpaque = false; preview.hasShadow = true

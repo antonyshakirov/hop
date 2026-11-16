@@ -43,6 +43,7 @@ final class KeepAwakeController: ObservableObject {
     /// Lid mode — visible to the UI: laptop icon in the module row.
     @Published private(set) var lidApplied = false
     @Published private(set) var lidChanging = false
+    @Published private(set) var lidFailure: HardwareReason?
     private var lidOperation = UUID()
     private var lidRequested = false
     private var protectedLid: (Bool, Date?) async throws -> Bool = { on, until in
@@ -166,6 +167,7 @@ final class KeepAwakeController: ObservableObject {
 
     func deactivate(silent: Bool = false) {
         if !relaunching && !cancelRelaunch(releaseActiveHandoff: true) { return }
+        lidFailure = nil
         if isActive && !silent {
             Sounds.awakeCue(on: false)
         }
@@ -301,6 +303,7 @@ final class KeepAwakeController: ObservableObject {
         lidRequested = disabled
         lidOperation = operation
         lidChanging = true
+        lidFailure = nil
         Task { [weak self] in
             guard let self else { return }
             defer { if self.lidOperation == operation { self.lidChanging = false } }
@@ -314,13 +317,11 @@ final class KeepAwakeController: ObservableObject {
             } catch {
                 if self.lidOperation == operation {
                     self.lidRequested = false
-                    AppModel.sharedKeepAwake?.showHardwareFailure?()
+                    self.lidFailure = error as? HardwareReason ?? .commandFailed
                 }
             }
         }
     }
-
-    var showHardwareFailure: (() -> Void)?
 
     /// SPEC: docs/spec.md — "Lid mode without a password", taking the rule back.
     static let lidRulePath = "/etc/sudoers.d/hop-pmset"

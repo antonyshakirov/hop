@@ -367,7 +367,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         model.openSoundWindow = { [weak self] in self?.showSoundWindow() }
         model.openCoolingWindow = { [weak self] in self?.showCoolingWindow() }
-        model.keepAwake.showHardwareFailure = { [weak self] in self?.showCoolingWindow() }
         Task {
             await CoolingController.shared.resumeRegistration()
             CoolingController.shared.checkPermissions()

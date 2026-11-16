@@ -1205,6 +1205,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   collection rather than Foundation process polling. Each command retains its
   three-second deadline and 16 KiB output limit; durable recovery and actual
   sleep-state verification still precede the confirmed lid indicator.
+  A failed lid action reports its reason inline beneath Awake; it never opens
+  the fan-control window. The latest intent owns the error; retry and ordinary
+  off clear it. Busy copy explains that another Hop instance may own lid/cooling
+  and must release it there; no other instance is stopped or taken over.
 - **Hardware service updates** wait until lid override and manual cooling
   are off and their restoration is confirmed. They restore, unregister the
   old service, replace the app safely and register/validate the new service.
@@ -1385,11 +1389,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 ### Clipboard
 
 - **Entry hover preview**: hovering a history row shows the copied text with
-  paragraph breaks and the existing copy/context-menu hint, rather than the
+  paragraph breaks, rather than the
   module's purpose. The picker shows the same content preview. Long previews
   stop at1500 characters or20 lines with an ellipsis; external text uses its
   available stored head without reading the full body during rendering. File
-  entries show up to8 paths; image and color entries retain their content labels.
+  entries show up to8 paths; colors retain their content notation. Image entries
+  show an actual aspect-preserving miniature, without a dimensions placeholder.
+  The window follows natural text/image dimensions, up to its available screen
+  space; short entries have neither a fixed-width empty area nor an action footer.
   Copy, paste and save buttons keep their own action hints. The generic module
   purpose belongs to the clipboard heading and never covers entry previews.
   Each row uses its own native tracking area and a shared nonactivating preview
@@ -1398,11 +1405,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Leave, click, key press, scroll, row replacement, panel/tab closure and hidden
   parent cancel pending/visible previews. The preview cannot take focus, consume
   clicks or resize the parent. Its rendered height and screen position are bounded.
-  Body text is10pt regular, the action hint is9pt secondary ink, and the border
+  Body text is10pt regular, and the border
   is0.5pt divider ink. Place the preview12pt below and10pt beside the current
   pointer, flipping above near a screen edge, rather than below a larger row area.
   Choose the screen containing the pointer and shrink long previews to the
   available space above/below it so the hovered point remains clear.
+  Image decoding starts only on hover, off main on one serial actor. It reads
+  only regular PNG files from the image store through a no-follow descriptor,
+  at most25MiB; source dimensions must be finite and within32768 per side/64Mp.
+  ImageIO creates thumbnails up to640 pixels; the cache is capped at12 entries
+  and8MiB. Cancellation/token checks reject stale loads, and the0.5-second delay
+  and ready-image conditions both precede presentation. Main-thread rendering
+  does not read or decode image files.
 
 - **Quick picker**: Command-Shift-C opens an independent, searchable history
   window; the combination can be changed in the existing shortcut settings.
@@ -6816,8 +6830,9 @@ its own database of known apps may do better on real software than it did here.
   a tooltip of its own shows the module's name and its one-line purpose — the
   same `purpose*` line the onboarding and the settings page use, so it exists
   in every language (`moduleHint`). A control's own tooltip still wins over it.
-  A clipboard entry previews its own content, followed by "click to copy,
-  right-click for more"; the clipboard purpose is limited to its heading.
+  A clipboard entry previews its own content; copy/paste/save keep their action
+  hints and the main copy control retains its accessibility hint. The clipboard
+  purpose is limited to its heading.
 - The panel window allows tooltips while Hop is not the active app
   (`allowsToolTipsWhenApplicationIsInactive`): on macOS 27 a click in the
   panel no longer activates Hop, so it is hovered from the background.
