@@ -27,7 +27,8 @@ final class ClipboardHoverControllerTests: XCTestCase {
         }
     }
     @MainActor private final class Fixture {
-        let screen = NSRect(x: -10000, y: -10000, width: 800, height: 600)
+        let screen: NSRect
+        let pointer: NSPoint
         let clock = Clock()
         let parent: NSPanel = {
             _ = NSApplication.shared
@@ -36,10 +37,16 @@ final class ClipboardHoverControllerTests: XCTestCase {
         }()
         let anchor = ClipboardHoverAnchorView(frame: NSRect(x: 0, y: 0, width: 300, height: 32))
         let controller: ClipboardHoverController
-        init(text: String = "First paragraph\n\nDetailed second paragraph") {
-            let clock = clock, screen = screen
+        init(text: String = "First paragraph\n\nDetailed second paragraph",
+             screen: NSRect = NSRect(x: -10000, y: -10000, width: 800, height: 600),
+             pointer: NSPoint = NSPoint(x: -9700, y: -9550)) {
+            self.screen = screen; self.pointer = pointer
+            let clock = clock, screen = screen, pointer = pointer
             controller = ClipboardHoverController(schedule: { clock.schedule($0, $1) },
-                containsPointer: { _ in true }, visibleFrame: { _ in screen })
+                containsPointer: { _ in true }, visibleFrame: { _, actualPointer in
+                    XCTAssertEqual(actualPointer, pointer)
+                    return screen
+                }, pointerLocation: { pointer })
             parent.isReleasedWhenClosed = false
             let content = NSView(frame: NSRect(x: 0, y: 0, width: 360, height: 120))
             content.addSubview(anchor); parent.contentView = content
@@ -153,6 +160,37 @@ final class ClipboardHoverControllerTests: XCTestCase {
         fixture.controller.request(from: fixture.anchor)
         fixture.anchor.setFrameOrigin(NSPoint(x: 0, y: 40)); fixture.clock.advance(0.5)
         XCTAssertNil(fixture.controller.panel)
+    }
+
+    func testCompactTypographyAndThinBorderStayCloseToThePointer() throws {
+        let fixture = Fixture(text: "A copied message"); defer { fixture.finish() }
+        fixture.anchor.configure(id: UUID(), text: fixture.anchor.previewText, rtl: false, hint: "click to copy")
+        fixture.controller.request(from: fixture.anchor); fixture.clock.advance(0.5)
+        let panel = try XCTUnwrap(fixture.controller.panel)
+        let content = try XCTUnwrap(panel.contentView)
+        let label = try XCTUnwrap(content.subviews.first as? NSTextField)
+        XCTAssertEqual(label.stringValue, "A copied message\nclick to copy")
+        let bodyFont = try XCTUnwrap(label.attributedStringValue.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)
+        let hintFont = try XCTUnwrap(label.attributedStringValue.attribute(.font, at: 17, effectiveRange: nil) as? NSFont)
+        XCTAssertEqual(bodyFont.pointSize, 10)
+        XCTAssertFalse(bodyFont.fontDescriptor.symbolicTraits.contains(.bold))
+        XCTAssertEqual(hintFont.pointSize, 9)
+        XCTAssertEqual(content.layer?.borderWidth, 0.5)
+        XCTAssertEqual(panel.frame.minX, fixture.pointer.x + 10, accuracy: 0.01)
+        XCTAssertEqual(panel.frame.maxY, fixture.pointer.y - 12, accuracy: 0.01)
+        XCTAssertLessThanOrEqual(panel.frame.width, fixture.parent.frame.width - 24)
+    }
+
+    func testLongPreviewOnShortScreenShrinksToKeepThePointerClear() throws {
+        let fixture = Fixture(text: String(repeating: "long preview ", count: 150),
+                              pointer: NSPoint(x: -9700, y: -9700))
+        defer { fixture.finish() }
+        fixture.controller.request(from: fixture.anchor); fixture.clock.advance(0.5)
+        let panel = try XCTUnwrap(fixture.controller.panel)
+        XCTAssertTrue(fixture.screen.contains(panel.frame))
+        XCTAssertFalse(panel.frame.contains(fixture.pointer))
+        XCTAssertLessThanOrEqual(panel.frame.maxY, fixture.pointer.y - 12)
+        XCTAssertLessThan(panel.frame.height, 300)
     }
 
     func testLocalClickKeyAndScrollEventsDismissThePreview() throws {

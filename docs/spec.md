@@ -1398,6 +1398,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Leave, click, key press, scroll, row replacement, panel/tab closure and hidden
   parent cancel pending/visible previews. The preview cannot take focus, consume
   clicks or resize the parent. Its rendered height and screen position are bounded.
+  Body text is10pt regular, the action hint is9pt secondary ink, and the border
+  is0.5pt divider ink. Place the preview12pt below and10pt beside the current
+  pointer, flipping above near a screen edge, rather than below a larger row area.
+  Choose the screen containing the pointer and shrink long previews to the
+  available space above/below it so the hovered point remains clear.
 
 - **Quick picker**: Command-Shift-C opens an independent, searchable history
   window; the combination can be changed in the existing shortcut settings.

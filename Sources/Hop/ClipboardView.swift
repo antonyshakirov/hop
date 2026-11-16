@@ -235,7 +235,7 @@ struct ClipboardView: View {
             .buttonStyle(ClipboardRowStyle(isCopied: isCopied))
             .accessibilityHint(L10n.t(.clipRowHint, lang))
             .background(ClipboardHoverAnchor(id: item.id,
-                text: ClipboardHoverPreview.text(for: item) + "\n\n" + L10n.t(.clipRowHint, lang), lang: lang))
+                text: ClipboardHoverPreview.text(for: item), hint: L10n.t(.clipRowHint, lang), lang: lang))
 
             // swap without changing geometry: the icons and the "copied" mark live
             // in one fixed-height layer — the row doesn't twitch

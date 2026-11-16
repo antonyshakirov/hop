@@ -112,6 +112,7 @@ delivery still requires the installed Dev check.
 | CL-10 | Hover external long text, newline flood, file list, image or color | Bounded preview uses stored content without loading a large body; omitted tail has an ellipsis, files show paths, image/color labels remain accurate |
 | CL-11 | Hover a row for0.49s, then0.5s; move within it, leave/reenter and switch rows repeatedly | No early preview; actual preview appears at0.5s for each current row, independent of native tooltip cooldown; within-row movement does not postpone it |
 | CL-12 | Leave, click, scroll, hide/close panel, replace an item or remove its view during the delay/preview | No late or stale preview, no focus/pasteboard/copy change, and the parent panel stays in place |
+| CL-13 | Show the preview in both themes near screen edges or on a short display | Regular10pt body, secondary9pt hint and0.5pt border; preview follows the pointer's screen, stays nearby and fits without covering the hovered point |
 
 ## Protected lid sessions and cooling
 
