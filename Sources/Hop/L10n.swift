@@ -554,9 +554,39 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.1 – 2026-11-16\n\n• " + news251Text(lang) + "\n\n2.5.0 – 2026-11-16\n\n"
+        "2.5.2 – 2026-11-16\n\n" + (0..<2).map { "• " + news252Text(lang, $0) }.joined(separator: "\n\n")
+            + "\n\n2.5.1 – 2026-11-16\n\n• " + news251Text(lang) + "\n\n2.5.0 – 2026-11-16\n\n"
             + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
             + "\n\n" + previous
+    }
+
+    private static func news252Text(_ lang: AppLanguage, _ index: Int) -> String {
+        let rows: [String]
+        switch lang {
+        case .en: rows = ["Closed-lid mode switches faster while retaining system confirmation.", "Switching audio outputs no longer blocks the menu or Quit while an old audio engine is released."]
+        case .ru: rows = ["Режим закрытой крышки переключается быстрее с подтверждением системы.", "Смена аудиовыхода больше не блокирует меню и выход из Hop при освобождении прежнего аудиодвижка."]
+        case .de: rows = ["Der Deckelmodus wechselt schneller. Das System bestätigt weiterhin jeden Wechsel.", "Beim Freigeben der bisherigen Audio-Engine bleiben Menü und Beenden nach einem Ausgangswechsel verfügbar."]
+        case .es: rows = ["El modo de tapa cerrada cambia más rápido y conserva la confirmación del sistema.", "Al cambiar la salida de audio, liberar el motor anterior ya no bloquea el menú ni la salida de Hop."]
+        case .pt: rows = ["O modo de tampa fechada muda mais depressa e mantém a confirmação do sistema.", "Ao mudar a saída de áudio, libertar o motor anterior deixa de bloquear o menu ou a saída do Hop."]
+        case .fr: rows = ["Le mode capot fermé bascule plus vite en conservant la confirmation du système.", "Après un changement de sortie audio, la libération de l’ancien moteur ne bloque plus le menu ni la fermeture de Hop."]
+        case .it: rows = ["La modalità a coperchio chiuso cambia più rapidamente mantenendo la conferma del sistema.", "Cambiando uscita audio, il rilascio del motore precedente non blocca più il menu o la chiusura di Hop."]
+        case .zh: rows = ["合盖模式切换更快，同时仍会等待系统确认。", "切换音频输出时，释放旧音频引擎不再阻塞菜单或退出 Hop。"]
+        case .ja: rows = ["蓋を閉じた状態での動作モードが、システムの確認を維持したまま速く切り替わります。", "音声出力の切り替えで古い音声エンジンを解放するときも、メニューや Hop の終了が応答します。"]
+        case .nl: rows = ["De modus voor een gesloten klep schakelt sneller en behoudt de systeembevestiging.", "Bij het wisselen van audio-uitgang blokkeert het vrijgeven van de vorige audio-engine het menu en afsluiten niet meer."]
+        case .ko: rows = ["덮개를 닫은 상태의 모드가 시스템 확인을 유지하면서 더 빠르게 전환됩니다.", "오디오 출력을 전환할 때 이전 오디오 엔진을 해제해도 메뉴나 Hop 종료가 멈추지 않습니다."]
+        case .th: rows = ["โหมดปิดฝาสลับเร็วขึ้นและยังรอการยืนยันจากระบบ", "เมื่อเปลี่ยนเอาต์พุตเสียง การปล่อยเอนจินเสียงเดิมจะไม่ทำให้เมนูหรือการออกจาก Hop ค้างอีกต่อไป"]
+        case .vi: rows = ["Chế độ đóng nắp chuyển nhanh hơn và vẫn chờ hệ thống xác nhận.", "Khi đổi đầu ra âm thanh, việc giải phóng bộ máy âm thanh cũ không còn làm treo menu hoặc thao tác thoát Hop."]
+        case .hi: rows = ["बंद ढक्कन वाला मोड अब सिस्टम की पुष्टि बनाए रखते हुए तेज़ी से बदलता है।", "ऑडियो आउटपुट बदलने पर पुराने ऑडियो इंजन को छोड़ने से अब मेन्यू या Hop से बाहर निकलना नहीं अटकता।"]
+        case .id: rows = ["Mode tutup tertutup berganti lebih cepat dan tetap menunggu konfirmasi sistem.", "Saat mengganti keluaran audio, pelepasan mesin audio lama tidak lagi membekukan menu atau penutupan Hop."]
+        case .tr: rows = ["Kapak kapalı modu, sistem onayını koruyarak daha hızlı değişir.", "Ses çıkışı değiştirilirken eski ses motorunun serbest bırakılması artık menüyü veya Hop’tan çıkışı engellemez."]
+        case .pl: rows = ["Tryb zamkniętej pokrywy przełącza się szybciej i nadal czeka na potwierdzenie systemu.", "Przy zmianie wyjścia audio zwalnianie poprzedniego silnika dźwięku nie blokuje już menu ani zamykania Hop."]
+        case .ar: rows = ["يتبدل وضع الغطاء المغلق بسرعة أكبر مع الحفاظ على تأكيد النظام.", "عند تغيير مخرج الصوت، لم يعد تحرير محرك الصوت السابق يجمّد القائمة أو الخروج من Hop."]
+        case .he: rows = ["מצב מכסה סגור מתחלף מהר יותר ועדיין ממתין לאישור המערכת.", "בהחלפת פלט שמע, שחרור מנוע השמע הקודם כבר לא חוסם את התפריט או את סגירת Hop."]
+        case .fa: rows = ["حالت درِ بسته سریع‌تر تغییر می‌کند و همچنان منتظر تأیید سیستم می‌ماند.", "هنگام تغییر خروجی صدا، آزاد کردن موتور صوتی قبلی دیگر منو یا خروج از Hop را متوقف نمی‌کند."]
+        case .ur: rows = ["بند ڈھکن والا موڈ سسٹم کی تصدیق برقرار رکھتے ہوئے زیادہ تیزی سے بدلتا ہے۔", "آڈیو آؤٹ پٹ بدلتے وقت پرانے آڈیو انجن کو چھوڑنے سے اب مینو یا Hop بند کرنا نہیں اٹکتا۔"]
+        case .sr: rows = ["Режим затвореног поклопца пребацује се брже уз потврду система.", "При промени аудио-излаза, ослобађање претходног аудио-мотора више не блокира мени или излазак из Hop-а."]
+        }
+        return patchNewsText(rows[index], lang: lang)
     }
 
     private static func news251Text(_ lang: AppLanguage) -> String {
@@ -585,6 +615,10 @@ enum L10n {
         case .ur: text = "پینل دوبارہ کھولنے پر کولنگ اور بند ڈھکن والے موڈ کی اجازت کا پیغام تازہ ہوتا ہے۔"
         case .sr: text = "Обавештење о дозволи за хлађење и рад са затвореним поклопцем освежава се при поновном отварању панела."
         }
+        return patchNewsText(text, lang: lang)
+    }
+
+    private static func patchNewsText(_ text: String, lang: AppLanguage) -> String {
         let additional: Set<String>
         switch lang {
         case .en: additional = ["an", "the", "of", "to", "in", "on", "for", "with", "from", "and", "or"]

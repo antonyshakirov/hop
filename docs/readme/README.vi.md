@@ -39,7 +39,7 @@ cần làm, trình chặn ngủ kiểu caffeinate, trình giám sát hệ thốn
 quản lý clipboard, trình chuyển đổi tệp kéo-thả, công cụ sắp xếp cửa sổ, một tường lửa ứng dụng và trình torrent gọn nhẹ – một ứng dụng native nhẹ nhàng, với các mô-đun bạn
 dùng được trải trên tối đa bốn tab ở biểu tượng.
 
-**2.5.1:** Thông báo quyền cho tính năng làm mát và chế độ đóng nắp được cập nhật khi mở lại bảng điều khiển.
+**2.5.2:** Thông báo quyền cho tính năng làm mát và chế độ đóng nắp được cập nhật khi mở lại bảng điều khiển. Chế độ đóng nắp chuyển nhanh hơn và vẫn chờ hệ thống xác nhận. Khi đổi đầu ra âm thanh, việc giải phóng bộ máy âm thanh cũ không còn làm treo menu hoặc thao tác thoát Hop.
 
 ## Tải về
 

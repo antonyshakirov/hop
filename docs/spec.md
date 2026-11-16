@@ -1201,6 +1201,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Failure to restore remains visible and is retried; a pending recovery record
   survives helper restart. Ordinary keep-awake needs no helper. Screen locking
   continues to follow the established macOS setting.
+  Bounded system commands use direct process launch and immediate exit/readback
+  collection rather than Foundation process polling. Each command retains its
+  three-second deadline and 16 KiB output limit; durable recovery and actual
+  sleep-state verification still precede the confirmed lid indicator.
 - **Hardware service updates** wait until lid override and manual cooling
   are off and their restoration is confirmed. They restore, unregister the
   old service, replace the app safely and register/validate the new service.
@@ -7789,6 +7793,12 @@ Actual signal activity remains independent for each application.
 For a following-system-default audible route, prepare the output engine and capture buffer with playback gated before guarding the original source and activating the prepared stream. Muted, zero-gain, explicit-destination and missing-device routes acquire the source guard immediately. An explicit destination never warms through the system default, even when both currently name the same device. Pending settings/device changes reconcile before readiness; stale or cancelled streams cannot activate. Replacing a process retains the previous stream/guard until the new stream can activate. Stop gates playback, explicitly releases capture/muting, then destroys playback; DSP reset follows consumer shutdown. Saved gain applies from the first consumed frame, including after empty preroll; later gain changes retain smoothing. This reduces avoidable setup gaps and initial gain bursts; separate HAL clocks still require real audible acceptance and do not promise sample-aligned handoff.
 
 A dev-only Info.plist flag `HopOpenSoundAtLaunch` follows the existing `--open-sound` diagnostic path so separate local review bundles can open Sound without manipulating a hidden status item. It does not enable capture and is ignored by production builds.
+
+Output engine destruction runs on a dedicated background lifecycle queue, including
+failed initialization, replacement, route loss and stream shutdown. Synchronous
+playback stop still precedes DSP buffer discard. Engine borrowing retains its
+lifetime owner, and queued configuration callbacks ignore stopped playback. A
+slow CoreAudio destructor must not prevent the main run loop from handling Quit.
 
 ### Physical device volume dispatch
 

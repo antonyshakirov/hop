@@ -39,7 +39,7 @@ takibi, caffeinate benzeri bir uyku engelleyici, sistem monitörü, pano
 yöneticisi, sürükle-bırak dosya dönüştürücü, pencere yerleştirici, bir uygulama güvenlik duvarı ve hafif bir torrent istemcisi – tek bir hafif, yerel uygulama; kullandığınız
 modüller simgedeki en fazla dört sekmeye dağılmış.
 
-**2.5.1:** Soğutma ve kapak kapalı modu için izin bildirimi, panel yeniden açıldığında güncellenir.
+**2.5.2:** Soğutma ve kapak kapalı modu için izin bildirimi, panel yeniden açıldığında güncellenir. Kapak kapalı modu, sistem onayını koruyarak daha hızlı değişir. Ses çıkışı değiştirilirken eski ses motorunun serbest bırakılması artık menüyü veya Hop’tan çıkışı engellemez.
 
 ## İndir
 

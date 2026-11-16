@@ -170,11 +170,16 @@ final class SoundOutputStream: SoundAppOutputStream, @unchecked Sendable {
 private final class SoundAppPlayback {
     let uid: String
     private let device: AudioObjectID
-    private let engine = AVAudioEngine()
+    private let lifetime = SoundOutputEngineLifetime(make: { AVAudioEngine() })
+    private let lock = NSRecursiveLock()
+    private var stopped = false
     private var observation: NSObjectProtocol?
     var isValid: Bool {
-        engine.isRunning && engine.outputNode.auAudioUnit.deviceID == device
-            && SoundHAL.value(device, kAudioDevicePropertyDeviceIsAlive, UInt32(0)) == 1
+        guard lock.withLock({ !stopped }) else { return false }
+        return lifetime.withResource { engine in
+            engine.isRunning && engine.outputNode.auAudioUnit.deviceID == device
+                && SoundHAL.value(device, kAudioDevicePropertyDeviceIsAlive, UInt32(0)) == 1
+        }
     }
 
     init(uid: String, channel: SoundAudioChannel, changed: @escaping @Sendable () -> Void) throws {
@@ -182,33 +187,42 @@ private final class SoundAppPlayback {
         guard let device = SoundHAL.device(uid),
               SoundHAL.value(device, kAudioDevicePropertyDeviceIsAlive, UInt32(0)) == 1 else { throw SoundFailure.missingDevice }
         self.device = device
-        let output = engine.outputNode
-        try output.auAudioUnit.setDeviceID(device)
-        let hardware = output.outputFormat(forBus: 0)
-        guard hardware.sampleRate.isFinite, hardware.sampleRate > 0, hardware.channelCount > 0,
-              output.auAudioUnit.deviceID == device else { throw SoundFailure.unsupported }
-        let format = AVAudioFormat(standardFormatWithSampleRate: channel.sampleRate, channels: 2)!
-        let source = AVAudioSourceNode(format: format) { _, _, frames, buffers in
-            hop_audio_render(channel.pointer, buffers, frames, false); return noErr
-        }
-        engine.attach(source)
-        engine.connect(source, to: engine.mainMixerNode, format: format)
-        engine.connect(engine.mainMixerNode, to: output, format: nil)
-        do {
-            try engine.start()
-            guard output.auAudioUnit.deviceID == device,
-                  SoundHAL.value(device, kAudioDevicePropertyDeviceIsAlive, UInt32(0)) == 1 else { throw SoundFailure.missingDevice }
-        } catch { engine.stop(); throw error }
-        observation = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange,
-            object: engine, queue: .main) { [weak engine] _ in
-            guard let engine, !engine.isRunning || engine.outputNode.auAudioUnit.deviceID != device else { return }
-            engine.stop()
-            changed() // The session resolves the latest UID; never restart at a default device here.
+        try lifetime.withResource { engine in
+            let output = engine.outputNode
+            try output.auAudioUnit.setDeviceID(device)
+            let hardware = output.outputFormat(forBus: 0)
+            guard hardware.sampleRate.isFinite, hardware.sampleRate > 0, hardware.channelCount > 0,
+                  output.auAudioUnit.deviceID == device else { throw SoundFailure.unsupported }
+            let format = AVAudioFormat(standardFormatWithSampleRate: channel.sampleRate, channels: 2)!
+            let source = AVAudioSourceNode(format: format) { _, _, frames, buffers in
+                hop_audio_render(channel.pointer, buffers, frames, false); return noErr
+            }
+            engine.attach(source)
+            engine.connect(source, to: engine.mainMixerNode, format: format)
+            engine.connect(engine.mainMixerNode, to: output, format: nil)
+            do {
+                try engine.start()
+                guard output.auAudioUnit.deviceID == device,
+                      SoundHAL.value(device, kAudioDevicePropertyDeviceIsAlive, UInt32(0)) == 1 else { throw SoundFailure.missingDevice }
+            } catch { engine.stop(); throw error }
+            observation = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange,
+                object: engine, queue: nil) { [weak self] _ in
+                guard let self else { return }
+                guard self.lock.withLock({ !self.stopped }) else { return }
+                changed()
+            }
         }
     }
     func stop() {
+        let shouldStop = lock.withLock {
+            guard !stopped else { return false }
+            stopped = true
+            return true
+        }
+        guard shouldStop else { return }
         if let observation { NotificationCenter.default.removeObserver(observation) }
-        observation = nil; engine.stop()
+        observation = nil
+        lifetime.withResource { $0.stop() }
     }
     deinit { stop() }
 }

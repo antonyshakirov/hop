@@ -39,7 +39,7 @@ takenlijst, een slaapblokkering à la caffeinate, een systeemmonitor, een
 klembordbeheerder, een drag-and-drop-bestandsconverter, een venster-snapper, een app-firewall en een lichte torrentclient – één lichtgewicht native app, met de modules
 die je gebruikt verdeeld over tot vier tabbladen op het icoon.
 
-**2.5.1:** De toestemmingsmelding voor koeling en werken met gesloten klep wordt bijgewerkt wanneer je het paneel opnieuw opent.
+**2.5.2:** De toestemmingsmelding voor koeling en werken met gesloten klep wordt bijgewerkt wanneer je het paneel opnieuw opent. De modus voor een gesloten klep schakelt sneller en behoudt de systeembevestiging. Bij het wisselen van audio-uitgang blokkeert het vrijgeven van de vorige audio-engine het menu en afsluiten niet meer.
 
 ## Downloaden
 

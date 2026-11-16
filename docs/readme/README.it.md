@@ -40,7 +40,7 @@ sistema, un gestore degli appunti, un convertitore di file drag-and-drop, uno st
 app nativa e leggera, con i moduli che usi distribuiti su fino a quattro
 schede dell'icona.
 
-**2.5.1:** L’avviso di autorizzazione per il raffreddamento e la modalità a coperchio chiuso si aggiorna riaprendo il pannello.
+**2.5.2:** L’avviso di autorizzazione per il raffreddamento e la modalità a coperchio chiuso si aggiorna riaprendo il pannello. La modalità a coperchio chiuso cambia più rapidamente mantenendo la conferma del sistema. Cambiando uscita audio, il rilascio del motore precedente non blocca più il menu o la chiusura di Hop.
 
 ## Download
 

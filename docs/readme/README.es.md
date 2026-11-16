@@ -41,7 +41,7 @@ del sistema, un gestor del portapapeles, un conversor de archivos por
 arrastrar y soltar, un organizador de ventanas, un cortafuegos de aplicaciones y un cliente de torrents ligero – una sola app nativa y ligera, con los módulos que usas repartidos en
 hasta cuatro pestañas del icono.
 
-**2.5.1:** El aviso de permiso para la refrigeración y el modo de tapa cerrada se actualiza al volver a abrir el panel.
+**2.5.2:** El aviso de permiso para la refrigeración y el modo de tapa cerrada se actualiza al volver a abrir el panel. El modo de tapa cerrada cambia más rápido y conserva la confirmación del sistema. Al cambiar la salida de audio, liberar el motor anterior ya no bloquea el menú ni la salida de Hop.
 
 ## Descarga
 

@@ -1,5 +1,11 @@
 # Hop - version history
 
+## 2.5.2 - 2026-11-16
+
+- Closed-lid mode switches faster while retaining system confirmation.
+- Switching audio outputs no longer blocks the menu or Quit while an old audio engine is released.
+- The permission banner for cooling and closed-lid mode updates when you reopen the panel.
+
 ## 2.5.1 - 2026-11-16
 
 - The permission banner for cooling and closed-lid mode updates when you reopen the panel.

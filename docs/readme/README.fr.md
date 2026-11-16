@@ -42,7 +42,7 @@ glisser-déposer, un outil d'ancrage de fenêtres, un pare-feu applicatif et un 
 une seule app native et légère, dont les modules se répartissent sur jusqu'à
 quatre onglets de l'icône.
 
-**2.5.1:** Le statut des autorisations des ventilateurs et du mode capot fermé s’actualise à l’ouverture du panneau.
+**2.5.2:** Le statut des autorisations des ventilateurs et du mode capot fermé s’actualise à l’ouverture du panneau. Le mode capot fermé bascule plus vite en conservant la confirmation du système. Après un changement de sortie audio, la libération de l’ancien moteur ne bloque plus le menu ni la fermeture de Hop.
 
 ## Téléchargement
 

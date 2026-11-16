@@ -40,7 +40,7 @@ converter, a window snapper, an app firewall and a lite torrent client – one
 native app, with the modules you use arranged across up to four tabs on the
 icon.
 
-**2.5.1:** The permission banner for cooling and closed-lid mode updates when you reopen the panel.
+**2.5.2:** The permission banner for cooling and closed-lid mode updates when you reopen the panel. Closed-lid mode switches faster while retaining system confirmation. Switching audio outputs no longer blocks the menu or Quit while an old audio engine is released.
 
 ## Download
 

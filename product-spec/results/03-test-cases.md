@@ -143,5 +143,16 @@ delivery still requires the installed Dev check.
 | HW-24 | Apply maximum/fixed/CPU curve, return to macOS, stop, lose service or enter recovery | Only a confirmed active manual mode appears as quiet trailing text before the arrow; no button styling, stale label or additional poller |
 | HW-25 | Hover cooling in both themes | Highlight has8pt extra space on each horizontal edge; icon/label/arrow columns remain aligned with metrics |
 
+| HW-26 | Toggle protected lid on/off with an idle approved service | Confirm actual readback before the active indicator; bounded direct system commands avoid the former Process launch delay without weakening durable restoration |
+| HW-27 | System command times out, floods output, exits nonzero or loses its child status | Reject the reply, release descriptors, reap only the owned child and preserve coordinator restoration/readback rules |
+
+## Output engine retirement
+
+| ID | Given / action | Expected observable result |
+| --- | --- | --- |
+| AUD-RET-01 | Replace, lose or stop a listening output while its former engine destructor is slow | Playback stops before DSP discard; final app-owned engine release runs off main, and the main run loop can process Quit |
+| AUD-RET-02 | Borrow an engine during a throwing operation, or fail engine initialization | Owner survives the borrow and schedules one background release after stack unwinding |
+| AUD-RET-03 | Configuration notification arrives during/after playback retirement | Synchronous notification bridge never queues an engine reference on main; stopped callbacks cannot touch the engine or restart the retired output |
+
 | HW-26 | Change Awake duration while lid enable reply is delayed, while off is pending, or after failed enable | Root receives the latest deadline for a live on-intent; pending off and failed enable cannot be rearmed by a duration change |
 | HW-27 | Start a new lease while an old lid sleep-request recovery is pending | Complete old recovery and report busy without active=true in the same transition; a later explicit request is independent |
