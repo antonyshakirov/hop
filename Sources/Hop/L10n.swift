@@ -589,8 +589,80 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.3 – 2026-11-18\n\n" + patch253Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n2.5.0 – 2026-11-16\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
+        "2.5.3 – 2026-11-18\n\n" + patch253Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+            + "2.5.2 – 2026-11-16\n\n" + (0..<3).map { "• " + news252Text(lang, $0) }.joined(separator: "\n\n")
+            + "\n\n2.5.1 – 2026-11-16\n\n• " + news251Text(lang) + "\n\n2.5.0 – 2026-11-16\n\n"
+            + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
             + "\n\n" + previous
+    }
+
+    private static func news252Text(_ lang: AppLanguage, _ index: Int) -> String {
+        let rows: [String]
+        switch lang {
+        case .en: rows = ["Closed-lid mode switches faster with system confirmation. Errors appear under Awake.", "Switching audio outputs no longer blocks the menu or Quit while an old audio engine is released.", "Clipboard: hover to preview text or an image. Previews fit their content and truncate long text."]
+        case .ru: rows = ["Режим закрытой крышки переключается быстрее с подтверждением системы. Ошибки отображаются под Awake.", "Смена аудиовыхода больше не блокирует меню и выход из Hop при освобождении прежнего аудиодвижка.", "Буфер обмена: наведи на запись, чтобы увидеть текст или картинку. Размер превью зависит от содержимого, длинный текст обрезается."]
+        case .de: rows = ["Der Deckelmodus wechselt schneller. Das System bestätigt weiterhin jeden Wechsel. Fehler erscheinen unter Awake.", "Beim Freigeben der bisherigen Audio-Engine bleiben Menü und Beenden nach einem Ausgangswechsel verfügbar.", "Zwischenablage: Vorschauen zeigen Text und Bilder. Ihre Größe passt zum Inhalt; lange Texte werden gekürzt."]
+        case .es: rows = ["El modo de tapa cerrada cambia más rápido con confirmación del sistema. Los errores aparecen debajo de Awake.", "Al cambiar la salida de audio, liberar el motor anterior ya no bloquea el menú ni la salida de Hop.", "Portapapeles: pasa el cursor para ver texto o imágenes. La vista previa se ajusta al contenido y recorta textos largos."]
+        case .pt: rows = ["O modo de tampa fechada muda mais depressa com confirmação do sistema. Os erros aparecem sob Awake.", "Ao mudar a saída de áudio, libertar o motor anterior deixa de bloquear o menu ou a saída do Hop.", "Área de transferência: passa o cursor para ver texto ou imagens. A pré-visualização ajusta-se ao conteúdo e encurta textos longos."]
+        case .fr: rows = ["Le mode capot fermé bascule plus vite. Le système confirme chaque changement. Les erreurs apparaissent sous Awake.", "Après un changement de sortie audio, la libération de l’ancien moteur ne bloque plus le menu ni la fermeture de Hop.", "Presse-papiers : survolez un élément pour voir son texte ou son image. L’aperçu s’adapte au contenu et abrège les textes longs."]
+        case .it: rows = ["La modalità a coperchio chiuso cambia più rapidamente con conferma del sistema. Gli errori appaiono sotto Awake.", "Cambiando uscita audio, il rilascio del motore precedente non blocca più il menu o la chiusura di Hop.", "Appunti: passa il puntatore per vedere testo o immagini. L’anteprima si adatta al contenuto e abbrevia i testi lunghi."]
+        case .zh: rows = ["合盖模式切换更快，并保留系统确认。错误显示在 Awake 下方。", "切换音频输出时，释放旧音频引擎不再阻塞菜单或退出 Hop。", "剪贴板：悬停可预览文本或图片。预览大小随内容调整，过长文本会截断。"]
+        case .ja: rows = ["蓋を閉じた状態のモードがシステムの確認を維持したまま速く切り替わります。エラーは Awake の下に表示されます。", "音声出力の切り替えで古い音声エンジンを解放するときも、メニューや Hop の終了が応答します。", "クリップボード：項目にポインタを合わせるとテキストや画像をプレビューできます。内容に合うサイズで表示し、長いテキストは省略します。"]
+        case .nl: rows = ["De modus voor een gesloten klep schakelt sneller met systeembevestiging. Fouten verschijnen onder Awake.", "Bij het wisselen van audio-uitgang blokkeert het vrijgeven van de vorige audio-engine het menu en afsluiten niet meer.", "Klembord: beweeg de aanwijzer over een item voor een tekst- of afbeeldingsvoorbeeld. Het voorbeeld past bij de inhoud en kort lange tekst in."]
+        case .ko: rows = ["덮개를 닫은 상태의 모드가 시스템 확인을 유지하며 더 빠르게 전환됩니다. 오류는 Awake 아래에 표시됩니다.", "오디오 출력을 전환할 때 이전 오디오 엔진을 해제해도 메뉴나 Hop 종료가 멈추지 않습니다.", "클립보드: 항목에 포인터를 올려 텍스트나 이미지를 미리 봅니다. 내용에 맞춰 크기가 조절되고 긴 텍스트는 잘립니다."]
+        case .th: rows = ["โหมดปิดฝาสลับเร็วขึ้นพร้อมการยืนยันจากระบบ ข้อผิดพลาดแสดงใต้ Awake", "เมื่อเปลี่ยนเอาต์พุตเสียง การปล่อยเอนจินเสียงเดิมจะไม่ทำให้เมนูหรือการออกจาก Hop ค้างอีกต่อไป", "คลิปบอร์ด: เลื่อนตัวชี้เหนือรายการเพื่อดูข้อความหรือรูปภาพ ตัวอย่างปรับขนาดตามเนื้อหาและตัดข้อความที่ยาวเกินไป"]
+        case .vi: rows = ["Chế độ đóng nắp chuyển nhanh hơn với xác nhận của hệ thống. Lỗi xuất hiện bên dưới Awake.", "Khi đổi đầu ra âm thanh, việc giải phóng bộ máy âm thanh cũ không còn làm treo menu hoặc thao tác thoát Hop.", "Bộ nhớ tạm: di chuột để xem trước văn bản hoặc hình ảnh. Kích thước phù hợp nội dung và văn bản dài được rút gọn."]
+        case .hi: rows = ["बंद ढक्कन वाला मोड सिस्टम की पुष्टि के साथ तेज़ी से बदलता है। त्रुटियाँ Awake के नीचे दिखती हैं।", "ऑडियो आउटपुट बदलने पर पुराने ऑडियो इंजन को छोड़ने से अब मेन्यू या Hop से बाहर निकलना नहीं अटकता।", "क्लिपबोर्ड: टेक्स्ट या तस्वीर का पूर्वावलोकन देखने के लिए पॉइंटर रखें। आकार सामग्री के अनुसार बदलता है और लंबा टेक्स्ट छोटा दिखता है।"]
+        case .id: rows = ["Mode tutup tertutup berganti lebih cepat dengan konfirmasi sistem. Kesalahan muncul di bawah Awake.", "Saat mengganti keluaran audio, pelepasan mesin audio lama tidak lagi membekukan menu atau penutupan Hop.", "Papan klip: arahkan penunjuk untuk melihat teks atau gambar. Pratinjau menyesuaikan isinya dan memotong teks panjang."]
+        case .tr: rows = ["Kapak kapalı modu sistem onayıyla daha hızlı değişir. Hatalar Awake altında görünür.", "Ses çıkışı değiştirilirken eski ses motorunun serbest bırakılması artık menüyü veya Hop’tan çıkışı engellemez.", "Pano: metni veya resmi önizlemek için üzerine gelin. Önizleme içeriğe göre boyutlanır ve uzun metni kısaltır."]
+        case .pl: rows = ["Tryb zamkniętej pokrywy przełącza się szybciej z potwierdzeniem systemu. Błędy pojawiają się pod Awake.", "Przy zmianie wyjścia audio zwalnianie poprzedniego silnika dźwięku nie blokuje już menu ani zamykania Hop.", "Schowek: najedź na wpis, aby zobaczyć tekst lub obraz. Podgląd dopasowuje rozmiar do treści i skraca długi tekst."]
+        case .ar: rows = ["يتبدل وضع الغطاء المغلق بسرعة أكبر مع تأكيد النظام. تظهر الأخطاء أسفل Awake.", "عند تغيير مخرج الصوت، لم يعد تحرير محرك الصوت السابق يجمّد القائمة أو الخروج من Hop.", "الحافظة: مرر المؤشر لمعاينة النص أو الصورة. يتكيف حجم المعاينة مع المحتوى ويختصر النص الطويل."]
+        case .he: rows = ["מצב מכסה סגור מתחלף מהר יותר עם אישור המערכת. שגיאות מופיעות מתחת ל־Awake.", "בהחלפת פלט שמע, שחרור מנוע השמע הקודם כבר לא חוסם את התפריט או את סגירת Hop.", "לוח: רחפו מעל רשומה לתצוגה מקדימה של טקסט או תמונה. הגודל מותאם לתוכן וטקסט ארוך מקוצר."]
+        case .fa: rows = ["حالت درِ بسته با تأیید سیستم سریع‌تر تغییر می‌کند. خطاها زیر Awake نمایش داده می‌شوند.", "هنگام تغییر خروجی صدا، آزاد کردن موتور صوتی قبلی دیگر منو یا خروج از Hop را متوقف نمی‌کند.", "کلیپ‌بورد: نشانگر را روی مورد ببرید تا متن یا تصویر را ببینید. اندازهٔ پیش‌نمایش با محتوا تنظیم و متن بلند کوتاه می‌شود."]
+        case .ur: rows = ["بند ڈھکن والا موڈ سسٹم کی تصدیق کے ساتھ زیادہ تیزی سے بدلتا ہے۔ غلطیاں Awake کے نیچے دکھائی دیتی ہیں۔", "آڈیو آؤٹ پٹ بدلتے وقت پرانے آڈیو انجن کو چھوڑنے سے اب مینو یا Hop بند کرنا نہیں اٹکتا۔", "کلپ بورڈ: متن یا تصویر کا پیش منظر دیکھنے کے لیے پوائنٹر رکھیں۔ سائز مواد کے مطابق بدلتا ہے اور لمبا متن مختصر دکھتا ہے۔"]
+        case .sr: rows = ["Режим затвореног поклопца пребацује се брже уз потврду система. Грешке се приказују испод Awake.", "При промени аудио-излаза, ослобађање претходног аудио-мотора више не блокира мени или излазак из Hop-а.", "Остава: пређи показивачем преко ставке да видиш текст или слику. Преглед се прилагођава садржају и скраћује дуг текст."]
+        }
+        return patchNewsText(rows[index], lang: lang)
+    }
+
+    private static func news251Text(_ lang: AppLanguage) -> String {
+        let text: String
+        switch lang {
+        case .en: text = "The permission banner for cooling and closed-lid mode updates when you reopen the panel."
+        case .ru: text = "Плашка разрешения для охлаждения и режима закрытой крышки обновляется при открытии панели."
+        case .de: text = "Die Freigabeanzeige für Lüfter und Deckelmodus wird beim Öffnen des Panels aktualisiert."
+        case .es: text = "El aviso de permiso para la refrigeración y el modo de tapa cerrada se actualiza al volver a abrir el panel."
+        case .pt: text = "O aviso de permissão para o arrefecimento e o modo de tampa fechada é atualizado ao reabrir o painel."
+        case .fr: text = "Le statut des autorisations des ventilateurs et du mode capot fermé s’actualise à l’ouverture du panneau."
+        case .it: text = "L’avviso di autorizzazione per il raffreddamento e la modalità a coperchio chiuso si aggiorna riaprendo il pannello."
+        case .zh: text = "重新打开面板时，会更新散热和合盖模式的权限提示。"
+        case .ja: text = "パネルを開き直すと、冷却と蓋を閉じた状態での動作に必要な許可の表示が更新されます。"
+        case .nl: text = "De toestemmingsmelding voor koeling en werken met gesloten klep wordt bijgewerkt wanneer je het paneel opnieuw opent."
+        case .ko: text = "패널을 다시 열면 냉각 및 덮개를 닫은 상태의 작동 권한 안내가 갱신됩니다."
+        case .th: text = "แถบแจ้งสิทธิ์สำหรับการระบายความร้อนและโหมดปิดฝาจะอัปเดตเมื่อเปิดแผงอีกครั้ง"
+        case .vi: text = "Thông báo quyền cho tính năng làm mát và chế độ đóng nắp được cập nhật khi mở lại bảng điều khiển."
+        case .hi: text = "पैनल दोबारा खोलने पर कूलिंग और बंद ढक्कन वाले मोड की अनुमति का संदेश अपडेट होता है।"
+        case .id: text = "Pemberitahuan izin untuk pendinginan dan mode tutup tertutup diperbarui saat panel dibuka kembali."
+        case .tr: text = "Soğutma ve kapak kapalı modu için izin bildirimi, panel yeniden açıldığında güncellenir."
+        case .pl: text = "Komunikat o uprawnieniu do chłodzenia i pracy z zamkniętą pokrywą odświeża się po ponownym otwarciu panelu."
+        case .ar: text = "يتحدث تنبيه الإذن للتبريد ووضع الغطاء المغلق عند فتح اللوحة من جديد."
+        case .he: text = "הודעת ההרשאה לקירור ולמצב מכסה סגור מתעדכנת כשפותחים שוב את החלונית."
+        case .fa: text = "پیام مجوز خنک‌سازی و حالت درِ بسته با باز کردن دوبارهٔ پنل به‌روز می‌شود."
+        case .ur: text = "پینل دوبارہ کھولنے پر کولنگ اور بند ڈھکن والے موڈ کی اجازت کا پیغام تازہ ہوتا ہے۔"
+        case .sr: text = "Обавештење о дозволи за хлађење и рад са затвореним поклопцем освежава се при поновном отварању панела."
+        }
+        return patchNewsText(text, lang: lang)
+    }
+
+    private static func patchNewsText(_ text: String, lang: AppLanguage) -> String {
+        let additional: Set<String>
+        switch lang {
+        case .en: additional = ["an", "the", "of", "to", "in", "on", "for", "with", "from", "and", "or"]
+        case .de: additional = ["und", "oder", "der", "die", "das", "ein", "eine", "mit", "für", "von", "zu", "nach", "bei", "beim", "des"]
+        case .fr: additional = ["le", "la", "les", "du", "de", "des", "un", "une", "au", "aux", "en", "et", "ou", "pour", "sur", "dans", "avec", "à"]
+        default: additional = []
+        }
+        return HangingWords.glued(text, shortWords: shortWords(lang).union(additional), trailing: trailingWords(lang))
     }
 
     private static func news25Text(_ lang: AppLanguage, _ index: Int) -> String {

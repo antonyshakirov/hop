@@ -14,6 +14,26 @@ final class HotfixReleaseTests: XCTestCase {
             }
         }
     }
+    func testHardwarePermissionPatchHasLocalizedNotesWithoutANewPanelCard() {
+        XCTAssertFalse(PanelView.releaseCardIDs.contains("2.5.1"))
+        for lang in AppLanguage.allCases {
+            let notes = L10n.t(.docNews, lang)
+            XCTAssertTrue(notes.contains("2.5.1 – 2026-11-16\n\n• "), lang.rawValue)
+            let current = notes.components(separatedBy: "2.5.1 – ")[1].components(separatedBy: "2.5.0 – ")[0]
+            XCTAssertEqual(current.components(separatedBy: "• ").count - 1, 1, lang.rawValue)
+        }
+    }
+
+    func testResponsivenessPatchHasThreeLocalizedNotesWithoutANewPanelCard() {
+        XCTAssertFalse(PanelView.releaseCardIDs.contains("2.5.2"))
+        for lang in AppLanguage.allCases {
+            let notes = L10n.t(.docNews, lang)
+            XCTAssertTrue(notes.contains("2.5.2 – 2026-11-16\n\n• "), lang.rawValue)
+            let current = notes.components(separatedBy: "2.5.2 – ")[1].components(separatedBy: "2.5.1 – ")[0]
+            XCTAssertEqual(current.components(separatedBy: "• ").count - 1, 3, lang.rawValue)
+        }
+    }
+
     func testDevelopmentPreviewResetsOnlyTheCurrentReleaseCard() throws {
         let suite = "release-preview-\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))

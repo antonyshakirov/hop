@@ -49,6 +49,7 @@ sistema, un gestore degli appunti, un convertitore di file drag-and-drop, uno st
 app nativa e leggera, con i moduli che usi distribuiti su fino a quattro
 schede dell'icona.
 
+
 ## Download
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – aprilo e trascina `Hop.app` in Applicazioni (consigliato)

@@ -51,6 +51,7 @@ arrastar e soltar, um organizador de janelas, um firewall de apps e um cliente 
 um único app nativo e leve, com os módulos que você usa distribuídos em até
 quatro abas no ícone.
 
+
 ## Download
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – abra e arraste o `Hop.app` para Aplicativos (recomendado)

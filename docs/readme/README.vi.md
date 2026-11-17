@@ -48,6 +48,7 @@ cần làm, trình chặn ngủ kiểu caffeinate, trình giám sát hệ thốn
 quản lý clipboard, trình chuyển đổi tệp kéo-thả, công cụ sắp xếp cửa sổ, một tường lửa ứng dụng và trình torrent gọn nhẹ – một ứng dụng native nhẹ nhàng, với các mô-đun bạn
 dùng được trải trên tối đa bốn tab ở biểu tượng.
 
+
 ## Tải về
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – mở ra rồi kéo `Hop.app` vào Applications (khuyên dùng)

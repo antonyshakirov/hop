@@ -49,6 +49,7 @@ converter, a window snapper, an app firewall and a lite torrent client – one
 native app, with the modules you use arranged across up to four tabs on the
 icon.
 
+
 ## Download
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – open and drag `Hop.app` into Applications (recommended)
@@ -239,7 +240,7 @@ file back. Passwords and other concealed input are never stored.
 The shortcut for opening history is off by default. Assign it in settings → hotkeys. ⌘1–⌘9 copies a result; arrows and return select and copy. Escape closes the window.
 
 Hover over a text entry to preview its text or an image for a thumbnail.
-The preview appears after half a second and fits its content.
+The preview appears after half a second, fits its content and truncates long text.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – Clipboard history">

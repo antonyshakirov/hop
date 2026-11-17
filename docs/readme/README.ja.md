@@ -50,6 +50,7 @@ Hop は Mac のメニューバーに常駐し、こまごましたユーティ�
 ネイティブアプリ 1 本に、よく使うモジュールをアイコン上の最大4つの
 タブへ振り分けて。
 
+
 ## ダウンロード
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – 開いて `Hop.app` をアプリケーションフォルダへドラッグ（推奨）

@@ -50,6 +50,7 @@
 جو ماڈیول آپ استعمال کرتے ہیں وہ آئیکن پر زیادہ سے زیادہ چار ٹیبوں میں سجے رہتے
 ہیں۔
 
+
 ## ڈاؤن لوڈ
 
 - فائل **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – کھولیں اور `Hop.app` کو Applications میں کھینچ دیں (تجویز کردہ)

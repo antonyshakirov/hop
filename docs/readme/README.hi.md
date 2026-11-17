@@ -48,6 +48,7 @@ caffeinate जैसा स्लीप ब्लॉकर, सिस्टम �
 एक हल्का नेटिव ऐप, जिसमें आपके इस्तेमाल के मॉड्यूल आइकन पर चार तक टैब में
 बँटे रहते हैं।
 
+
 ## डाउनलोड
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – खोलें और `Hop.app` को Applications में खींच लें (अनुशंसित)
