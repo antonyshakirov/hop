@@ -130,12 +130,12 @@ private final class FailedUpdateInstaller: ToolInstaller {
     let fixtureVersion: String?
     private(set) var attempts = 0
 
-    init(binary: URL, version: String?, digest: String = TorrentEngineInstaller.requiredSHA256) {
+    init(binary: URL, version: String?, digest: String? = nil) {
         fixtureBinary = binary
         fixtureVersion = version
         super.init(manifestURL: TorrentEngineInstaller.manifestURL,
                    folderName: "unused-test-engine", binaryName: "rqbit",
-                   minimumVersion: TorrentEngineInstaller.minimumVersion, publicKeyBase64: "", requiredSHA256: digest)
+                   minimumVersion: TorrentEngineInstaller.minimumVersion, publicKeyBase64: "", requiredSHA256: digest ?? TorrentEngineInstaller.requiredSHA256)
     }
 
     override var binaryURL: URL { fixtureBinary }

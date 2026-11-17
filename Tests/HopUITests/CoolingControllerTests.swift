@@ -26,8 +26,18 @@ private final class ClientHardware: HardwareBackend {
     func sleepDisabled() throws -> Bool { sleep }
     func setSleepDisabled(_ disabled: Bool) throws { sleep = disabled }
     func restoreClosedLidBehavior() throws {}
-    func setFans(_ targets: [Int: Double]) throws { self.targets = targets }
-    func restoreFans(_ indices: [Int]) throws { for index in indices { targets[index] = nil } }
+    func setFans(_ targets: [Int: Double]) throws {
+        self.targets = targets
+        reading.fans = reading.fans.map {
+            .init(id: $0.id, rpm: $0.rpm, minimum: $0.minimum, maximum: $0.maximum, manual: true)
+        }
+    }
+    func restoreFans(_ indices: [Int]) throws {
+        for index in indices { targets[index] = nil }
+        reading.fans = reading.fans.map {
+            .init(id: $0.id, rpm: $0.rpm, minimum: $0.minimum, maximum: $0.maximum, manual: false)
+        }
+    }
 }
 
 @MainActor
@@ -43,9 +53,15 @@ private final class ClientService: CoolingService {
     var failUnregister = false
     var approvalOnRegister = false
     var failRequests = false
+    var revision: Int? = FanControlSupport.revision
+    var localKeys: [FanKeyReading] = []
+    var holdNextConfigure = false
+    var configureGate: CheckedContinuation<Void, Never>?
+    func releaseConfigure() { let gate = configureGate; configureGate = nil; gate?.resume() }
     init() { root = HardwareCoordinator(backend: hardware, journal: journal, now: { 1 }) }
     func register() throws {
         registrationAttempts += 1
+        revision = FanControlSupport.revision
         if approvalOnRegister {
             state = .approval
             throw NSError(domain: "SMAppServiceErrorDomain", code: 1)
@@ -67,17 +83,135 @@ private final class ClientService: CoolingService {
         guard state == .enabled else { throw HardwareReason.serviceApproval }
         if failRequests { throw HardwareReason.commandFailed }
         calls.append(request.operation)
-        return root.handle(request, owner: owner)
+        if request.operation == .configure, holdNextConfigure {
+            holdNextConfigure = false
+            await withCheckedContinuation { configureGate = $0 }
+        }
+        var result = root.handle(request, owner: owner)
+        result.fanControlRevision = revision
+        return result
     }
     func localStatus() async -> HardwareStatus {
         var status = HardwareStatus(); status.fans = hardware.reading.fans
         status.supportsControl = true; return status
     }
+    func localDiagnostics() async -> [FanKeyReading] { localKeys }
     func invalidate() { root.disconnect(owner: owner) }
 }
 
 @MainActor
 final class CoolingControllerTests: XCTestCase {
+    func testLegacyHelperCannotReceiveManualControlBeforeItsSafeUpdate() async throws {
+        let (controller, service) = try fixture()
+        service.revision = nil
+        await controller.refresh()
+        XCTAssertTrue(controller.needsFanServiceUpdate)
+        controller.apply(.init(mode: .maximum))
+        XCTAssertFalse(service.calls.contains(.configure))
+        XCTAssertNil(controller.activeFanMode)
+        await controller.updateFanService()
+        XCTAssertEqual(service.unregisterAttempts, 1)
+        XCTAssertEqual(service.registrationAttempts, 1)
+        XCTAssertFalse(controller.needsFanServiceUpdate)
+        controller.apply(.init(mode: .maximum))
+        for _ in 0..<200 where controller.busy || controller.pendingFanPolicy != nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertEqual(controller.activeFanMode, .maximum)
+        controller.apply(.init(mode: .automatic))
+        for _ in 0..<200 where controller.busy || controller.pendingFanPolicy != nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+    }
+
+    func testDiagnosticExportExcludesMaintenanceIdentifiersAndUnknownKeys() async throws {
+        let (controller, service) = try fixture()
+        let privateID = UUID()
+        _ = service.root.handle(.init(.prepareUpdate, transaction: privateID), owner: service.owner)
+        service.localKeys = [
+            .init(key: "F0Ac", type: "flt ", number: 2400, readable: true),
+            .init(key: "bad!", type: "ui8 ", number: 1, readable: true)
+        ]
+        await controller.refresh()
+        let result = await controller.diagnosticData()
+        let data = try XCTUnwrap(result)
+        let text = try XCTUnwrap(String(data: data, encoding: .utf8))
+        XCTAssertTrue(text.contains("F0Ac"))
+        XCTAssertFalse(text.contains("bad!"))
+        XCTAssertFalse(text.contains(privateID.uuidString))
+        XCTAssertFalse(text.contains("maintenanceID"))
+        XCTAssertFalse(text.contains("/Users/"))
+        XCTAssertFalse(text.contains("environment"))
+    }
+
+    func testConfirmedModesAndTheMonitorBadgeRequireCurrentManualReadback() async throws {
+        let (controller, service) = try fixture()
+        await controller.refresh()
+        controller.apply(.init(mode: .maximum))
+        for _ in 0..<100 where controller.busy { try await Task.sleep(nanoseconds: 10_000_000) }
+        XCTAssertEqual(controller.confirmedFanMode, .maximum)
+        XCTAssertEqual(controller.activeFanMode, .maximum)
+        controller.open()
+        defer { controller.close() }
+        service.hardware.reading.supportsControl = false
+        await controller.refresh()
+        XCTAssertNil(controller.confirmedFanMode)
+        XCTAssertNil(controller.activeFanMode)
+        service.hardware.reading.supportsControl = true
+        service.hardware.reading.fans = [.init(id: 0, rpm: 1200, minimum: 1000, maximum: 6000, manual: false)]
+        controller.open()
+        for _ in 0..<100 where controller.snapshot.fans.contains(where: \.manual) {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertNil(controller.activeFanMode)
+        XCTAssertNil(controller.confirmedFanMode)
+    }
+
+    func testALidOnlyLeaseCannotConfirmMacOSWhenFanReadingsAreManual() async throws {
+        let (controller, service) = try fixture()
+        service.hardware.reading.fans = [.init(id: 0, rpm: 2400, minimum: 1000, maximum: 6000, manual: true)]
+        try await controller.setLid(true, until: nil)
+        XCTAssertTrue(controller.snapshot.active)
+        XCTAssertEqual(controller.snapshot.policy.mode, .automatic)
+        XCTAssertNil(controller.confirmedFanMode)
+        XCTAssertNil(controller.activeFanMode)
+    }
+
+    func testAutomaticSupersedesAManualRequestAlreadyInFlight() async throws {
+        let (controller, service) = try fixture()
+        service.holdNextConfigure = true
+        controller.apply(.init(mode: .maximum))
+        for _ in 0..<1000 where service.configureGate == nil { await Task.yield() }
+        XCTAssertNotNil(service.configureGate)
+        controller.apply(.init(mode: .automatic))
+        service.releaseConfigure()
+        for _ in 0..<200 where controller.busy || controller.pendingFanPolicy != nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertFalse(controller.busy)
+        XCTAssertTrue(service.hardware.targets.isEmpty)
+        XCTAssertFalse(controller.snapshot.active)
+        XCTAssertNil(controller.failure)
+    }
+
+    func testTheLastFixedSpeedWinsWithoutLosingFastChanges() async throws {
+        let (controller, service) = try fixture()
+        service.holdNextConfigure = true
+        controller.apply(.init(mode: .fixed, targets: [0: 2000]))
+        for _ in 0..<1000 where service.configureGate == nil { await Task.yield() }
+        XCTAssertNotNil(service.configureGate)
+        controller.apply(.init(mode: .fixed, targets: [0: 3000]))
+        controller.apply(.init(mode: .fixed, targets: [0: 4000]))
+        service.releaseConfigure()
+        for _ in 0..<200 where controller.busy || controller.pendingFanPolicy != nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertFalse(controller.busy)
+        XCTAssertEqual(service.hardware.targets, [0: 4000])
+        XCTAssertEqual(service.calls.filter { $0 == .configure }.count, 2)
+        XCTAssertNil(controller.failure)
+    }
+
     func testIdleLidReleaseUpdatesUIWithoutRearmingWhenFanPolicyChanges() async throws {
         let (controller, service) = try fixture()
         let defaults = UserDefaults.standard
@@ -210,6 +344,9 @@ final class CoolingControllerTests: XCTestCase {
         service.failRequests = true
         await controller.refresh()
         XCTAssertEqual(controller.permissionIssue, .connection)
+        XCTAssertTrue(controller.hasReadings)
+        XCTAssertEqual(controller.snapshot.fans.count, 1)
+        XCTAssertNil(controller.activeFanMode)
         service.failRequests = false
         await controller.refresh()
         XCTAssertNil(controller.permissionIssue)

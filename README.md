@@ -211,6 +211,10 @@ short.
 The monitor opens cooling controls: automatic, maximum, fixed RPM or a CPU
 temperature curve, wherever the Mac exposes a supported fan interface. Actual
 fan ranges bound every setting; a Mac without supported fans stays read-only.
+Choose a mode to apply it immediately; fixed-speed sliders show current speed,
+target and range separately. The monitor names a confirmed manual mode beside
+Cooling. Known fanless Macs explain that they have no fans; a failed reading
+shows a separate retry state.
 Open cooling directly from monitor settings; the adjacent switch only hides or
 shows its panel row. Reported RPM remains visible on read-only fan interfaces.
 An administrator-approved background service restores automatic control after

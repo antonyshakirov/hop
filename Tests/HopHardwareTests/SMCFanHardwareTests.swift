@@ -9,7 +9,22 @@ final class SMCFanHardwareTests: XCTestCase {
         var ignore: Set<String> = []
         var transientFailures: [String: Int] = [:]
         var systemAutomaticOnRelease = false
-        func read(_ key: String) -> SMCValue? { values[key] }
+        var targetReadDelay = 0
+        var staleReads: [String: (SMCValue, Int)] = [:]
+        var reclaimOnTarget = false
+        var reclaimOnSecondTargetRead = false
+        var targetReads = 0
+        func read(_ key: String) -> SMCValue? {
+            if reclaimOnSecondTargetRead, key == "F0Tg", writes.contains(key) {
+                targetReads += 1
+                if targetReads == 2 { byte("F0Md", 3); return values["F0Ac"] }
+            }
+            if let (value, count) = staleReads[key], count > 0 {
+                staleReads[key] = (value, count - 1)
+                return value
+            }
+            return values[key]
+        }
         func write(_ key: String, bytes: [UInt8]) throws {
             writes.append(key)
             if reject.contains(key) { throw HardwareReason.commandFailed }
@@ -21,6 +36,10 @@ final class SMCFanHardwareTests: XCTestCase {
             if !ignore.contains(key) {
                 let released = systemAutomaticOnRelease && (key.hasSuffix("Md") || key.hasSuffix("md")) && bytes == [0]
                 values[key] = SMCValue(type: old.type, bytes: released ? [3] : bytes)
+                if key.hasSuffix("Tg") {
+                    if targetReadDelay > 0 { staleReads[key] = (old, targetReadDelay) }
+                    if reclaimOnTarget { byte(String(key.prefix(2)) + "Md", 3) }
+                }
             }
         }
         func keyCount() -> Int { values.keys.count }
@@ -47,6 +66,95 @@ final class SMCFanHardwareTests: XCTestCase {
             transport.byte("F\(index)Md", 0)
         }
         return transport
+    }
+
+    func testFanlessIdentificationNeedsPositiveModelEvidence() {
+        let unknown = SMCFanHardware(transport: nil, canWrite: { false }, modelIdentifier: "MacBookPro18,1")
+        XCTAssertEqual(unknown.read().availability, .unavailable)
+        let air = SMCFanHardware(transport: nil, canWrite: { false }, modelIdentifier: "Mac17,3")
+        XCTAssertEqual(air.read().availability, .fanless)
+        XCTAssertFalse(FanDevice.isKnownFanless("MacBookAir7,2"))
+        XCTAssertFalse(FanDevice.isKnownFanless("Mac99,99"))
+        XCTAssertTrue(FanDevice.isKnownFanless("MacBookAir10,1"))
+        let zero = Transport(); zero.byte("FNum", 0)
+        XCTAssertEqual(SMCFanHardware(transport: zero, canWrite: { false }).read().availability, .unavailable)
+    }
+
+    func testAFailedInitialConnectionRetriesWithABoundedBackoff() {
+        let transport = apple()
+        var clock: Double = 0, attempts = 0
+        let hardware = SMCFanHardware(transport: nil, canWrite: { false }, connect: {
+            attempts += 1
+            return attempts == 1 ? nil : transport
+        }, clock: { clock })
+        XCTAssertEqual(hardware.read().availability, .unavailable)
+        clock = 2.9
+        XCTAssertEqual(hardware.read().availability, .unavailable)
+        XCTAssertEqual(attempts, 1)
+        clock = 3
+        XCTAssertTrue(hardware.read().supportsControl)
+        XCTAssertEqual(hardware.read().fans.count, 2)
+        XCTAssertEqual(attempts, 2)
+        XCTAssertTrue(transport.writes.isEmpty)
+    }
+
+    func testFailedTargetWriteReportsOnlyBoundedHardwareDetails() {
+        let transport = apple(); transport.reject.insert("F0Tg")
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        XCTAssertThrowsError(try hardware.setTargets([0: 5000, 1: 5500]))
+        XCTAssertEqual(hardware.lastFailure?.phase, .targetWrite)
+        XCTAssertEqual(hardware.lastFailure?.key, "F0Tg")
+        XCTAssertEqual(hardware.lastFailure?.expected, 5000)
+        XCTAssertEqual(hardware.lastFailure?.actual, 1500)
+        XCTAssertTrue(hardware.lastFailure?.valid == true)
+        XCTAssertNil(FanFailure(phase: .targetReadback, actual: .nan).actual)
+        XCTAssertFalse(FanFailure(phase: .targetWrite, key: "untrusted").valid)
+    }
+
+    func testManualModesDoNotRequireTheUnlockTriggerToRemainSet() throws {
+        let transport = apple()
+        transport.byte("F0Md", 1); transport.byte("F1Md", 1)
+        transport.byte("Ftst", 0); transport.reject.insert("Ftst")
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        try hardware.setTargets([0: 5000, 1: 5500])
+        XCTAssertEqual(transport.read("F0Tg")?.number, 5000)
+        XCTAssertEqual(transport.read("F1Tg")?.number, 5500)
+        XCTAssertFalse(transport.writes.contains("Ftst"))
+    }
+
+    func testAcceptedTargetsCanAcknowledgeAfterOneStaleRead() throws {
+        let transport = apple()
+        transport.targetReadDelay = 1
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        try hardware.setTargets([0: 5000, 1: 5500])
+        XCTAssertEqual(transport.read("F0Tg")?.number, 5000)
+        XCTAssertEqual(transport.read("F1Tg")?.number, 5500)
+        try hardware.restore(indices: [0, 1])
+    }
+
+    func testFirmwareReclaimDuringTheFinalTargetPollCannotAcknowledgeManualControl() {
+        let transport = apple(); transport.reclaimOnSecondTargetRead = true
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        XCTAssertThrowsError(try hardware.setTargets([0: 5000, 1: 5500]))
+        XCTAssertEqual(hardware.lastFailure?.phase, .modeReadback)
+        XCTAssertEqual(hardware.lastFailure?.actual, 3)
+    }
+
+    func testFirmwareReclaimDuringTargetWriteCannotAcknowledgeManualControl() throws {
+        let transport = apple()
+        transport.reclaimOnTarget = true
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        XCTAssertThrowsError(try hardware.setTargets([0: 5000, 1: 5500]))
+    }
+
+    func testAlreadyConfirmedAutomaticModesDoNotRequireRedundantReleaseWrites() throws {
+        let transport = apple()
+        transport.byte("F0Md", 3); transport.byte("F1Md", 0)
+        transport.byte("Ftst", 0)
+        transport.reject = ["F0Md", "F1Md", "Ftst"]
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        try hardware.restore(indices: [0, 1])
+        XCTAssertTrue(transport.writes.isEmpty)
     }
 
     func testAppleSiliconTakeoverAndRestorationHaveReadback() throws {

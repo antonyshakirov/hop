@@ -24,7 +24,7 @@ public struct FanReading: Codable, Equatable, Sendable, Identifiable {
 
     public var valid: Bool {
         (0..<8).contains(id) && rpm.isFinite && minimum.isFinite && maximum.isFinite
-            && rpm >= 0 && minimum >= 0 && maximum > minimum && maximum <= 30000
+            && rpm >= 0 && rpm <= 30000 && minimum >= 0 && maximum > minimum && maximum <= 30000
     }
 }
 
@@ -91,14 +91,20 @@ public struct HardwareRequest: Codable, Sendable {
     public let transaction: UUID?
 
     public init(_ operation: Operation, configuration: HardwareConfiguration? = nil, transaction: UUID? = nil) {
-        version = 1; self.operation = operation; self.configuration = configuration
+        version = operation == .configure && configuration?.fan.mode != .automatic ? 2 : 1
+        self.operation = operation; self.configuration = configuration
         self.transaction = transaction
+    }
+
+    public var supportedVersion: Bool {
+        version == 1 || (version == 2 && operation == .configure && configuration?.fan.mode != nil
+            && configuration?.fan.mode != .automatic)
     }
 
     public static func decode(_ data: Data) throws -> HardwareRequest {
         guard data.count <= 16384 else { throw HardwareReason.invalid }
         let value = try JSONDecoder().decode(Self.self, from: data)
-        guard value.version == 1 else { throw HardwareReason.protocolMismatch }
+        guard value.supportedVersion else { throw HardwareReason.protocolMismatch }
         guard (value.operation == .configure) == (value.configuration != nil),
               ([Operation.prepareUpdate, .finishUpdate].contains(value.operation)) == (value.transaction != nil),
               value.configuration?.valid != false else { throw HardwareReason.invalid }
@@ -111,6 +117,7 @@ public struct HardwareStatus: Codable, Equatable, Sendable {
     public var fans: [FanReading] = []
     public var temperature: Double?
     public var supportsControl = false
+    public var fanAvailability: FanAvailability?
     public var lid = false
     public var policy = FanPolicy()
     public var active = false
@@ -118,6 +125,11 @@ public struct HardwareStatus: Codable, Equatable, Sendable {
     public var maintenance = false
     public var maintenanceID: UUID?
     public var reason: HardwareReason?
+    public var fanControlRevision: Int? = FanControlSupport.revision
+    public var fanKeys: [FanKeyReading]?
+    public var stopCause: HardwareReason?
+    public var fanFailure: FanFailure?
+    public var fanRecoveryFailure: FanFailure?
     public init() {}
 }
 
@@ -126,6 +138,7 @@ public struct HardwareObservation: Equatable, Sendable {
     public var temperature: Double?
     public var temperatureAge: Double
     public var supportsControl: Bool
+    public var fanAvailability: FanAvailability?
     public var lidClosed: Bool?
     public var onBattery: Bool?
     public var batteryPercent: Int?
@@ -133,8 +146,9 @@ public struct HardwareObservation: Equatable, Sendable {
 
     public init(fans: [FanReading] = [], temperature: Double? = nil, temperatureAge: Double = 0,
                 supportsControl: Bool = false, lidClosed: Bool? = nil, onBattery: Bool? = nil,
-                batteryPercent: Int? = nil, thermalSeverity: Int = 0) {
+                batteryPercent: Int? = nil, thermalSeverity: Int = 0, fanAvailability: FanAvailability? = nil) {
         self.fans = fans; self.temperature = temperature; self.temperatureAge = temperatureAge
+        self.fanAvailability = fanAvailability
         self.supportsControl = supportsControl; self.lidClosed = lidClosed; self.onBattery = onBattery
         self.batteryPercent = batteryPercent; self.thermalSeverity = thermalSeverity
     }

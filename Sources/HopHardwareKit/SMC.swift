@@ -80,6 +80,7 @@ private struct SMCParam {
 /// A minimal client for the System Management Controller. Reading works for any user; writing needs root.
 /// Not thread-safe: the owner serialises access.
 protocol SMCTransport: AnyObject {
+    var lastError: SMCError? { get }
     func read(_ key: String) -> SMCValue?
     func write(_ key: String, bytes: [UInt8]) throws
     func keyCount() -> Int
@@ -88,6 +89,7 @@ protocol SMCTransport: AnyObject {
 }
 
 extension SMCTransport {
+    var lastError: SMCError? { nil }
     func type(of key: String) -> String? { read(key)?.type }
 }
 
@@ -101,6 +103,7 @@ final class SMC: SMCTransport {
 
     private static let handleEvent: UInt32 = 2
 
+    private(set) var lastError: SMCError?
     private let connection: io_connect_t
     private var infoCache: [UInt32: SMCKeyInfo] = [:]
 
@@ -130,13 +133,16 @@ final class SMC: SMCTransport {
     }
 
     func read(_ key: String) -> SMCValue? {
+        lastError = nil
         let code = Self.code(key)
         guard let info = keyInfo(code), (1...32).contains(info.dataSize) else { return nil }
         var input = SMCParam()
         input.key = code
         input.keyInfo.dataSize = info.dataSize
         input.command = Command.readKey.rawValue
-        guard let output = try? call(input, key: key) else { return nil }
+        let output: SMCParam
+        do { output = try call(input, key: key) }
+        catch { lastError = error as? SMCError; return nil }
         let size = min(Int(info.dataSize), 32)
         let bytes = withUnsafeBytes(of: output.bytes) { Array($0.prefix(size)) }
         return SMCValue(type: Self.name(info.dataType), bytes: bytes)
@@ -164,7 +170,9 @@ final class SMC: SMCTransport {
         var input = SMCParam()
         input.key = code
         input.command = Command.keyInfo.rawValue
-        guard let output = try? call(input, key: Self.name(code)) else { return nil }
+        let output: SMCParam
+        do { output = try call(input, key: Self.name(code)) }
+        catch { lastError = error as? SMCError; return nil }
         infoCache[code] = output.keyInfo
         return output.keyInfo
     }

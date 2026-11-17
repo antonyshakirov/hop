@@ -12,6 +12,7 @@ final class CoolingController: ObservableObject {
     @Published private(set) var serviceEnabled = false
     @Published private(set) var approvalRequired = false
     @Published private(set) var busy = false
+    @Published private(set) var pendingFanPolicy: FanPolicy?
     @Published private(set) var failure: HardwareReason?
     @Published private(set) var permissionIssue: HardwarePermissionIssue?
     var lidDidStop: ((HardwareReason?) -> Void)?
@@ -24,6 +25,11 @@ final class CoolingController: ObservableObject {
     private var inFlight = false
     private var updating = false
     private var lastRenewal: Double = 0
+    private var fanTask: Task<Void, Never>?
+    private var fanRevision: UInt64 = 0
+    private var fanReadyAt: Double = 0
+    private(set) var lastFanRequest: FanPolicy?
+    private var snapshotRevision: UInt64 = 0
     private var lastNotified: HardwareReason?
     private static let updateRegistrationKey = "hardwareUpdateTransaction"
     private static let unregisteredKey = "hardwareUpdateUnregistered"
@@ -86,14 +92,35 @@ final class CoolingController: ObservableObject {
         if let popoverObserver { notificationCenter.removeObserver(popoverObserver) }
     }
 
+    var fanAvailability: FanAvailability {
+        if !snapshot.fans.isEmpty { return snapshot.supportsControl ? .controllable : .unsupported }
+        if let availability = snapshot.fanAvailability {
+            return availability == .controllable ? .unavailable : availability
+        }
+        return FanDevice.isKnownFanless(FanDevice.modelIdentifier) ? .fanless : .unavailable
+    }
+
+    var needsFanServiceUpdate: Bool {
+        serviceEnabled && hasReadings && snapshot.fanControlRevision != FanControlSupport.revision
+    }
+
+    var confirmedFanMode: FanPolicy.Mode? {
+        guard hasReadings, snapshot.supportsControl, !snapshot.fans.isEmpty,
+              !snapshot.restorationPending, !connectionFailed else { return nil }
+        if snapshot.active, snapshot.policy.mode != .automatic {
+            return snapshot.fans.allSatisfy(\.manual) ? snapshot.policy.mode : nil
+        }
+        return snapshot.fans.contains(where: \.manual) ? nil : .automatic
+    }
+
     var activeFanMode: FanPolicy.Mode? {
-        guard hasReadings, serviceEnabled, !connectionFailed, snapshot.active,
+        guard hasReadings, snapshot.supportsControl, serviceEnabled, !connectionFailed, snapshot.active,
               !snapshot.restorationPending, snapshot.policy.mode != .automatic else { return nil }
-        return snapshot.policy.mode
+        return snapshot.fans.isEmpty || !snapshot.fans.allSatisfy(\.manual) ? nil : snapshot.policy.mode
     }
 
     var blocksUpdates: Bool {
-        snapshot.active || snapshot.restorationPending
+        snapshot.active || snapshot.restorationPending || pendingFanPolicy != nil
             || (!updating && (snapshot.reason == .busy || snapshot.maintenance || pendingTransaction != nil))
             || (busy && !updating)
     }
@@ -165,6 +192,21 @@ final class CoolingController: ObservableObject {
         Task { await refresh() }
     }
 
+    func updateFanService() async {
+        do { try await prepareUpdate(); await resumeRegistration() }
+        catch { failure = error as? HardwareReason ?? .commandFailed }
+    }
+
+    func diagnosticKeys() async -> [FanKeyReading] { await service.localDiagnostics() }
+
+    func diagnosticReadings() async -> HardwareStatus {
+        let local = await service.localStatus()
+        var value = HardwareStatus()
+        value.fans = local.fans; value.temperature = local.temperature
+        value.supportsControl = local.supportsControl; value.fanAvailability = local.fanAvailability
+        return value
+    }
+
     func close() { viewOpen = false; stopTimerIfIdle() }
 
     func install() {
@@ -186,17 +228,65 @@ final class CoolingController: ObservableObject {
     }
 
 
-    func apply(_ fan: FanPolicy) {
-        guard !preview, !busy, !updating else { failure = .busy; return }
+    func apply(_ fan: FanPolicy, debounce: Bool = false) {
+        lastFanRequest = fan
+        guard fan.mode == .automatic || !needsFanServiceUpdate else { failure = .protocolMismatch; return }
+        guard !preview, !updating, pendingTransaction == nil, !snapshot.maintenance
+        else { failure = .busy; return }
         guard ModuleActivation.isOn("system") || fan.mode == .automatic else { return }
-        busy = true
-        Task {
-            defer { busy = false; stopTimerIfIdle() }
+        let firstPending = pendingFanPolicy == nil
+        pendingFanPolicy = fan
+        fanRevision &+= 1
+        if !debounce { fanReadyAt = 0 }
+        else if firstPending { fanReadyAt = ProcessInfo.processInfo.systemUptime + 0.15 }
+        guard fanTask == nil else { return }
+        let acquired = !busy
+        if acquired { busy = true }
+        fanTask = Task { [weak self] in
+            guard let self else { return }
+            await self.drainFanRequests(acquired: acquired)
+        }
+    }
+
+    private func drainFanRequests(acquired: Bool) async {
+        var ownsBusy = acquired
+        defer {
+            if ownsBusy { busy = false }
+            fanTask = nil
+            stopTimerIfIdle()
+        }
+        while pendingFanPolicy != nil {
             do {
+                if !ownsBusy {
+                    let deadline = ProcessInfo.processInfo.systemUptime + 12
+                    while busy && ProcessInfo.processInfo.systemUptime < deadline {
+                        try await Task.sleep(nanoseconds: 20_000_000)
+                    }
+                    guard !busy else { throw HardwareReason.busy }
+                    busy = true; ownsBusy = true
+                }
+                while ProcessInfo.processInfo.systemUptime < fanReadyAt {
+                    try await Task.sleep(nanoseconds: 20_000_000)
+                }
                 try await waitForRequest()
-                desired.fan = fan
-                try await configure()
-            } catch { failure = error as? HardwareReason ?? .commandFailed }
+                guard let policy = pendingFanPolicy else { break }
+                let revision = fanRevision
+                if !ModuleActivation.isOn("system"), policy.mode != .automatic {
+                    pendingFanPolicy = nil; break
+                }
+                guard !updating, pendingTransaction == nil, !snapshot.maintenance else { throw HardwareReason.busy }
+                if snapshot.restorationPending, policy.mode != .automatic { throw HardwareReason.restoreFailed }
+                desired.fan = policy
+                do { try await configure() }
+                catch { failure = error as? HardwareReason ?? .commandFailed }
+                if revision == fanRevision { pendingFanPolicy = nil }
+                busy = false; ownsBusy = false
+                // SPEC: let a waiting lid action acquire the shared request slot between fan changes.
+                if pendingFanPolicy != nil { try await Task.sleep(nanoseconds: 20_000_000) }
+            } catch {
+                failure = error as? HardwareReason ?? .commandFailed
+                pendingFanPolicy = nil
+            }
         }
     }
 
@@ -240,9 +330,18 @@ final class CoolingController: ObservableObject {
     private func configure() async throws {
         desired.duration = desired.lid ? lidDeadline.map { $0.timeIntervalSinceNow } : nil
         guard desired.valid else { throw HardwareReason.invalid }
-        let status = try await send(.init(.configure, configuration: desired))
+        let requested = desired
+        let status = try await send(.init(.configure, configuration: requested))
         guard status.reason == nil || status.reason == .stopped,
-              status.active == desired.needsLease else { throw status.reason ?? HardwareReason.commandFailed }
+              status.active == requested.needsLease, status.lid == requested.lid,
+              !status.active || status.policy.mode == requested.fan.mode else {
+            throw status.reason ?? HardwareReason.commandFailed
+        }
+        if requested.fan.mode != .automatic,
+           !status.supportsControl || status.fans.isEmpty || !status.fans.allSatisfy(\.manual) {
+            _ = try? await send(.init(.stop))
+            throw HardwareReason.commandFailed
+        }
         failure = nil
         lastRenewal = ProcessInfo.processInfo.systemUptime
         startTimer()
@@ -292,6 +391,7 @@ final class CoolingController: ObservableObject {
     }
 
     private func accept(_ status: HardwareStatus) {
+        snapshotRevision &+= 1
         let wasLid = snapshot.lid
         let wasActive = snapshot.active || snapshot.restorationPending
         snapshot = status
@@ -343,7 +443,17 @@ final class CoolingController: ObservableObject {
                 snapshot = local
                 hasReadings = true
             }
-        } catch { failure = error as? HardwareReason ?? .commandFailed }
+        } catch {
+            failure = error as? HardwareReason ?? .commandFailed
+            let revision = snapshotRevision
+            let local = await service.localStatus()
+            if revision == snapshotRevision, !busy, !updating {
+                snapshot.fans = local.fans; snapshot.temperature = local.temperature
+                snapshot.supportsControl = local.supportsControl
+                snapshot.fanAvailability = local.fanAvailability
+                hasReadings = true
+            }
+        }
         stopTimerIfIdle()
     }
 
@@ -358,7 +468,7 @@ final class CoolingController: ObservableObject {
     }
 
     private func stopTimerIfIdle() {
-        if !viewOpen && !snapshot.active && !snapshot.restorationPending && !busy
+        if !viewOpen && !snapshot.active && !snapshot.restorationPending && !busy && pendingFanPolicy == nil
             && snapshot.reason != .busy && !snapshot.maintenance && pendingTransaction == nil {
             timer?.invalidate(); timer = nil
         }

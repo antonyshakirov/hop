@@ -2,6 +2,22 @@ import XCTest
 @testable import HopHardwareKit
 
 final class HardwareCoordinatorTests: XCTestCase {
+    func testAnApplyFailureRemainsVisibleAfterRecoveryRetries() throws {
+        let journal = Journal(), owner = UUID()
+        let backend = Backend(journal)
+        backend.rejectFanWrite = true; backend.rejectFanRestore = true
+        let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { 1 })
+        let failed = coordinator.handle(.init(.configure, configuration: .init(fan: .init(mode: .maximum))), owner: owner)
+        XCTAssertTrue(failed.restorationPending)
+        let value = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(failed)) as? [String: Any])
+        XCTAssertEqual(value["stopCause"] as? String, "commandFailed")
+        backend.rejectFanRestore = false
+        coordinator.tick()
+        let recovered = coordinator.handle(.init(.status), owner: owner)
+        XCTAssertFalse(recovered.restorationPending)
+        XCTAssertEqual(recovered.reason, .commandFailed)
+    }
+
     private final class Journal: HardwareJournal {
         final class Storage { var record: HardwareRecovery?; var owner: UUID? }
         let storage: Storage

@@ -184,6 +184,32 @@ delivery still requires the installed Dev check.
 
 ## Pending patch follow-up: cooling and optional shortcut
 
+- Mode buttons apply without a submit action, remain unselected while the request
+  is pending, and select only after manual readback confirms every fan. Firmware
+  reclaim during the final delayed target poll must fail before acknowledging
+  control. The monitor label follows the same proof and disappears on recovery,
+  disconnect or automatic control; lid-only leases never imply a fan override.
+- Rapid slider changes retain the last target; automatic supersedes an in-flight
+  manual request. Pending work blocks service replacement. Native sliders have
+  no tick marks and native controls have no focus ring; actual/target/range and
+  RPM explanation remain readable in both themes and long translations.
+- A missing initial SMC connection retries only after backoff. Known fanless Air
+  models show no fans; unknown models/read failures show retry, never a false
+  fanless assertion. Reported fans remain visible even with an unsupported schema.
+- Already-automatic readback 0/3 does not issue redundant mode writes. Complete
+  fresh automatic proof closes recovery even if an unnecessary write would fail;
+  missing/manual readback retains the journal and update guard. First-operation
+  cause stays separate from restoration failure and survives retry in memory.
+- Legacy helper revision absent: manual requests are blocked, automatic/status
+  and the existing maintenance handshake remain available. Update cannot proceed
+  with a live lid/fan lease or pending restoration. A new connection must establish
+  the compatible helper; manual configure uses request version 2 so an old helper
+  rejects it before writes even across XPC reconnects.
+- Copy diagnostics explicitly: only whitelisted fan keys and support fields are
+  exported; arbitrary keys, maintenance IDs, user paths and environment are absent.
+  Copy is user-triggered and never uploads. Approved service has no Open Settings
+  action; an approval action remains reachable even when local reads fail.
+
 - Apple-style SMC modes: uppercase and lowercase mode keys work without `Ftst`;
   transient takeover writes retry within the existing bound; release accepts
   automatic readback 0 or 3. Unknown schemas reject writes and Intel release

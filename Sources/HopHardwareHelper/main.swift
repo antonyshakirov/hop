@@ -91,11 +91,14 @@ final class HardwareSession: NSObject, HardwareXPC {
 }
 
 if CommandLine.arguments == [CommandLine.arguments[0], "--probe"] {
-    let observation = SystemHardwareBackend().observe()
+    let backend = SystemHardwareBackend()
+    let observation = backend.observe()
     var status = HardwareStatus()
     status.fans = observation.fans.filter(\.valid)
     status.temperature = observation.freshTemperature
     status.supportsControl = observation.supportsControl
+    status.fanAvailability = observation.fanAvailability
+    status.fanKeys = backend.diagnosticKeys()
     if let data = try? JSONEncoder().encode(status), let text = String(data: data, encoding: .utf8) { print(text) }
     exit(0)
 }

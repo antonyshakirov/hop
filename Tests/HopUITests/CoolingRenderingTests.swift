@@ -72,6 +72,9 @@ final class CoolingRenderingTests: XCTestCase {
             await controller.refresh()
             XCTAssertNil(controller.activeFanMode)
             service.status.active = true
+            service.status.fans = service.status.fans.map {
+                .init(id: $0.id, rpm: $0.rpm, minimum: $0.minimum, maximum: $0.maximum, manual: mode != .automatic)
+            }
             await controller.refresh()
             XCTAssertEqual(controller.activeFanMode, mode == .automatic ? nil : mode)
             for lang in [AppLanguage.en, .ru, .de, .fr] {
@@ -104,6 +107,7 @@ final class CoolingRenderingTests: XCTestCase {
         await controller.refresh()
         XCTAssertNil(controller.activeFanMode)
         service.status.active = true; service.status.policy.mode = .maximum
+        service.status.fans = [.init(id: 0, rpm: 6300, minimum: 1200, maximum: 6300, manual: true)]
         await controller.refresh()
         XCTAssertEqual(controller.activeFanMode, .maximum)
         service.state = .approval
@@ -217,6 +221,7 @@ final class CoolingRenderingTests: XCTestCase {
         defer { window.close() }
         let shortHeight = window.contentRect(forFrameRect: window.frame).height
         service.status.supportsControl = true
+        service.status.fanAvailability = .controllable
         service.status.fans = [.init(id: 0, rpm: 1400, minimum: 1000, maximum: 6000, manual: false)]
         await controller.refresh()
         for _ in 0..<20 {
@@ -320,6 +325,11 @@ private final class RenderCoolingService: CoolingService {
     init(_ name: String) {
         state = name == "missing" ? .missing : name == "approval" ? .approval : .enabled
         var value = HardwareStatus()
+        if ["enabled", "pending", "busy"].contains(name) {
+            value.supportsControl = true; value.fanAvailability = .controllable
+            value.fans = [.init(id: 0, rpm: 2314, minimum: 2317, maximum: 7826, manual: false),
+                .init(id: 1, rpm: 2505, minimum: 2317, maximum: 7826, manual: false)]
+        } else { value.fanAvailability = name == "unsupported" ? .fanless : .unavailable }
         if name == "pending" { value.restorationPending = true; value.reason = .restoreFailed }
         if name == "busy" { value.reason = .busy }
         status = value

@@ -1300,13 +1300,39 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   share hardware ownership; a second client cannot take over an active lease.
   Apple-style float target schemas accept typed `F<n>Md` or `F<n>md` mode
   keys with optional `Ftst`; unknown schemas remain read-only. Manual takeover
-  retries transient writes/readback within three seconds. Release accepts mode
-  0 or firmware system mode 3 and uses the same discovered keys. Intel control
+  retries transient writes and target readback within three seconds. Optional
+  `Ftst` is an unlock trigger, not a latch required to remain set. All owned mode
+  keys are read again after every target poll has finished. Release accepts mode
+  0 or firmware system mode 3 and skips redundant automatic writes; a fresh,
+  complete automatic readback is required before releasing the recovery journal. Intel control
   retains unrelated `FS!` bits. Reported fan readings stay visible even when
   their schema cannot safely be controlled.
+  Initial SMC connection failure retries with a three-second backoff. Only known
+  fanless model identifiers produce a no-fans explanation; unknown models and
+  failed reads show an unavailable state with retry instead. Read-only fallback
+  after an XPC failure cannot confirm ownership or clear the connection failure.
+  Manual requests use request version 2, rejected before writes by old services,
+  even if XPC reconnects between status and configure. Service status advertises
+  fan-control revision 2; version-1 status, automatic release and update operations
+  stay compatible.
+  An older service is updated through the existing maintenance handshake only
+  after active leases and pending recovery have ended. Pending recovery is never
+  cleared to force an update. On-demand diagnostic copy contains bounded fixed-key
+  fan readings and separate first-operation/recovery failures, without maintenance
+  IDs, user identifiers, paths or environment data.
   Software tests do not certify fan behavior on untested Mac models.
   The automatic selector is labelled macOS and explains that macOS chooses the
   speed. The CPU-temperature selector uses Hop's explicit lower/upper thresholds.
+  Mode clicks apply immediately without Apply. Per-fan fixed-speed sliders are
+  continuous and tickless; valid numeric changes coalesce for 150 ms with one
+  request in flight and only the latest pending intent retained. Automatic
+  supersedes queued manual settings. Pending requests block service updates.
+  Current measured speed, requested fixed target and allowed range have distinct
+  labels; RPM is explained as revolutions per minute. A pending caption is separate
+  from the confirmed selection. Manual selection and the monitor label require
+  current manual readback from every owned fan and full control capability.
+  Native buttons have no blue focus ring. Open Settings appears only while
+  approval is required; an approved service does not retain that action.
   A fanless or unsupported Mac shows the capability explanation and temperature,
   without a mode grid or Apply action. Old inactive cutoff messages from another
   session do not appear as a current error; restoration and current failures stay

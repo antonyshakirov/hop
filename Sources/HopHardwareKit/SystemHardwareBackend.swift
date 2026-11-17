@@ -7,6 +7,8 @@ import IOKit.pwr_mgt
 public final class SystemHardwareBackend: HardwareBackend {
     private let fans = SMCFanHardware()
     public init() {}
+    public var fanDiagnostic: FanFailure? { fans.lastFailure }
+    public func diagnosticKeys() -> [FanKeyReading] { fans.diagnosticKeys() }
 
     public func observe() -> HardwareObservation {
         let sensors = fans.read()
@@ -14,7 +16,7 @@ public final class SystemHardwareBackend: HardwareBackend {
         return HardwareObservation(fans: sensors.fans, temperature: sensors.temperature,
             supportsControl: sensors.supportsControl, lidClosed: Self.lidClosed(),
             onBattery: power.onBattery, batteryPercent: power.percent,
-            thermalSeverity: ProcessInfo.processInfo.thermalState.rawValue)
+            thermalSeverity: ProcessInfo.processInfo.thermalState.rawValue, fanAvailability: sensors.availability)
     }
 
     public func idleLidReleaseReady() -> Bool { IdleLidPolicy.ready() }

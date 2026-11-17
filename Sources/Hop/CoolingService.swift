@@ -12,7 +12,12 @@ protocol CoolingService: AnyObject {
     func unregister() async throws
     func request(_ request: HardwareRequest) async throws -> HardwareStatus
     func localStatus() async -> HardwareStatus
+    func localDiagnostics() async -> [FanKeyReading]
     func invalidate()
+}
+
+extension CoolingService {
+    func localDiagnostics() async -> [FanKeyReading] { [] }
 }
 
 private final class HardwareReply {
@@ -82,7 +87,9 @@ final class SystemCoolingService: CoolingService {
         connection.setCodeSigningRequirement(requirement)
         connection.remoteObjectInterface = NSXPCInterface(with: HardwareXPC.self)
         connection.invalidationHandler = { [weak self, weak connection] in
-            Task { @MainActor in if self?.connection === connection { self?.connection = nil } }
+            Task { @MainActor in
+                if self?.connection === connection { self?.connection = nil }
+            }
         }
         connection.interruptionHandler = connection.invalidationHandler
         connection.resume()
@@ -91,7 +98,12 @@ final class SystemCoolingService: CoolingService {
     }
 
     func request(_ request: HardwareRequest) async throws -> HardwareStatus {
-        let connection = try connect(), data = try JSONEncoder().encode(request)
+        let connection = try connect()
+        return try await exchange(request, over: connection)
+    }
+
+    private func exchange(_ request: HardwareRequest, over connection: NSXPCConnection) async throws -> HardwareStatus {
+        let data = try JSONEncoder().encode(request)
         return try await withCheckedThrowingContinuation { continuation in
             let gate = HardwareReply(continuation)
             guard let proxy = connection.remoteObjectProxyWithErrorHandler({ error in gate.finish(.failure(error)) }) as? HardwareXPC
@@ -101,6 +113,10 @@ final class SystemCoolingService: CoolingService {
                     guard response.count <= 16384 else { throw HardwareReason.invalid }
                     let value = try JSONDecoder().decode(HardwareStatus.self, from: response)
                     guard value.version == 1, value.fans.count <= 8, value.fans.allSatisfy(\.valid),
+                          Set(value.fans.map(\.id)).count == value.fans.count,
+                          value.fanFailure?.valid != false, value.fanRecoveryFailure?.valid != false,
+                          value.fanKeys.map({ $0.count <= FanKeyReading.keys.count && $0.allSatisfy(\.valid)
+                              && Set($0.map(\.key)).count == $0.count }) ?? true,
                           value.temperature.map({ $0.isFinite && (10...130).contains($0) }) ?? true,
                           HardwareConfiguration(fan: value.policy).valid else { throw HardwareReason.protocolMismatch }
                     gate.finish(.success(value))
@@ -112,6 +128,13 @@ final class SystemCoolingService: CoolingService {
         }
     }
 
+    func localDiagnostics() async -> [FanKeyReading] {
+        let reader = reader
+        return await withCheckedContinuation { continuation in
+            reads.async { continuation.resume(returning: reader.diagnosticKeys()) }
+        }
+    }
+
     func localStatus() async -> HardwareStatus {
         let reader = reader
         return await withCheckedContinuation { continuation in
@@ -120,6 +143,7 @@ final class SystemCoolingService: CoolingService {
                 var status = HardwareStatus()
                 status.fans = reading.fans; status.temperature = reading.temperature
                 status.supportsControl = reading.supportsControl
+                status.fanAvailability = reading.availability
                 continuation.resume(returning: status)
             }
         }

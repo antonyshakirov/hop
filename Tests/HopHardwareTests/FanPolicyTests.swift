@@ -5,6 +5,22 @@ final class FanPolicyTests: XCTestCase {
     private let fans = [FanReading(id: 0, rpm: 1200, minimum: 1000, maximum: 6000, manual: false),
                         FanReading(id: 2, rpm: 1400, minimum: 1200, maximum: 7000, manual: false)]
 
+    func testManualControlUsesAnOldHelperRejectableRequestVersion() throws {
+        let request = HardwareRequest(.configure, configuration: .init(fan: .init(mode: .maximum)))
+        let data = try JSONEncoder().encode(request)
+        let legacy = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        XCTAssertNotEqual(legacy?["version"] as? Int, 1,
+            "The old helper rejects any non-v1 request before reaching backend writes")
+        XCTAssertEqual(try HardwareRequest.decode(data).version, 2)
+        for operation in [HardwareRequest.Operation.status, .renew, .stop, .prepareUpdate, .finishUpdate] {
+            XCTAssertEqual(HardwareRequest(operation).version, 1)
+        }
+        XCTAssertEqual(HardwareRequest(.configure, configuration: .init(lid: true)).version, 1)
+        XCTAssertEqual(HardwareRequest(.configure, configuration: .init()).version, 1)
+        let old = Data("{\"version\":1,\"fans\":[],\"supportsControl\":false,\"lid\":false,\"policy\":{\"mode\":\"automatic\",\"targets\":{},\"cool\":60,\"hot\":85},\"active\":false,\"restorationPending\":false,\"maintenance\":false}".utf8)
+        XCTAssertNil(try JSONDecoder().decode(HardwareStatus.self, from: old).fanControlRevision)
+    }
+
     func testMaximumAndCurveUseEachActualFanRangeAndStableIndex() throws {
         XCTAssertEqual(try FanPolicy(mode: .maximum).speeds(for: fans, temperature: nil), [0: 6000, 2: 7000])
         let curve = FanPolicy(mode: .curve)

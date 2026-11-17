@@ -53,6 +53,7 @@ public protocol HardwareJournal: AnyObject {
 }
 
 public protocol HardwareBackend: AnyObject {
+    var fanDiagnostic: FanFailure? { get }
     func observe() -> HardwareObservation
     func sleepDisabled() throws -> Bool
     func setSleepDisabled(_ disabled: Bool) throws
@@ -63,6 +64,7 @@ public protocol HardwareBackend: AnyObject {
 }
 
 public extension HardwareBackend {
+    var fanDiagnostic: FanFailure? { nil }
     func idleLidReleaseReady() -> Bool { false }
 }
 
@@ -82,6 +84,10 @@ public final class HardwareCoordinator {
     private var reason: HardwareReason?
     private var maintenance: HardwareMaintenance?
 
+    private var stopCause: HardwareReason?
+    private var fanFailure: FanFailure?
+    private var fanRecoveryFailure: FanFailure?
+
     public init(backend: HardwareBackend, journal: HardwareJournal,
                 application: String = "com.antonshakirov.minimo",
                 now: @escaping () -> Double = { ProcessInfo.processInfo.systemUptime }) {
@@ -100,7 +106,7 @@ public final class HardwareCoordinator {
         if configuration == nil {
             if !locked && (reason == .busy || maintenance != nil) { recoverAtLaunch() }
             if locked && (!recovery.empty || unreadableRecovery) {
-                do { try restore(reason: reason ?? .restoreFailed) }
+                do { try restore(reason: stopCause ?? reason ?? .restoreFailed) }
                 catch { reason = .restoreFailed }
             }
             return
@@ -118,7 +124,10 @@ public final class HardwareCoordinator {
             do {
                 let speeds = try fanSpeeds(configuration.fan, observation)
                 try backend.setFans(speeds)
-            } catch { stop(error as? HardwareReason ?? .commandFailed) }
+            } catch {
+                if fanFailure == nil { fanFailure = backend.fanDiagnostic }
+                stop(error as? HardwareReason ?? .commandFailed)
+            }
         }
     }
 
@@ -160,7 +169,7 @@ public final class HardwareCoordinator {
     public func shutdown() { stop(.disconnected) }
 
     public func handle(_ request: HardwareRequest, owner: UUID, user: UInt32 = UInt32(getuid())) -> HardwareStatus {
-        guard request.version == 1 else { return status(error: .protocolMismatch) }
+        guard request.supportedVersion else { return status(error: .protocolMismatch) }
         if let active = self.owner, active != owner {
             var value = status(error: .busy)
             value.active = false; value.lid = false; value.policy = .init()
@@ -203,7 +212,11 @@ public final class HardwareCoordinator {
             if self.owner == owner, configuration != nil { lastHeartbeat = now() }
         case .configure:
             guard let desired = request.configuration, desired.valid else { return status(error: .invalid) }
-            if !desired.needsLease { stop(.stopped); return status() }
+            if !desired.needsLease {
+                stop(.stopped)
+                if !locked { clearFanFailure() }
+                return status()
+            }
             do { try configure(desired, owner: owner) }
             catch {
                 let failure = error as? HardwareReason ?? .commandFailed
@@ -263,7 +276,11 @@ public final class HardwareCoordinator {
             recovery = next
         }
         if desired.fan.mode != .automatic {
-            try backend.setFans(speeds)
+            do { try backend.setFans(speeds) }
+            catch {
+                if fanFailure == nil { fanFailure = backend.fanDiagnostic }
+                throw error
+            }
         } else if !recovery.fans.isEmpty {
             try backend.restoreFans(recovery.fans)
             next.fans = []
@@ -282,6 +299,7 @@ public final class HardwareCoordinator {
         lastHeartbeat = now()
         deadline = desired.duration.map { lastHeartbeat + $0 }
         reason = nil
+        clearFanFailure()
     }
 
     private func fanSpeeds(_ policy: FanPolicy, _ reading: HardwareObservation) throws -> [Int: Double] {
@@ -305,7 +323,10 @@ public final class HardwareCoordinator {
         return nil
     }
 
+    private func clearFanFailure() { stopCause = nil; fanFailure = nil; fanRecoveryFailure = nil }
+
     private func stop(_ reason: HardwareReason) {
+        if reason != .stopped, stopCause == nil { stopCause = reason }
         configuration = nil; owner = nil; deadline = nil
         do { try restore(reason: reason) }
         catch { self.reason = .restoreFailed }
@@ -317,7 +338,8 @@ public final class HardwareCoordinator {
         guard !unreadableRecovery else { throw HardwareReason.restoreFailed }
         var failed = false
         if !recovery.fans.isEmpty {
-            do { try backend.restoreFans(recovery.fans) } catch { failed = true }
+            do { try backend.restoreFans(recovery.fans); fanRecoveryFailure = nil }
+            catch { failed = true; fanRecoveryFailure = backend.fanDiagnostic }
         }
         try restoreSleep(requestSleep: !failed)
         guard !failed else { throw HardwareReason.restoreFailed }
@@ -366,6 +388,7 @@ public final class HardwareCoordinator {
         status.fans = reading.fans.filter(\.valid)
         status.temperature = reading.freshTemperature.flatMap { $0.isFinite ? $0 : nil }
         status.supportsControl = reading.supportsControl
+        status.fanAvailability = reading.fanAvailability
         status.active = configuration != nil
 
         status.policy = configuration?.fan ?? .init()
@@ -373,6 +396,9 @@ public final class HardwareCoordinator {
         status.lid = configuration?.lid ?? (status.restorationPending && recovery.sleepDisabledBefore != nil)
         status.maintenance = maintenance != nil
         status.reason = error ?? reason
+        status.stopCause = stopCause
+        status.fanFailure = fanFailure
+        status.fanRecoveryFailure = fanRecoveryFailure
         return status
     }
 }
