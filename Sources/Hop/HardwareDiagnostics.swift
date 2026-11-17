@@ -6,13 +6,15 @@ import HopHardwareKit
 enum HardwareDiagnostics {
     static func runIfRequested() {
         let flags = Set(CommandLine.arguments.dropFirst())
-        let commands: Set<String> = ["--hardware-check", "--hardware-register", "--hardware-prepare-update", "--hardware-update-check"]
+        let commands: Set<String> = ["--hardware-check", "--hardware-lid-check", "--hardware-register", "--hardware-prepare-update", "--hardware-update-check"]
         guard !flags.isDisjoint(with: commands) else { return }
         guard Bundle.main.bundleIdentifier == "com.antonshakirov.minimo.dev", flags.count == 1 else { exit(1) }
         Task { @MainActor in
             do {
                 let service = SystemCoolingService()
-                if flags.contains("--hardware-update-check") {
+                if flags.contains("--hardware-lid-check") {
+                    print(String(decoding: try await HardwareLidCheck.run(service: service), as: UTF8.self))
+                } else if flags.contains("--hardware-update-check") {
                     let controller = CoolingController(service: service)
                     var result: [String: Any] = ["controller": controller.updateDiagnosticState,
                                                 "service": String(describing: service.state)]

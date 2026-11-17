@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Kişisel eklentiler: ayarlardan kendi dosyalarını içe aktar. Her eklenti başlangıçta kapalıdır ve çalışmadan önce erişim ister.
+- Soğutma modu seçildiğinde uygulanır; monitör doğrulanan modu gösterir. Fansız Mac’lerde bu durum açıkça belirtilir.
+- Kapak düğmesi ile Awake zamanlayıcısı birbirinden bağımsız çalışır.
+- Metin veya görsel önizlemesi için pano öğesinin üzerine gel. Pano kısayolu varsayılan olarak kapalıdır.
+
+[SDK](../plugins/sdk-v1.md) · [kendi eklentini oluştur](../plugins/authoring.md)
+
 **macOS menü çubuğu için minik bir yol arkadaşı: zamanlayıcı, zaman takibi,
 yapılacaklar, uyku engelleme, sistem monitörü, pano geçmişi, dosya
 dönüştürücü, pencere yöneticisi, hafif bir torrent istemcisi, ekran

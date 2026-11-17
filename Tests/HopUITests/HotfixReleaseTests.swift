@@ -133,12 +133,12 @@ final class HotfixReleaseTests: XCTestCase {
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.2.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.2"))
     }
-    func testPluginPreviewHasLatestCardAndLocalizedNotesInEveryLanguage() {
+    func testRelease26HasItsCardAndLocalizedNotesInEveryLanguage() {
         XCTAssertEqual(PanelView.releaseCardIDs.last, "2.6")
         for lang in AppLanguage.allCases {
             let notes = L10n.t(.docNews, lang)
-            XCTAssertTrue(notes.hasPrefix("2.6.0 – 2026-11-16"), lang.rawValue)
-            XCTAssertTrue(notes.contains("• " + L10n.t(.news26Plugins, lang)), lang.rawValue)
+            XCTAssertTrue(notes.hasPrefix("2.6.0 – 2026-11-17"), lang.rawValue)
+            for item in L10n.release26Text(lang) { XCTAssertTrue(notes.contains("• " + item), lang.rawValue) }
         }
     }
 }

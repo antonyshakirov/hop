@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Eigene Plugins: Pakete in den Einstellungen importieren. Jedes Plugin startet deaktiviert und fragt vor dem Ausführen nach Zugriff.
+- Kühlmodi werden bei der Auswahl angewendet; der Monitor zeigt den bestätigten Modus. Macs ohne Lüfter weisen darauf hin.
+- Deckelschalter und Awake-Timer arbeiten unabhängig voneinander.
+- Zwischenablageeinträge zeigen beim Darüberfahren Text oder Bilder. Der Kurzbefehl ist standardmäßig deaktiviert.
+
+[SDK](../plugins/sdk-v1.md) · [eigenes Plugin erstellen](../plugins/authoring.md)
+
 **Ein winziger Menüleisten-Begleiter für macOS: Timer, Zeiterfassung,
 Aufgabenliste, Wachhalten, Systemmonitor, Zwischenablage-Verlauf,
 Dateikonverter, Fenstermanager, ein leichter Torrent-Client, Bildschirmfotos,

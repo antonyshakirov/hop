@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Własne wtyczki: importuj pliki w ustawieniach. Każda wtyczka jest początkowo wyłączona i przed uruchomieniem prosi o dostęp.
+- Tryb chłodzenia działa po wybraniu, a monitor pokazuje potwierdzony tryb. Mac bez wentylatorów wyraźnie o tym informuje.
+- Przełącznik pokrywy i minutnik Awake działają niezależnie.
+- Najedź na wpis schowka, aby zobaczyć tekst lub obraz. Skrót schowka jest domyślnie wyłączony.
+
+[SDK](../plugins/sdk-v1.md) · [utwórz własną wtyczkę](../plugins/authoring.md)
+
 **Malutki towarzysz na pasku menu macOS: timer, śledzenie czasu, lista
 zadań, blokada uśpienia, monitor systemu, historia schowka, konwerter
 plików, menedżer okien, lekki klient torrentów, zrzuty ekranu, rysowanie

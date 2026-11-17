@@ -29,7 +29,7 @@ public final class SystemHardwareBackend: HardwareBackend {
     public func setSleepDisabled(_ disabled: Bool) throws {
         guard geteuid() == 0 else { throw HardwareReason.unauthorized }
         _ = try Self.pmset(["disablesleep", disabled ? "1" : "0"])
-        guard try sleepDisabled() == disabled else { throw HardwareReason.commandFailed }
+        // SPEC: the coordinator verifies fresh readback before acknowledging the write.
     }
 
     public func restoreClosedLidBehavior() throws {

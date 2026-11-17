@@ -4,7 +4,14 @@
 
 # Hop
 
-Local Dev2.6 preview: [Plugin SDK and examples](docs/plugins/sdk-v1.md), [personal plugin and fork guide](docs/plugins/authoring.md). Stable Hop2.5 does not run plugins. Plugins are off by default and require your approval.
+**2.6.0**
+
+- Personal plugins: import your own packages in Settings. Each starts disabled and asks for access before it runs.
+- Cooling modes apply when selected, and the monitor shows the confirmed mode. Macs without fans say so.
+- The lid switch and Awake timer work independently.
+- Hover clipboard entries to preview text or images. Its shortcut is off by default.
+
+[SDK](docs/plugins/sdk-v1.md) · [create your own plugin](docs/plugins/authoring.md)
 
 **A tiny menu bar companion for macOS: timer, time tracker, to-dos,
 keep-awake, system monitor, clipboard history, file converter, window

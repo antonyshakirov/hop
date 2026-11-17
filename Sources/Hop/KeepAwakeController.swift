@@ -43,6 +43,7 @@ final class KeepAwakeController: ObservableObject {
     /// Lid mode — visible to the UI: laptop icon in the module row.
     @Published private(set) var lidApplied = false
     @Published private(set) var lidChanging = false
+    @Published private(set) var pendingLidTarget: Bool?
     @Published private(set) var lidFailure: HardwareReason?
     private var lidOperation = UUID()
     private var protectedLid: (Bool, Date?) async throws -> Bool = { on, until in
@@ -267,13 +268,11 @@ final class KeepAwakeController: ObservableObject {
 
     /// An explicit lid action may request installation or approval of the service.
     func toggleLid() {
-        guard !lidChanging else { return }
-        setLidEnabled(!lidApplied)
+        setLidEnabled(!(pendingLidTarget ?? lidApplied))
     }
 
     func setLidEnabled(_ on: Bool) {
-        guard !on || !lidChanging else { return }
-        guard lidApplied != on || lidChanging else { return }
+        guard (pendingLidTarget ?? lidApplied) != on || lidFailure != nil else { return }
         applyLidSleepDisabled(on)
     }
 
@@ -299,10 +298,16 @@ final class KeepAwakeController: ObservableObject {
         let operation = UUID()
         lidOperation = operation
         lidChanging = true
+        pendingLidTarget = disabled
         lidFailure = nil
         Task { [weak self] in
-            guard let self else { return }
-            defer { if self.lidOperation == operation { self.lidChanging = false } }
+            guard let self, self.lidOperation == operation else { return }
+            defer {
+                if self.lidOperation == operation {
+                    self.lidChanging = false
+                    self.pendingLidTarget = nil
+                }
+            }
             do {
                 let applied = try await self.protectedLid(disabled, nil)
                 guard self.lidOperation == operation else { return }

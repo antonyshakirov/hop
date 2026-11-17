@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Plugins pessoais: importa os teus ficheiros nas definições. Cada plugin começa desligado e pede acesso antes de executar.
+- Os modos de arrefecimento aplicam-se ao selecionar; o monitor mostra o modo confirmado. Os Mac sem ventoinhas indicam-no.
+- O botão da tampa e o temporizador Awake funcionam de forma independente.
+- Passa o cursor sobre uma entrada da área de transferência para ver o texto ou a imagem. O atalho vem desligado por predefinição.
+
+[SDK](../plugins/sdk-v1.md) · [criar o teu plugin](../plugins/authoring.md)
+
 **Um pequeno companheiro de barra de menus para macOS: timer, controle de
 tempo, lista de tarefas, modo antissuspensão, monitor do sistema,
 histórico da área de transferência, conversor de arquivos, gerenciador de

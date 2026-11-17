@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Plugin cá nhân: nhập tệp của bạn trong cài đặt. Mỗi plugin ban đầu đều tắt và xin quyền truy cập trước khi chạy.
+- Chế độ làm mát được áp dụng khi chọn; màn hình theo dõi hiển thị chế độ đã xác nhận. Mac không có quạt sẽ được thông báo rõ.
+- Nút nắp máy và bộ hẹn giờ Awake hoạt động độc lập.
+- Di chuột lên mục bảng nhớ tạm để xem trước văn bản hoặc hình ảnh. Phím tắt mặc định được tắt.
+
+[SDK](../plugins/sdk-v1.md) · [tạo phần mở rộng của bạn](../plugins/authoring.md)
+
 **Một trợ thủ nhỏ gọn trên thanh menu của macOS: hẹn giờ, theo dõi thời
 gian, việc cần làm, chống ngủ, giám sát hệ thống, lịch sử clipboard,
 chuyển đổi tệp, quản lý cửa sổ, trình torrent gọn nhẹ, ảnh màn hình, vẽ

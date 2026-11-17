@@ -110,7 +110,7 @@ enum L10nKey: String, CaseIterable {
     case tabClipboard, clipboardEmpty, clipboardClear, clipboardCopied, clipboardNoResults
     case clipboardLimit, tabOrderLabel, aboutClipboard
     case clipVisibleRows
-    case awakeKeepDisplay, awakeLid, awakeLidNote
+    case awakeKeepDisplay, awakeLid, awakeLidNote, awakeLidEnabling, awakeLidDisabling
     case timerStyle, styleCompact, styleLarge
     case menuOpen, menuQuit
     case unitKbps, menuStopTimer, menuStopStopwatch, menuDisableAwake
@@ -559,8 +559,37 @@ enum L10n {
         HangingWords.glued(text, shortWords: shortWords(lang), trailing: trailingWords(lang))
     }
 
+    static func release26Text(_ lang: AppLanguage) -> [String] {
+        let text: [String]
+        switch lang {
+        case .en: text = ["Personal plugins: import your own packages in Settings. Each starts disabled and asks for access before it runs.", "Cooling modes apply when selected, and the monitor shows the confirmed mode. Macs without fans say so.", "The lid switch and Awake timer work independently.", "Hover clipboard entries to preview text or images. Its shortcut is off by default."]
+        case .ru: text = ["Личные плагины: импортируй свои файлы в настройках. Каждый плагин изначально выключен и запрашивает доступ перед запуском.", "Режим охлаждения применяется при выборе, а монитор показывает подтверждённый режим. На Mac без вентиляторов это указано явно.", "Кнопка крышки и таймер Awake работают независимо.", "Наведи на запись буфера, чтобы увидеть текст или изображение. Горячая клавиша буфера по умолчанию выключена."]
+        case .de: text = ["Eigene Plugins: Pakete in den Einstellungen importieren. Jedes Plugin startet deaktiviert und fragt vor dem Ausführen nach Zugriff.", "Kühlmodi werden bei der Auswahl angewendet; der Monitor zeigt den bestätigten Modus. Macs ohne Lüfter weisen darauf hin.", "Deckelschalter und Awake-Timer arbeiten unabhängig voneinander.", "Zwischenablageeinträge zeigen beim Darüberfahren Text oder Bilder. Der Kurzbefehl ist standardmäßig deaktiviert."]
+        case .es: text = ["Plugins personales: importa tus archivos en los ajustes. Cada plugin empieza desactivado y pide acceso antes de ejecutarse.", "Los modos de refrigeración se aplican al elegirlos; el monitor muestra el modo confirmado. Los Mac sin ventiladores lo indican.", "El botón de la tapa y el temporizador Awake funcionan por separado.", "Pasa el cursor sobre una entrada del portapapeles para ver el texto o la imagen. Su atajo está desactivado por defecto."]
+        case .pt: text = ["Plugins pessoais: importa os teus ficheiros nas definições. Cada plugin começa desligado e pede acesso antes de executar.", "Os modos de arrefecimento aplicam-se ao selecionar; o monitor mostra o modo confirmado. Os Mac sem ventoinhas indicam-no.", "O botão da tampa e o temporizador Awake funcionam de forma independente.", "Passa o cursor sobre uma entrada da área de transferência para ver o texto ou a imagem. O atalho vem desligado por predefinição."]
+        case .fr: text = ["Plugins personnels : importez vos fichiers dans les réglages. Chaque plugin est désactivé au départ et demande un accès avant de s’exécuter.", "Les modes de refroidissement s’appliquent dès leur sélection ; le moniteur affiche le mode confirmé. Les Mac sans ventilateur l’indiquent.", "Le bouton du capot et le minuteur Awake fonctionnent indépendamment.", "Survolez une entrée du presse-papiers pour voir son texte ou son image. Son raccourci est désactivé par défaut."]
+        case .it: text = ["Plugin personali: importa i tuoi file nelle impostazioni. Ogni plugin parte disattivato e chiede l’accesso prima di eseguire.", "Le modalità di raffreddamento si applicano alla selezione; il monitor mostra quella confermata. I Mac senza ventole lo indicano.", "Il pulsante del coperchio e il timer Awake funzionano in modo indipendente.", "Passa sulle voci degli appunti per vedere testo o immagini. La scorciatoia è disattivata per impostazione predefinita."]
+        case .nl: text = ["Persoonlijke plugins: importeer je bestanden in de instellingen. Elke plugin begint uitgeschakeld en vraagt vóór uitvoering om toegang.", "Koelmodi worden bij selectie toegepast; de monitor toont de bevestigde modus. Macs zonder ventilatoren geven dat aan.", "De dekselschakelaar en Awake-timer werken onafhankelijk van elkaar.", "Beweeg over klemborditems om tekst of afbeeldingen te bekijken. De sneltoets is standaard uitgeschakeld."]
+        case .ja: text = ["個人用プラグイン：設定で自分のファイルを読み込めます。各プラグインは最初は無効で、実行前にアクセス許可を求めます。", "冷却モードは選択時に適用され、モニターには確認済みのモードが表示されます。ファンのないMacでは、その旨を表示します。", "ふたのスイッチとAwakeタイマーは独立して動作します。", "クリップボードの項目にカーソルを重ねると、テキストや画像をプレビューできます。ショートカットは初期状態で無効です。"]
+        case .ko: text = ["개인 플러그인: 설정에서 파일을 가져올 수 있습니다. 각 플러그인은 처음에는 꺼져 있으며 실행 전에 접근 권한을 요청합니다.", "냉각 모드는 선택하면 적용되고 모니터에는 확인된 모드가 표시됩니다. 팬이 없는 Mac은 이를 명확히 안내합니다.", "덮개 스위치와 Awake 타이머는 독립적으로 작동합니다.", "클립보드 항목에 마우스를 올리면 텍스트나 이미지를 미리 볼 수 있습니다. 단축키는 기본적으로 꺼져 있습니다."]
+        case .vi: text = ["Plugin cá nhân: nhập tệp của bạn trong cài đặt. Mỗi plugin ban đầu đều tắt và xin quyền truy cập trước khi chạy.", "Chế độ làm mát được áp dụng khi chọn; màn hình theo dõi hiển thị chế độ đã xác nhận. Mac không có quạt sẽ được thông báo rõ.", "Nút nắp máy và bộ hẹn giờ Awake hoạt động độc lập.", "Di chuột lên mục bảng nhớ tạm để xem trước văn bản hoặc hình ảnh. Phím tắt mặc định được tắt."]
+        case .th: text = ["ปลั๊กอินส่วนตัว: นำเข้าไฟล์ของคุณในตั้งค่า ปลั๊กอินทุกตัวเริ่มต้นในสถานะปิดและขอสิทธิ์ก่อนทำงาน", "โหมดระบายความร้อนจะใช้เมื่อเลือก และหน้าตรวจสอบจะแสดงโหมดที่ยืนยันแล้ว หาก Mac ไม่มีพัดลมจะแจ้งให้ทราบชัดเจน", "สวิตช์ฝาเครื่องและตัวจับเวลา Awake ทำงานแยกกัน", "วางเมาส์เหนือรายการคลิปบอร์ดเพื่อดูตัวอย่างข้อความหรือรูปภาพ ปุ่มลัดปิดอยู่ตามค่าเริ่มต้น"]
+        case .zh: text = ["个人插件：在设置中导入自己的文件。每个插件初始均为关闭状态，运行前会请求访问权限。", "选择散热模式后即会应用，监控面板显示已确认的模式。没有风扇的 Mac 会明确提示。", "合盖开关与 Awake 定时器独立工作。", "将鼠标悬停在剪贴板条目上可预览文字或图片。快捷键默认关闭。"]
+        case .hi: text = ["निजी प्लगइन: सेटिंग में अपनी फ़ाइलें आयात करें। हर प्लगइन शुरू में बंद रहता है और चलने से पहले अनुमति माँगता है।", "चुनते ही कूलिंग मोड लागू होता है; मॉनिटर पुष्टि किया गया मोड दिखाता है। बिना पंखे वाले Mac पर यह साफ़ बताया जाता है।", "ढक्कन का स्विच और Awake टाइमर स्वतंत्र रूप से काम करते हैं।", "क्लिपबोर्ड प्रविष्टि पर माउस रखें तो पाठ या चित्र का पूर्वावलोकन दिखता है। इसका शॉर्टकट डिफ़ॉल्ट रूप से बंद है।"]
+        case .id: text = ["Plugin pribadi: impor berkas sendiri di pengaturan. Setiap plugin awalnya nonaktif dan meminta akses sebelum berjalan.", "Mode pendinginan diterapkan saat dipilih; monitor menampilkan mode yang sudah dikonfirmasi. Mac tanpa kipas menampilkan keterangan yang jelas.", "Sakelar tutup dan timer Awake bekerja secara terpisah.", "Arahkan penunjuk ke entri papan klip untuk melihat teks atau gambar. Pintasannya nonaktif secara bawaan."]
+        case .tr: text = ["Kişisel eklentiler: ayarlardan kendi dosyalarını içe aktar. Her eklenti başlangıçta kapalıdır ve çalışmadan önce erişim ister.", "Soğutma modu seçildiğinde uygulanır; monitör doğrulanan modu gösterir. Fansız Mac’lerde bu durum açıkça belirtilir.", "Kapak düğmesi ile Awake zamanlayıcısı birbirinden bağımsız çalışır.", "Metin veya görsel önizlemesi için pano öğesinin üzerine gel. Pano kısayolu varsayılan olarak kapalıdır."]
+        case .pl: text = ["Własne wtyczki: importuj pliki w ustawieniach. Każda wtyczka jest początkowo wyłączona i przed uruchomieniem prosi o dostęp.", "Tryb chłodzenia działa po wybraniu, a monitor pokazuje potwierdzony tryb. Mac bez wentylatorów wyraźnie o tym informuje.", "Przełącznik pokrywy i minutnik Awake działają niezależnie.", "Najedź na wpis schowka, aby zobaczyć tekst lub obraz. Skrót schowka jest domyślnie wyłączony."]
+        case .ar: text = ["إضافات شخصية: استورد ملفاتك من الإعدادات. تبدأ كل إضافة معطلة وتطلب الإذن قبل التشغيل.", "يُطبق وضع التبريد عند اختياره، وتعرض المراقبة الوضع المؤكد. ويوضح Mac الذي لا يحتوي على مراوح ذلك صراحةً.", "يعمل مفتاح الغطاء ومؤقت Awake بشكل مستقل.", "مرر المؤشر فوق عناصر الحافظة لمعاينة النص أو الصورة. اختصار الحافظة معطل افتراضيًا."]
+        case .he: text = ["תוספים אישיים: מייבאים קבצים משלך בהגדרות. כל תוסף מתחיל כבוי ומבקש הרשאה לפני הפעלה.", "מצב הקירור מוחל עם הבחירה והניטור מציג את המצב שאושר. ב-Mac ללא מאווררים מופיעה הודעה ברורה.", "מתג המכסה וטיימר Awake פועלים בנפרד.", "מעבירים את הסמן מעל פריט בלוח כדי לראות תצוגה מקדימה של טקסט או תמונה. קיצור הלוח כבוי כברירת מחדל."]
+        case .fa: text = ["افزونه‌های شخصی: فایل‌های خود را در تنظیمات وارد کنید. هر افزونه ابتدا خاموش است و پیش از اجرا اجازهٔ دسترسی می‌خواهد.", "حالت خنک‌سازی با انتخاب اعمال می‌شود و پایش، حالت تأییدشده را نشان می‌دهد. در Mac بدون فن، این موضوع روشن بیان می‌شود.", "کلید درِ دستگاه و زمان‌سنج Awake مستقل کار می‌کنند.", "نشانگر را روی مورد کلیپ‌بورد ببرید تا متن یا تصویر را پیش‌نمایش کنید. میان‌بر کلیپ‌بورد به‌طور پیش‌فرض خاموش است."]
+        case .ur: text = ["ذاتی پلگ ان: ترتیبات میں اپنی فائلیں درآمد کریں۔ ہر پلگ ان پہلے بند ہوتا ہے اور چلنے سے پہلے رسائی کی اجازت مانگتا ہے۔", "کولنگ موڈ منتخب کرتے ہی لاگو ہوتا ہے اور مانیٹر تصدیق شدہ موڈ دکھاتا ہے۔ پنکھے کے بغیر Mac پر یہ بات واضح لکھی ہوتی ہے۔", "ڈھکن کا سوئچ اور Awake ٹائمر الگ الگ کام کرتے ہیں۔", "کلپ بورڈ اندراج پر ماؤس رکھ کر متن یا تصویر کا پیش منظر دیکھیں۔ اس کا شارٹ کٹ پہلے سے بند ہوتا ہے۔"]
+        case .sr: text = ["Лични додаци: увези своје датотеке у подешавањима. Сваки додатак је прво искључен и тражи приступ пре покретања.", "Режим хлађења се примењује при избору, а монитор приказује потврђени режим. Mac без вентилатора то јасно наводи.", "Прекидач поклопца и Awake тајмер раде независно.", "Пређи преко ставке оставе да видиш текст или слику. Пречица оставе је подразумевано искључена."]
+        }
+        return text.map { HangingWords.glued($0, shortWords: shortWords(lang), trailing: trailingWords(lang)) }
+    }
+
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.6.0 – 2026-11-16\n\n• " + PluginCopy.text(.news, lang) + "\n\n2.5.0 – 2026-11-16\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
+        "2.6.0 – 2026-11-17\n\n" + release26Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n2.5.0 – 2026-11-16\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
             + "\n\n" + previous
     }
 
@@ -1013,6 +1042,8 @@ enum L10n {
             .tabOrderLabel: "tab order (drag)",
             .aboutClipboard: "keeps your recently copied text. click a\u{00A0}row to copy it again. how many to keep is set in settings.",
             .awakeKeepDisplay: "display stays on",
+            .awakeLidEnabling: HangingWords.glued("turning closed-lid mode on…", shortWords: shortWords(.en), trailing: trailingWords(.en)),
+            .awakeLidDisabling: HangingWords.glued("turning closed-lid mode off…", shortWords: shortWords(.en), trailing: trailingWords(.en)),
             .awakeLid: "run with lid closed",
             .awakeLidNote: "the Mac keeps working with the lid closed\nasks for an admin password",
             .timerStyle: "timer size",
@@ -1937,6 +1968,8 @@ enum L10n {
             .tabOrderLabel: "порядок вкладок (тяните)",
             .aboutClipboard: "хранит последние скопированные тексты. нажмите на\u{00A0}строку, чтобы скопировать её снова. сколько хранить – в\u{00A0}настройках.",
             .awakeKeepDisplay: "не\u{00A0}гасить экран",
+            .awakeLidEnabling: HangingWords.glued("включается работа с закрытой крышкой…", shortWords: shortWords(.ru), trailing: trailingWords(.ru)),
+            .awakeLidDisabling: HangingWords.glued("выключается работа с закрытой крышкой…", shortWords: shortWords(.ru), trailing: trailingWords(.ru)),
             .awakeLid: "работать с\u{00A0}закрытой крышкой",
             .awakeLidNote: "Mac продолжит работать с\u{00A0}закрытой крышкой\nспросит пароль администратора",
             .timerStyle: "размер таймера",
@@ -2861,6 +2894,8 @@ enum L10n {
             .tabOrderLabel: "tab-reihenfolge (ziehen)",
             .aboutClipboard: "speichert zuletzt kopierten text. auf eine zeile klicken, um sie erneut zu kopieren. wie viel gespeichert wird, steht in den einstellungen.",
             .awakeKeepDisplay: "display an lassen",
+            .awakeLidEnabling: HangingWords.glued("Betrieb bei geschlossenem Deckel wird aktiviert…", shortWords: shortWords(.de), trailing: trailingWords(.de)),
+            .awakeLidDisabling: HangingWords.glued("Betrieb bei geschlossenem Deckel wird deaktiviert…", shortWords: shortWords(.de), trailing: trailingWords(.de)),
             .awakeLid: "mit geschlossenem deckel",
             .awakeLidNote: "der Mac läuft mit geschlossenem deckel weiter\nfragt das admin-passwort",
             .timerStyle: "timer-größe",
@@ -3785,6 +3820,8 @@ enum L10n {
             .tabOrderLabel: "orden de pestañas",
             .aboutClipboard: "guarda el texto copiado recientemente. haz clic en una fila para copiarla de nuevo. cuánto guardar se ajusta en ajustes.",
             .awakeKeepDisplay: "pantalla encendida",
+            .awakeLidEnabling: HangingWords.glued("activando el modo con tapa cerrada…", shortWords: shortWords(.es), trailing: trailingWords(.es)),
+            .awakeLidDisabling: HangingWords.glued("desactivando el modo con tapa cerrada…", shortWords: shortWords(.es), trailing: trailingWords(.es)),
             .awakeLid: "con la tapa cerrada",
             .awakeLidNote: "el Mac sigue funcionando con la tapa cerrada\npide contraseña de admin",
             .timerStyle: "tamaño del temporizador",
@@ -4709,6 +4746,8 @@ enum L10n {
             .tabOrderLabel: "ordem das abas",
             .aboutClipboard: "guarda os textos copiados recentemente. clique numa linha para copiá-la de novo. quanto guardar define-se nos ajustes.",
             .awakeKeepDisplay: "tela sempre ligada",
+            .awakeLidEnabling: HangingWords.glued("a ativar o modo de tampa fechada…", shortWords: shortWords(.pt), trailing: trailingWords(.pt)),
+            .awakeLidDisabling: HangingWords.glued("a desativar o modo de tampa fechada…", shortWords: shortWords(.pt), trailing: trailingWords(.pt)),
             .awakeLid: "com a\u{00A0}tampa fechada",
             .awakeLidNote: "o\u{00A0}Mac continua com a\u{00A0}tampa fechada\npede senha de admin",
             .timerStyle: "tamanho do temporizador",
@@ -5633,6 +5672,8 @@ enum L10n {
             .tabOrderLabel: "ordre des onglets",
             .aboutClipboard: "garde vos textes copiés récents. cliquez sur une ligne pour la recopier. la quantité se règle dans les réglages.",
             .awakeKeepDisplay: "écran allumé",
+            .awakeLidEnabling: HangingWords.glued("activation du mode capot fermé…", shortWords: shortWords(.fr), trailing: trailingWords(.fr)),
+            .awakeLidDisabling: HangingWords.glued("désactivation du mode capot fermé…", shortWords: shortWords(.fr), trailing: trailingWords(.fr)),
             .awakeLid: "capot fermé",
             .awakeLidNote: "le Mac continue capot fermé\ndemande le mot de passe admin",
             .timerStyle: "taille du minuteur",
@@ -6557,6 +6598,8 @@ enum L10n {
             .tabOrderLabel: "ordine schede",
             .aboutClipboard: "conserva i\u{00A0}testi copiati di recente. clicca una riga per copiarla di nuovo. quanti conservarne si imposta nelle impostazioni.",
             .awakeKeepDisplay: "schermo acceso",
+            .awakeLidEnabling: HangingWords.glued("attivazione della modalità coperchio chiuso…", shortWords: shortWords(.it), trailing: trailingWords(.it)),
+            .awakeLidDisabling: HangingWords.glued("disattivazione della modalità coperchio chiuso…", shortWords: shortWords(.it), trailing: trailingWords(.it)),
             .awakeLid: "con coperchio chiuso",
             .awakeLidNote: "il Mac continua a\u{00A0}coperchio chiuso\nchiede la password admin",
             .timerStyle: "dimensione timer",
@@ -7481,6 +7524,8 @@ enum L10n {
             .tabOrderLabel: "标签顺序（拖动）",
             .aboutClipboard: "保存最近复制的文本。点击一行可再次复制。保存数量在设置中调整。",
             .awakeKeepDisplay: "屏幕常亮",
+            .awakeLidEnabling: HangingWords.glued("正在开启合盖工作模式…", shortWords: shortWords(.zh), trailing: trailingWords(.zh)),
+            .awakeLidDisabling: HangingWords.glued("正在关闭合盖工作模式…", shortWords: shortWords(.zh), trailing: trailingWords(.zh)),
             .awakeLid: "合盖继续运行",
             .awakeLidNote: "合盖后 Mac 继续运行\n需要管理员密码",
             .timerStyle: "计时器大小",
@@ -8396,6 +8441,8 @@ enum L10n {
             .tabOrderLabel: "タブの順序（ドラッグ）",
             .aboutClipboard: "最近コピーしたテキストを保存。行をクリックすると再コピー。保存数は設定で。",
             .awakeKeepDisplay: "画面を点けたまま",
+            .awakeLidEnabling: HangingWords.glued("ふたを閉じたまま動作するモードを有効にしています…", shortWords: shortWords(.ja), trailing: trailingWords(.ja)),
+            .awakeLidDisabling: HangingWords.glued("ふたを閉じたまま動作するモードを無効にしています…", shortWords: shortWords(.ja), trailing: trailingWords(.ja)),
             .awakeLid: "フタを閉じても動作",
             .awakeLidNote: "フタを閉じても Mac は動き続けます\n管理者パスワードが必要",
             .timerStyle: "タイマーの大きさ",
@@ -9332,6 +9379,8 @@ enum L10n {
             .tabOrderLabel: "tabvolgorde (slepen)",
             .aboutClipboard: "bewaart recent gekopieerde tekst. klik op een rij om opnieuw te kopiëren. hoeveel bewaard wordt staat in instellingen.",
             .awakeKeepDisplay: "scherm blijft aan",
+            .awakeLidEnabling: HangingWords.glued("modus voor gesloten deksel wordt ingeschakeld…", shortWords: shortWords(.nl), trailing: trailingWords(.nl)),
+            .awakeLidDisabling: HangingWords.glued("modus voor gesloten deksel wordt uitgeschakeld…", shortWords: shortWords(.nl), trailing: trailingWords(.nl)),
             .awakeLid: "werken met gesloten klep",
             .awakeLidNote: "de Mac werkt door met gesloten klep\nvraagt om een beheerderswachtwoord",
             .timerStyle: "timerformaat",
@@ -10257,6 +10306,8 @@ enum L10n {
             .tabOrderLabel: "탭 순서 (드래그)",
             .aboutClipboard: "최근 복사한 텍스트를 저장합니다. 행을 클릭하면 다시 복사됩니다. 저장 개수는 설정에서.",
             .awakeKeepDisplay: "화면 켜짐 유지",
+            .awakeLidEnabling: HangingWords.glued("덮개를 닫고 작동하는 모드를 켜는 중…", shortWords: shortWords(.ko), trailing: trailingWords(.ko)),
+            .awakeLidDisabling: HangingWords.glued("덮개를 닫고 작동하는 모드를 끄는 중…", shortWords: shortWords(.ko), trailing: trailingWords(.ko)),
             .awakeLid: "덮개 닫아도 실행",
             .awakeLidNote: "덮개를 닫아도 Mac이 계속 작동\n관리자 암호 필요",
             .timerStyle: "타이머 크기",
@@ -11193,6 +11244,8 @@ enum L10n {
             .tabOrderLabel: "ลำดับแท็บ (ลาก)",
             .aboutClipboard: "เก็บข้อความที่คัดลอกล่าสุด คลิกแถวเพื่อคัดลอกอีกครั้ง จำนวนที่เก็บตั้งได้ในการตั้งค่า",
             .awakeKeepDisplay: "จอไม่ดับ",
+            .awakeLidEnabling: HangingWords.glued("กำลังเปิดโหมดทำงานขณะปิดฝา…", shortWords: shortWords(.th), trailing: trailingWords(.th)),
+            .awakeLidDisabling: HangingWords.glued("กำลังปิดโหมดทำงานขณะปิดฝา…", shortWords: shortWords(.th), trailing: trailingWords(.th)),
             .awakeLid: "ทำงานขณะปิดฝา",
             .awakeLidNote: "Mac ทำงานต่อขณะปิดฝา\nต้องใส่รหัสผู้ดูแลระบบ",
             .timerStyle: "ขนาดตัวจับเวลา",
@@ -12133,6 +12186,8 @@ enum L10n {
             .tabOrderLabel: "thứ tự tab (kéo)",
             .aboutClipboard: "lưu văn bản vừa sao chép. bấm một dòng để sao chép lại. số lượng lưu đặt trong cài đặt.",
             .awakeKeepDisplay: "màn hình luôn sáng",
+            .awakeLidEnabling: HangingWords.glued("đang bật chế độ đóng nắp…", shortWords: shortWords(.vi), trailing: trailingWords(.vi)),
+            .awakeLidDisabling: HangingWords.glued("đang tắt chế độ đóng nắp…", shortWords: shortWords(.vi), trailing: trailingWords(.vi)),
             .awakeLid: "chạy khi gập nắp",
             .awakeLidNote: "Mac vẫn chạy khi gập nắp\nyêu cầu mật khẩu quản trị",
             .timerStyle: "cỡ hẹn giờ",
@@ -13073,6 +13128,8 @@ enum L10n {
             .tabOrderLabel: "टैब क्रम (खींचें)",
             .aboutClipboard: "हाल में कॉपी किया टेक्स्ट रखता है। दोबारा कॉपी करने के लिए पंक्ति पर क्लिक करें। कितने रखने हैं – सेटिंग्स में।",
             .awakeKeepDisplay: "स्क्रीन जलती रहे",
+            .awakeLidEnabling: HangingWords.glued("ढक्कन बंद रखने का मोड चालू हो रहा है…", shortWords: shortWords(.hi), trailing: trailingWords(.hi)),
+            .awakeLidDisabling: HangingWords.glued("ढक्कन बंद रखने का मोड बंद हो रहा है…", shortWords: shortWords(.hi), trailing: trailingWords(.hi)),
             .awakeLid: "ढक्कन बंद करके चलाएँ",
             .awakeLidNote: "ढक्कन बंद होने पर भी Mac चलता रहता है\nएडमिन पासवर्ड माँगता है",
             .timerStyle: "टाइमर का आकार",
@@ -14013,6 +14070,8 @@ enum L10n {
             .tabOrderLabel: "urutan tab (seret)",
             .aboutClipboard: "menyimpan teks yang baru disalin. klik baris untuk menyalin lagi. jumlah simpanan diatur di pengaturan.",
             .awakeKeepDisplay: "layar tetap menyala",
+            .awakeLidEnabling: HangingWords.glued("mengaktifkan mode tutup tertutup…", shortWords: shortWords(.id), trailing: trailingWords(.id)),
+            .awakeLidDisabling: HangingWords.glued("menonaktifkan mode tutup tertutup…", shortWords: shortWords(.id), trailing: trailingWords(.id)),
             .awakeLid: "bekerja dengan penutup tertutup",
             .awakeLidNote: "Mac tetap bekerja dengan penutup tertutup\nmeminta kata sandi admin",
             .timerStyle: "ukuran timer",
@@ -14953,6 +15012,8 @@ enum L10n {
             .tabOrderLabel: "sekme sırası (sürükle)",
             .aboutClipboard: "son kopyaladıklarını saklar. yeniden kopyalamak için satıra tıkla. kaç kayıt tutulacağı ayarlarda.",
             .awakeKeepDisplay: "ekran açık kalsın",
+            .awakeLidEnabling: HangingWords.glued("kapak kapalı modu açılıyor…", shortWords: shortWords(.tr), trailing: trailingWords(.tr)),
+            .awakeLidDisabling: HangingWords.glued("kapak kapalı modu kapatılıyor…", shortWords: shortWords(.tr), trailing: trailingWords(.tr)),
             .awakeLid: "kapak kapalı çalış",
             .awakeLidNote: "kapak kapalıyken Mac çalışmaya devam eder\nyönetici parolası ister",
             .timerStyle: "zamanlayıcı boyutu",
@@ -15893,6 +15954,8 @@ enum L10n {
             .tabOrderLabel: "kolejność kart (przeciągnij)",
             .aboutClipboard: "przechowuje ostatnio skopiowany tekst. kliknij wiersz, aby skopiować ponownie. liczbę wpisów ustawisz w\u{00A0}ustawieniach.",
             .awakeKeepDisplay: "ekran pozostaje włączony",
+            .awakeLidEnabling: HangingWords.glued("włączanie trybu zamkniętej pokrywy…", shortWords: shortWords(.pl), trailing: trailingWords(.pl)),
+            .awakeLidDisabling: HangingWords.glued("wyłączanie trybu zamkniętej pokrywy…", shortWords: shortWords(.pl), trailing: trailingWords(.pl)),
             .awakeLid: "praca z\u{00A0}zamkniętą pokrywą",
             .awakeLidNote: "Mac pracuje z\u{00A0}zamkniętą pokrywą\nprosi o\u{00A0}hasło administratora",
             .timerStyle: "rozmiar minutnika",
@@ -16850,6 +16913,8 @@ enum L10n {
             .tabOrderLabel: "ترتيب التبويبات (بالسحب)",
             .aboutClipboard: "يحفظ ما نسخته مؤخراً. انقر صفاً لنسخه من جديد. عدد ما يُحفظ يُضبط في الإعدادات.",
             .awakeKeepDisplay: "إبقاء الشاشة مضاءة",
+            .awakeLidEnabling: HangingWords.glued("جارٍ تشغيل وضع الغطاء المغلق…", shortWords: shortWords(.ar), trailing: trailingWords(.ar)),
+            .awakeLidDisabling: HangingWords.glued("جارٍ إيقاف وضع الغطاء المغلق…", shortWords: shortWords(.ar), trailing: trailingWords(.ar)),
             .awakeLid: "العمل والغطاء مغلق",
             .awakeLidNote: "يواصل الـ Mac عمله والغطاء مغلق\nيطلب كلمة مرور المسؤول",
             .timerStyle: "حجم المؤقّت",
@@ -17849,6 +17914,8 @@ enum L10n {
             .tabOrderLabel: "סדר הלשוניות (בגרירה)",
             .aboutClipboard: "שומר את מה שהעתקתם לאחרונה. לחצו על שורה כדי להעתיק שוב. כמה לשמור נקבע בהגדרות.",
             .awakeKeepDisplay: "המסך נשאר דולק",
+            .awakeLidEnabling: HangingWords.glued("מצב מכסה סגור מופעל…", shortWords: shortWords(.he), trailing: trailingWords(.he)),
+            .awakeLidDisabling: HangingWords.glued("מצב מכסה סגור מכובה…", shortWords: shortWords(.he), trailing: trailingWords(.he)),
             .awakeLid: "עבודה עם מכסה סגור",
             .awakeLidNote: "ה-Mac ממשיך לעבוד עם מכסה סגור\nמבקש סיסמת מנהל",
             .timerStyle: "גודל הטיימר",
@@ -18848,6 +18915,8 @@ enum L10n {
             .tabOrderLabel: "ترتیب زبانه‌ها (با کشیدن)",
             .aboutClipboard: "آنچه را به‌تازگی کپی کرده‌اید نگه می‌دارد. روی ردیفی بزنید تا دوباره کپی شود. تعداد نگهداری در تنظیمات تعیین می‌شود.",
             .awakeKeepDisplay: "صفحه روشن بماند",
+            .awakeLidEnabling: HangingWords.glued("در حال روشن کردن حالت درِ بسته…", shortWords: shortWords(.fa), trailing: trailingWords(.fa)),
+            .awakeLidDisabling: HangingWords.glued("در حال خاموش کردن حالت درِ بسته…", shortWords: shortWords(.fa), trailing: trailingWords(.fa)),
             .awakeLid: "کار با درِ بسته",
             .awakeLidNote: "\u{200F}Mac با درِ بسته به کارش ادامه می‌دهد\nگذرواژهٔ مدیر می‌خواهد",
             .timerStyle: "اندازهٔ تایمر",
@@ -19847,6 +19916,8 @@ enum L10n {
             .tabOrderLabel: "ٹیبوں کی ترتیب (کھینچ کر)",
             .aboutClipboard: "حال ہی میں کاپی کیا ہوا محفوظ رکھتا ہے۔ دوبارہ کاپی کرنے کے لیے قطار پر کلک کریں۔ کتنا رکھنا ہے یہ ترتیبات میں طے ہوتا ہے۔",
             .awakeKeepDisplay: "اسکرین روشن رہے",
+            .awakeLidEnabling: HangingWords.glued("بند ڈھکن کا موڈ چلایا جا رہا ہے…", shortWords: shortWords(.ur), trailing: trailingWords(.ur)),
+            .awakeLidDisabling: HangingWords.glued("بند ڈھکن کا موڈ بند کیا جا رہا ہے…", shortWords: shortWords(.ur), trailing: trailingWords(.ur)),
             .awakeLid: "ڈھکن بند رکھ کر کام",
             .awakeLidNote: "\u{200F}Mac ڈھکن بند رکھ کر کام کرتا رہتا ہے\nمنتظم کا پاس ورڈ مانگتا ہے",
             .timerStyle: "ٹائمر کا حجم",
@@ -21381,6 +21452,8 @@ enum L10n {
             .aboutClipboard: "чува последње копиране текстове. кликните на\u{00A0}ред да\u{00A0}га поново копирате. колико их се чува – у\u{00A0}подешавањима.",
             .clipVisibleRows: "видљивих редова",
             .awakeKeepDisplay: "екран остаје упаљен",
+            .awakeLidEnabling: HangingWords.glued("укључивање режима затвореног поклопца…", shortWords: shortWords(.sr), trailing: trailingWords(.sr)),
+            .awakeLidDisabling: HangingWords.glued("искључивање режима затвореног поклопца…", shortWords: shortWords(.sr), trailing: trailingWords(.sr)),
             .awakeLid: "рад са\u{00A0}спуштеним поклопцем",
             .awakeLidNote: "Mac наставља да\u{00A0}ради са\u{00A0}спуштеним поклопцем\nтражи администраторску лозинку",
             .timerStyle: "величина тајмера",

@@ -3871,15 +3871,13 @@ struct PanelView: View {
                         awakeChip(option)
                     }
                 }
-                // lid — a permanent slot at the end of the row: nothing jumps around.
-                // with the module off, a click enables ∞ and the lid right away
                 Button {
                     awake.toggleLid()
                 } label: {
                     // same shape always: only color shows activity
                     lidGlyph(
                         closed: false,
-                        color: awake.lidApplied
+                        color: awake.lidApplied && awake.pendingLidTarget == nil
                             ? Theme.editing
                             : (awake.isActive ? Theme.textSecondary : Theme.textTertiary)
                     )
@@ -3888,8 +3886,15 @@ struct PanelView: View {
                 }
                 .buttonStyle(.plain)
                 .hoverHighlight(4)
-                .help(t(.awakeLid))
-                .disabled(awake.lidChanging)
+                .overlay(alignment: .bottomTrailing) {
+                    if awake.lidChanging {
+                        ProgressView().controlSize(.mini).scaleEffect(0.6).frame(width: 8, height: 8)
+                            .allowsHitTesting(false).accessibilityHidden(true)
+                    }
+                }
+                .help(t(awake.pendingLidTarget.map { $0 ? L10nKey.awakeLidEnabling : .awakeLidDisabling } ?? .awakeLid))
+                .accessibilityIdentifier("hop.awake.lid")
+                .accessibilityValue(t(awake.pendingLidTarget.map { $0 ? L10nKey.awakeLidEnabling : .awakeLidDisabling } ?? .awakeLid))
                 .padding(.leading, 1)
             }
             if let failure = awake.lidFailure {

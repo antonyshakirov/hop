@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Persoonlijke plugins: importeer je bestanden in de instellingen. Elke plugin begint uitgeschakeld en vraagt vóór uitvoering om toegang.
+- Koelmodi worden bij selectie toegepast; de monitor toont de bevestigde modus. Macs zonder ventilatoren geven dat aan.
+- De dekselschakelaar en Awake-timer werken onafhankelijk van elkaar.
+- Beweeg over klemborditems om tekst of afbeeldingen te bekijken. De sneltoets is standaard uitgeschakeld.
+
+[SDK](../plugins/sdk-v1.md) · [eigen plugin maken](../plugins/authoring.md)
+
 **Een piepklein menubalk-hulpje voor macOS: timer, tijdregistratie,
 takenlijst, slaapblokkering, systeemmonitor, klembordgeschiedenis,
 bestandsconverter, vensterbeheer, een lichte torrentclient,

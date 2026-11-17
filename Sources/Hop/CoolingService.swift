@@ -122,7 +122,7 @@ final class SystemCoolingService: CoolingService {
                     gate.finish(.success(value))
                 } catch { gate.finish(.failure(error)) }
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + request.replyTimeout) {
                 if gate.finish(.failure(HardwareReason.commandFailed)) { connection.invalidate() }
             }
         }

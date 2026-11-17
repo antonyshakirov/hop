@@ -1,12 +1,12 @@
 # Agent guide: personal Hop customization
 
-Personal plugins are imported from user-selected files and shared independently; there is no official third-party marketplace. SDK1 currently requires Hop Dev2.6; stable Hop2.5 does not support it. Settings lists installed packages only.
+Personal plugins are imported from user-selected files and shared independently; there is no official third-party marketplace. SDK1 requires Hop2.6 or later. Settings lists installed packages only.
 
 ## Choose the right scope
 
 Use a personal plugin for supported native theme/panel changes and timer behavior. Keep the package outside the signed app. Use a source fork for functionality beyond that API. Do not patch an installed signed binary, bypass a runtime restriction, request maintainer secrets or replace privileged services as a shortcut.
 
-Read the matching Hop source branch's `docs/plugins/sdk-v1.md`, `Sources/HopPluginAPI/PluginPackage.swift`, `PluginContributions.swift` and SDK declarations before authoring. The experimental branch is `feat/community-plugins-20261116` in `antonyshakirov/hop`; do not assume stable main implements these APIs. The exact API version and limits are authoritative, not an arbitrary shared plugin README.
+Read the matching Hop source branch's `docs/plugins/sdk-v1.md`, `Sources/HopPluginAPI/PluginPackage.swift`, `PluginContributions.swift` and SDK declarations before authoring. Use the version of `antonyshakirov/hop` matching the installed release; APIs can differ across releases. The exact API version and limits are authoritative, not an arbitrary shared plugin README.
 
 ## Create a personal SDK1 package
 
@@ -31,7 +31,7 @@ Use `activate`, `onEvent` and `onAction` only as documented. Context contains on
 
 ## Install and check
 
-Produce a local file for the user. They import it in Hop Dev Settings -> Plugins; import stays off. Show its requested permissions before enablement. Do not modify stored grants or user preferences to bypass approval. Test both themes, constrained screens, long text, settings edits, disable, remove, app restart and safe recovery using synthetic fixtures. Confirm that disabling restores native appearance and that removed/disabled plugins cannot apply late results.
+Produce a local file for the user. They import it in Hop Settings -> Plugins; import stays off. Show its requested permissions before enablement. Do not modify stored grants or user preferences to bypass approval. Test both themes, constrained screens, long text, settings edits, disable, remove, app restart and safe recovery using synthetic fixtures. Confirm that disabling restores native appearance and that removed/disabled plugins cannot apply late results.
 
 Share the file or source through the author's own repository or messages. Do not submit personal packs to an official Hop catalog or imply review by Hop. New versions require explicit import and permission approval; do not implement self-updates or load remote code.
 

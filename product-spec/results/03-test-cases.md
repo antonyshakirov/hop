@@ -182,6 +182,22 @@ delivery still requires the installed Dev check.
 
 - Personal plugins (2026-11-17): fresh settings show no suggested packages or catalog download action. Import stays off; card shows author/version/description/access, toggle requests approval, cancel leaves off, disable restores core UI and removal clears only that package. Search matches installed metadata case-insensitively. No-match, empty, long-text, both-theme and RTL layouts are checked.
 
+## Lid response and latest intent
+
+- Toggle while ON is held: a second actual toggle requests OFF immediately.
+  Pending state stays neutral/progress, not a disabled orange button; only an
+  acknowledged active lease is orange. On/off help is localized, including RTL.
+- Hold a fan configure, enqueue ON then OFF through the real controller: the
+  obsolete queued ON never reaches the backend; final sleep flag is false.
+  ON/OFF/ON must honor the final ON. No stale callback can change the latest intent.
+- OFF takes the next slot before queued fan edits. Unchanged manual fans survive
+  independent lid changes without target rewrites; changing fans under an owned
+  lid lease does not rewrite the sleep flag. Durable restoration and readback
+  remain required before update or completed-OFF acknowledgement.
+- Measure actual Dev command-to-readback with `--hardware-lid-check` on the open-lid test Mac; retain
+  local timings and verify the flag stays off after completion. A mock proves
+  ordering, not physical latency. Ordinary Hop and its active work are preserved.
+
 ## Pending patch follow-up: cooling and optional shortcut
 
 - Mode buttons apply without a submit action, remain unselected while the request

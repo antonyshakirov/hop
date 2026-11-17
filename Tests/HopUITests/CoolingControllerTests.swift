@@ -48,6 +48,7 @@ private final class ClientService: CoolingService {
     var root: HardwareCoordinator
     var owner = UUID()
     var calls: [HardwareRequest.Operation] = []
+    var configurations: [HardwareConfiguration] = []
     var registrationAttempts = 0
     var unregisterAttempts = 0
     var failUnregister = false
@@ -83,6 +84,7 @@ private final class ClientService: CoolingService {
         guard state == .enabled else { throw HardwareReason.serviceApproval }
         if failRequests { throw HardwareReason.commandFailed }
         calls.append(request.operation)
+        if let configuration = request.configuration { configurations.append(configuration) }
         if request.operation == .configure, holdNextConfigure {
             holdNextConfigure = false
             await withCheckedContinuation { configureGate = $0 }
@@ -101,6 +103,63 @@ private final class ClientService: CoolingService {
 
 @MainActor
 final class CoolingControllerTests: XCTestCase {
+    func testOnOffOnBehindFanControlOnlyDispatchesTheLastLidIntent() async throws {
+        let (controller, service) = try fixture()
+        await controller.refresh()
+        service.holdNextConfigure = true
+        controller.apply(.init(mode: .maximum))
+        for _ in 0..<1000 where service.configureGate == nil { await Task.yield() }
+        var started = 0
+        var tasks: [Task<Void, Never>] = []
+        for target in [true, false, true] {
+            tasks.append(Task { @MainActor in
+                started += 1
+                do { try await controller.setLid(target, until: nil) } catch {}
+            })
+            for _ in 0..<1000 where started != tasks.count { await Task.yield() }
+        }
+        service.releaseConfigure()
+        for task in tasks { await task.value }
+        XCTAssertEqual(service.configurations.map(\.lid), [false, true])
+        XCTAssertTrue(service.hardware.sleep)
+        XCTAssertTrue(controller.snapshot.lid)
+        try await controller.setLid(false, until: nil)
+        controller.apply(.init(mode: .automatic))
+        for _ in 0..<100 where controller.busy || controller.pendingFanPolicy != nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+    }
+
+    func testANewerOffDiscardsAnOnStillQueuedBehindFanControl() async throws {
+        let (controller, service) = try fixture()
+        await controller.refresh()
+        service.holdNextConfigure = true
+        controller.apply(.init(mode: .maximum))
+        for _ in 0..<100 where service.configureGate == nil { await Task.yield() }
+        XCTAssertNotNil(service.configureGate)
+        var onStarted = false, offStarted = false
+        let on = Task { @MainActor in
+            onStarted = true
+            do { try await controller.setLid(true, until: nil) } catch {}
+        }
+        for _ in 0..<100 where !onStarted { await Task.yield() }
+        let off = Task { @MainActor in
+            offStarted = true
+            do { try await controller.setLid(false, until: nil) } catch { XCTFail("Latest OFF failed: \(error)") }
+        }
+        for _ in 0..<100 where !offStarted { await Task.yield() }
+        service.releaseConfigure()
+        await on.value; await off.value
+        XCTAssertFalse(service.configurations.contains(where: \.lid),
+            "An obsolete queued ON must never reach the helper")
+        XCTAssertFalse(service.hardware.sleep)
+        XCTAssertFalse(controller.snapshot.lid)
+        controller.apply(.init(mode: .automatic))
+        for _ in 0..<100 where controller.busy || controller.pendingFanPolicy != nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+    }
+
     func testLegacyHelperCannotReceiveManualControlBeforeItsSafeUpdate() async throws {
         let (controller, service) = try fixture()
         service.revision = nil

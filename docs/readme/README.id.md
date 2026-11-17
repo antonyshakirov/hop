@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Plugin pribadi: impor berkas sendiri di pengaturan. Setiap plugin awalnya nonaktif dan meminta akses sebelum berjalan.
+- Mode pendinginan diterapkan saat dipilih; monitor menampilkan mode yang sudah dikonfirmasi. Mac tanpa kipas menampilkan keterangan yang jelas.
+- Sakelar tutup dan timer Awake bekerja secara terpisah.
+- Arahkan penunjuk ke entri papan klip untuk melihat teks atau gambar. Pintasannya nonaktif secara bawaan.
+
+[SDK](../plugins/sdk-v1.md) · [buat plugin sendiri](../plugins/authoring.md)
+
 **Pendamping mungil di menu bar macOS: timer, pelacak waktu, daftar tugas,
 anti-tidur, monitor sistem, riwayat clipboard, konverter file, pengelola
 jendela, klien torrent ringan, tangkapan layar, menggambar di layar,

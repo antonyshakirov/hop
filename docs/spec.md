@@ -1205,6 +1205,24 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   collection rather than Foundation process polling. Each command retains its
   three-second deadline and 16 KiB output limit; durable recovery and actual
   sleep-state verification still precede the confirmed lid indicator.
+  A lid click records the latest requested target immediately. Repeated clicks
+  remain available while a reply is pending; they toggle that target rather than
+  the old confirmed state. Pending changes use a neutral icon with progress and
+  localized on/off help; orange means confirmed active control only. The actual
+  applied flag and display dimmer change only after acknowledgement. An obsolete
+  queued enable is discarded after every wait and before registration/configure;
+  it cannot rearm hardware after a newer off. Pending lid work blocks updates and
+  takes the next request slot before queued fan changes. An already dispatched
+  request may finish; the latest intent follows it without overlapping writes.
+  Lid-only changes preserve currently manual fans only when their policy and
+  last verified effective targets match fresh computed targets. Curve, thermal
+  override and range changes still apply their required targets before sleep. Queued fan edits wait for lid-off confirmation. A combined low-level request
+  completes an actual fan-policy change before requesting closed-lid sleep;
+  owned enabled sleep flags are read rather
+  than rewritten on unrelated fan changes. The coordinator retains durable
+  write-ahead recovery and fresh readback; backend writes do not duplicate that
+  readback. Control replies allow the composed bounded restore sequence, while
+  status keeps its shorter timeout; no artificial delay precedes a command.
   A failed lid action reports its reason inline beneath Awake; it never opens
   the fan-control window. The latest lid intent owns the error; a lid retry
   clears it. Awake timer changes do not dismiss an unrelated lid failure. Busy copy explains that another Hop instance may own lid/cooling

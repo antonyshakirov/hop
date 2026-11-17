@@ -79,6 +79,7 @@ public final class HardwareCoordinator {
     private var unreadableRecovery = false
     private var owner: UUID?
     private var configuration: HardwareConfiguration?
+    private var appliedFanTargets: [Int: Double]?
     private var lastHeartbeat: Double = 0
     private var deadline: Double?
     private var reason: HardwareReason?
@@ -124,6 +125,7 @@ public final class HardwareCoordinator {
             do {
                 let speeds = try fanSpeeds(configuration.fan, observation)
                 try backend.setFans(speeds)
+                appliedFanTargets = speeds
             } catch {
                 if fanFailure == nil { fanFailure = backend.fanDiagnostic }
                 stop(error as? HardwareReason ?? .commandFailed)
@@ -152,12 +154,12 @@ public final class HardwareCoordinator {
             } else {
                 try journal.clear()
                 recovery = .init()
-                configuration = nil; owner = nil; deadline = nil
+                configuration = nil; appliedFanTargets = nil; owner = nil; deadline = nil
                 reason = .stopped
                 journal.release(); locked = false
             }
         } catch {
-            configuration = nil; owner = nil; deadline = nil
+            configuration = nil; appliedFanTargets = nil; owner = nil; deadline = nil
             reason = .restoreFailed
         }
     }
@@ -257,8 +259,9 @@ public final class HardwareCoordinator {
         }
         guard !unreadableRecovery else { throw HardwareReason.restoreFailed }
         var next = recovery
+        let sleepAlreadyDisabled = desired.lid ? try backend.sleepDisabled() : false
         if desired.lid, next.sleepDisabledBefore == nil {
-            guard try !backend.sleepDisabled() else { throw HardwareReason.busy }
+            guard !sleepAlreadyDisabled else { throw HardwareReason.busy }
             next.sleepDisabledBefore = false
         }
         if desired.fan.mode != .automatic, next.fans.isEmpty {
@@ -268,29 +271,37 @@ public final class HardwareCoordinator {
         try journal.save(next)
         recovery = next
         if desired.lid {
-            try backend.setSleepDisabled(true)
-            guard try backend.sleepDisabled() else { throw HardwareReason.commandFailed }
+            if !sleepAlreadyDisabled {
+                try backend.setSleepDisabled(true)
+                guard try backend.sleepDisabled() else { throw HardwareReason.commandFailed }
+            }
             next.lidOverrideApplied = true
             next.sleepOverrideRestored = false
             try journal.save(next)
             recovery = next
         }
-        if desired.fan.mode != .automatic {
-            do { try backend.setFans(speeds) }
+        let keepCurrentFans = configuration?.fan == desired.fan && appliedFanTargets == speeds && !recovery.fans.isEmpty
+            && Set(reading.fans.map(\.id)) == Set(recovery.fans) && reading.fans.allSatisfy(\.manual)
+        if desired.fan.mode != .automatic, !keepCurrentFans {
+            do { try backend.setFans(speeds); appliedFanTargets = speeds }
             catch {
                 if fanFailure == nil { fanFailure = backend.fanDiagnostic }
                 throw error
             }
-        } else if !recovery.fans.isEmpty {
+        } else if desired.fan.mode == .automatic, !recovery.fans.isEmpty {
             try backend.restoreFans(recovery.fans)
+            appliedFanTargets = nil
             next.fans = []
         }
         if !desired.lid, recovery.sleepDisabledBefore != nil {
             try restoreSleep()
+            next = recovery
             next.sleepDisabledBefore = nil
             next.lidOverrideApplied = false
             next.sleepOverrideRestored = false
             next.idleLidRelease = false
+            try journal.save(next)
+            recovery = next
         }
         try journal.save(next)
         recovery = next
@@ -327,7 +338,7 @@ public final class HardwareCoordinator {
 
     private func stop(_ reason: HardwareReason) {
         if reason != .stopped, stopCause == nil { stopCause = reason }
-        configuration = nil; owner = nil; deadline = nil
+        configuration = nil; appliedFanTargets = nil; owner = nil; deadline = nil
         do { try restore(reason: reason) }
         catch { self.reason = .restoreFailed }
     }
@@ -338,7 +349,7 @@ public final class HardwareCoordinator {
         guard !unreadableRecovery else { throw HardwareReason.restoreFailed }
         var failed = false
         if !recovery.fans.isEmpty {
-            do { try backend.restoreFans(recovery.fans); fanRecoveryFailure = nil }
+            do { try backend.restoreFans(recovery.fans); appliedFanTargets = nil; fanRecoveryFailure = nil }
             catch { failed = true; fanRecoveryFailure = backend.fanDiagnostic }
         }
         try restoreSleep(requestSleep: !failed)

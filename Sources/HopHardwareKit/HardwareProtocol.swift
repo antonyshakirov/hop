@@ -84,6 +84,11 @@ public struct HardwareConfiguration: Codable, Equatable, Sendable {
 }
 
 public struct HardwareRequest: Codable, Sendable {
+    /// Allows cold recovery, queued watchdog work and bounded control rollback; replies return as soon as ready.
+    public static let maximumReplyWait: TimeInterval = 60
+    public var replyTimeout: TimeInterval {
+        operation == .configure || operation == .stop ? Self.maximumReplyWait : 8
+    }
     public enum Operation: String, Codable, Sendable { case status, configure, renew, stop, prepareUpdate, finishUpdate }
     public let version: Int
     public let operation: Operation

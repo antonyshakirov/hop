@@ -2,6 +2,75 @@ import XCTest
 @testable import HopHardwareKit
 
 final class HardwareCoordinatorTests: XCTestCase {
+    func testUnchangedPoliciesStillApplyChangedEffectiveTargetsBeforeLidSleep() {
+        for scenario in 0..<3 {
+            let journal = Journal(), owner = UUID()
+            let backend = Backend(journal)
+            backend.reading.temperature = 65
+            let policy = scenario == 0 ? FanPolicy(mode: .fixed, targets: [0: 2000])
+                : FanPolicy(mode: scenario == 1 ? .curve : .maximum)
+            let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { 1 })
+            XCTAssertTrue(coordinator.handle(.init(.configure,
+                configuration: .init(lid: true, fan: policy)), owner: owner).lid)
+            backend.reading.fans = [.init(id: 0, rpm: 2000, minimum: 1000,
+                maximum: scenario == 2 ? 6500 : 6000, manual: true)]
+            backend.reading.lidClosed = true
+            if scenario == 0 { backend.reading.thermalSeverity = 2 }
+            if scenario == 1 { backend.reading.temperature = 80 }
+            backend.events = []
+            let status = coordinator.handle(.init(.configure, configuration: .init(fan: policy)), owner: owner)
+            XCTAssertFalse(status.lid); XCTAssertTrue(status.active)
+            XCTAssertEqual(backend.targets[0], scenario == 0 ? 6000 : scenario == 1 ? 5000 : 6500)
+            XCTAssertEqual(backend.events.first, "fan-targets")
+            XCTAssertEqual(backend.events.last, "lid-behavior")
+        }
+    }
+
+    func testATickRefreshesTheVerifiedTargetsUsedByLidOnlyChanges() {
+        let journal = Journal(), owner = UUID(), policy = FanPolicy(mode: .curve)
+        let backend = Backend(journal)
+        backend.reading.temperature = 65
+        let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { 1 })
+        _ = coordinator.handle(.init(.configure, configuration: .init(lid: true, fan: policy)), owner: owner)
+        backend.reading.fans = [.init(id: 0, rpm: 5000, minimum: 1000, maximum: 6000, manual: true)]
+        backend.reading.temperature = 80
+        coordinator.tick()
+        XCTAssertEqual(backend.targets[0], 5000)
+        backend.events = []
+        let off = coordinator.handle(.init(.configure, configuration: .init(fan: policy)), owner: owner)
+        XCTAssertFalse(off.lid); XCTAssertTrue(off.active)
+        XCTAssertFalse(backend.events.contains("fan-targets"))
+    }
+
+    func testLidOnlyChangesDoNotRewriteAnUnchangedManualFanPolicy() {
+        let journal = Journal(), owner = UUID(), policy = FanPolicy(mode: .maximum)
+        let backend = Backend(journal)
+        let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { 1 })
+        let on = coordinator.handle(.init(.configure, configuration: .init(lid: true, fan: policy)), owner: owner)
+        XCTAssertTrue(on.lid)
+        backend.reading.fans = [.init(id: 0, rpm: 6000, minimum: 1000, maximum: 6000, manual: true)]
+        backend.events = []
+        let off = coordinator.handle(.init(.configure, configuration: .init(fan: policy)), owner: owner)
+        XCTAssertFalse(off.lid); XCTAssertTrue(off.active)
+        XCTAssertEqual(off.policy.mode, .maximum)
+        XCTAssertEqual(backend.events.first, "restore-sleep")
+        XCTAssertFalse(backend.events.contains("fan-targets"))
+        XCTAssertEqual(backend.targets, [0: 6000])
+    }
+
+    func testChangingFansUnderAnOwnedLidLeaseDoesNotRewriteTheSleepFlag() {
+        let journal = Journal(), owner = UUID()
+        let backend = Backend(journal)
+        let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { 1 })
+        XCTAssertTrue(coordinator.handle(.init(.configure, configuration: .init(lid: true)), owner: owner).lid)
+        backend.events = []
+        let changed = coordinator.handle(.init(.configure,
+            configuration: .init(lid: true, fan: .init(mode: .maximum))), owner: owner)
+        XCTAssertTrue(changed.lid); XCTAssertTrue(backend.sleep)
+        XCTAssertFalse(backend.events.contains("disable-sleep"))
+        XCTAssertTrue(backend.events.contains("fan-targets"))
+    }
+
     func testAnApplyFailureRemainsVisibleAfterRecoveryRetries() throws {
         let journal = Journal(), owner = UUID()
         let backend = Backend(journal)

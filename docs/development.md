@@ -77,3 +77,13 @@ Auto-update watches `antonshakirov.com/downloads/hop/latest.json`
 the timer and awake are inactive;
 can be disabled in settings, or trigger an update manually with the button).
 Installation is possible only with a valid Ed25519 signature of the archive.
+
+### Installed Dev lid response check
+
+`/Applications/Hop Dev.app/Contents/MacOS/Hop --hardware-lid-check` is an
+explicit live check, not part of isolated unit tests. It requires an approved
+idle Dev hardware service, an open lid and an initially clear sleep-disable flag.
+It measures acknowledged ON/OFF, tests rapid latest-intent sequences and checks
+that OFF stays restored for twelve seconds. It temporarily changes only its own
+lid lease, verifies readback, and refuses existing ownership or pending recovery.
+The ordinary Hop application is never replaced or restarted by this check.

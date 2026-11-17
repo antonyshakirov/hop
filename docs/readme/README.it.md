@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Plugin personali: importa i tuoi file nelle impostazioni. Ogni plugin parte disattivato e chiede l’accesso prima di eseguire.
+- Le modalità di raffreddamento si applicano alla selezione; il monitor mostra quella confermata. I Mac senza ventole lo indicano.
+- Il pulsante del coperchio e il timer Awake funzionano in modo indipendente.
+- Passa sulle voci degli appunti per vedere testo o immagini. La scorciatoia è disattivata per impostazione predefinita.
+
+[SDK](../plugins/sdk-v1.md) · [crea il tuo plugin](../plugins/authoring.md)
+
 **Un piccolo compagno per la barra dei menu di macOS: timer, monitoraggio
 del tempo, cose da fare, anti-stop, monitor di sistema, cronologia degli
 appunti, convertitore di file, gestore delle finestre, un client torrent

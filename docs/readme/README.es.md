@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Plugins personales: importa tus archivos en los ajustes. Cada plugin empieza desactivado y pide acceso antes de ejecutarse.
+- Los modos de refrigeración se aplican al elegirlos; el monitor muestra el modo confirmado. Los Mac sin ventiladores lo indican.
+- El botón de la tapa y el temporizador Awake funcionan por separado.
+- Pasa el cursor sobre una entrada del portapapeles para ver el texto o la imagen. Su atajo está desactivado por defecto.
+
+[SDK](../plugins/sdk-v1.md) · [crear tu propio plugin](../plugins/authoring.md)
+
 **Un pequeño compañero de barra de menús para macOS: temporizador,
 seguimiento de tiempo, tareas pendientes, modo antisueño, monitor del
 sistema, historial del portapapeles, conversor de archivos, gestor de

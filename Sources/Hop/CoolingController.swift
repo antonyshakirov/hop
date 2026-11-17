@@ -27,6 +27,8 @@ final class CoolingController: ObservableObject {
     private var lastRenewal: Double = 0
     private var fanTask: Task<Void, Never>?
     private var fanRevision: UInt64 = 0
+    private var lidRevision: UInt64 = 0
+    @Published private(set) var pendingLidTarget: Bool?
     private var fanReadyAt: Double = 0
     private(set) var lastFanRequest: FanPolicy?
     private var snapshotRevision: UInt64 = 0
@@ -120,7 +122,7 @@ final class CoolingController: ObservableObject {
     }
 
     var blocksUpdates: Bool {
-        snapshot.active || snapshot.restorationPending || pendingFanPolicy != nil
+        snapshot.active || snapshot.restorationPending || pendingFanPolicy != nil || pendingLidTarget != nil
             || (!updating && (snapshot.reason == .busy || snapshot.maintenance || pendingTransaction != nil))
             || (busy && !updating)
     }
@@ -240,7 +242,7 @@ final class CoolingController: ObservableObject {
         if !debounce { fanReadyAt = 0 }
         else if firstPending { fanReadyAt = ProcessInfo.processInfo.systemUptime + 0.15 }
         guard fanTask == nil else { return }
-        let acquired = !busy
+        let acquired = !busy && pendingLidTarget == nil
         if acquired { busy = true }
         fanTask = Task { [weak self] in
             guard let self else { return }
@@ -258,17 +260,22 @@ final class CoolingController: ObservableObject {
         while pendingFanPolicy != nil {
             do {
                 if !ownsBusy {
-                    let deadline = ProcessInfo.processInfo.systemUptime + 12
-                    while busy && ProcessInfo.processInfo.systemUptime < deadline {
+                    let deadline = ProcessInfo.processInfo.systemUptime + 2 * HardwareRequest.maximumReplyWait + 1
+                    while (busy || pendingLidTarget != nil) && ProcessInfo.processInfo.systemUptime < deadline {
                         try await Task.sleep(nanoseconds: 20_000_000)
                     }
-                    guard !busy else { throw HardwareReason.busy }
+                    guard !busy, pendingLidTarget == nil else { throw HardwareReason.busy }
                     busy = true; ownsBusy = true
                 }
                 while ProcessInfo.processInfo.systemUptime < fanReadyAt {
                     try await Task.sleep(nanoseconds: 20_000_000)
                 }
                 try await waitForRequest()
+                if pendingLidTarget != nil {
+                    busy = false; ownsBusy = false
+                    try await Task.sleep(nanoseconds: 20_000_000)
+                    continue
+                }
                 guard let policy = pendingFanPolicy else { break }
                 let revision = fanRevision
                 if !ModuleActivation.isOn("system"), policy.mode != .automatic {
@@ -293,15 +300,22 @@ final class CoolingController: ObservableObject {
     func setLid(_ on: Bool, until: Date?) async throws {
         guard !preview, !updating else { throw HardwareReason.busy }
         guard pendingTransaction == nil, !snapshot.maintenance else { throw HardwareReason.busy }
+        lidRevision &+= 1
+        let revision = lidRevision
+        pendingLidTarget = on
+        defer { if revision == lidRevision { pendingLidTarget = nil; stopTimerIfIdle() } }
         if !on { desired.lid = false }
-        let deadline = ProcessInfo.processInfo.systemUptime + 12
+        let deadline = ProcessInfo.processInfo.systemUptime + HardwareRequest.maximumReplyWait + 1
         while busy && ProcessInfo.processInfo.systemUptime < deadline {
+            guard revision == lidRevision else { throw HardwareReason.stopped }
             try await Task.sleep(nanoseconds: 20_000_000)
         }
-        guard !busy else { service.invalidate(); throw HardwareReason.busy }
+        guard revision == lidRevision else { throw HardwareReason.stopped }
+        guard !busy else { throw HardwareReason.busy }
         busy = true
         defer { busy = false; stopTimerIfIdle() }
         try await waitForRequest()
+        guard revision == lidRevision else { throw HardwareReason.stopped }
         if on, service.state == .missing {
             do {
                 let lock = try lockFactory()
@@ -322,6 +336,7 @@ final class CoolingController: ObservableObject {
             let error = approvalRequired ? HardwareReason.serviceApproval : .serviceMissing
             failure = error; throw error
         }
+        guard revision == lidRevision else { throw HardwareReason.stopped }
         desired.lid = on; lidDeadline = on ? until : nil
         do { try await configure() }
         catch { failure = error as? HardwareReason ?? .commandFailed; throw error }
@@ -350,7 +365,7 @@ final class CoolingController: ObservableObject {
     private func reconcileModules() async {
         guard !ModuleActivation.isOn("system"), desired.fan.mode != .automatic, !updating else { return }
         desired.fan = .init()
-        let deadline = ProcessInfo.processInfo.systemUptime + 12
+        let deadline = ProcessInfo.processInfo.systemUptime + HardwareRequest.maximumReplyWait + 1
         while busy && ProcessInfo.processInfo.systemUptime < deadline {
             try? await Task.sleep(nanoseconds: 20_000_000)
         }
@@ -383,7 +398,7 @@ final class CoolingController: ObservableObject {
     }
 
     private func waitForRequest() async throws {
-        let deadline = ProcessInfo.processInfo.systemUptime + 9
+        let deadline = ProcessInfo.processInfo.systemUptime + HardwareRequest.maximumReplyWait + 1
         while inFlight && ProcessInfo.processInfo.systemUptime < deadline {
             try await Task.sleep(nanoseconds: 20_000_000)
         }
@@ -468,7 +483,7 @@ final class CoolingController: ObservableObject {
     }
 
     private func stopTimerIfIdle() {
-        if !viewOpen && !snapshot.active && !snapshot.restorationPending && !busy && pendingFanPolicy == nil
+        if !viewOpen && !snapshot.active && !snapshot.restorationPending && !busy && pendingFanPolicy == nil && pendingLidTarget == nil
             && snapshot.reason != .busy && !snapshot.maintenance && pendingTransaction == nil {
             timer?.invalidate(); timer = nil
         }

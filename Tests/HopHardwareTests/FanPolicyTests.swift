@@ -5,6 +5,13 @@ final class FanPolicyTests: XCTestCase {
     private let fans = [FanReading(id: 0, rpm: 1200, minimum: 1000, maximum: 6000, manual: false),
                         FanReading(id: 2, rpm: 1400, minimum: 1200, maximum: 7000, manual: false)]
 
+    func testControlReplyWaitIncludesBoundedFailureAndRestorationWork() {
+        let sleepCommands = 7.0, fanOperations = 2.0
+        XCTAssertGreaterThan(HardwareRequest(.configure).replyTimeout, (sleepCommands + fanOperations) * 3)
+        XCTAssertEqual(HardwareRequest(.stop).replyTimeout, HardwareRequest(.configure).replyTimeout)
+        XCTAssertLessThan(HardwareRequest(.status).replyTimeout, HardwareRequest(.configure).replyTimeout)
+    }
+
     func testManualControlUsesAnOldHelperRejectableRequestVersion() throws {
         let request = HardwareRequest(.configure, configuration: .init(fan: .init(mode: .maximum)))
         let data = try JSONEncoder().encode(request)

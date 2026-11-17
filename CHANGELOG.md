@@ -1,10 +1,11 @@
 # Hop - version history
 
-## 2.6.0 - Local preview
+## 2.6.0 - 2026-11-17
 
-- Optional plugins customize native panel layout and appearance, and automate timer breaks with explicit permissions. All plugins start disabled.
-- Import a local package or browse the signed community catalog on demand. Settings and selection survive app updates.
-- Plugin failures restore core UI; native menu recovery and safe mode remain available.
+- Personal plugins customize native panel layout, colors and timer behavior. Import packages manually in Settings; every plugin starts disabled and requires permission approval. There is no official third-party catalog or bundled plugin collection.
+- Cooling modes apply on selection. Fixed-speed sliders show current speed, target and range; the monitor shows only a confirmed manual mode. Improved bounded fan takeover, target readback and return to macOS; known fanless Macs have an explicit explanation.
+- The closed-lid switch and Awake timer are independent. Closed-lid mode releases after the system idle timeout when no app prevents sleep; battery, heat and crash safeguards remain active.
+- Clipboard entries show bounded text or image previews on hover. Its shortcut is disabled by default and can be enabled or cleared in Settings.
 
 ## 2.5.0 - 2026-11-16
 

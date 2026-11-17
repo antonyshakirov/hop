@@ -4,6 +4,70 @@ import XCTest
 
 @MainActor
 final class ProtectedLidIntentTests: XCTestCase {
+    func testAnEnableCancelledBeforeItsTaskStartsNeverCallsTheService() async {
+        let saved = Snapshot.active; Snapshot.active = true
+        defer { Snapshot.active = saved }
+        var calls: [Bool] = []
+        let awake = KeepAwakeController(demo: true, protectedLid: { on, _ in calls.append(on); return on })
+        awake.deactivate(silent: true)
+        awake.toggleLid(); awake.toggleLid()
+        for _ in 0..<100 { await Task.yield() }
+        XCTAssertEqual(calls, [false])
+        XCTAssertFalse(awake.lidApplied)
+        XCTAssertFalse(awake.lidChanging)
+    }
+
+    func testPendingOffKeepsActualStateSeparateAndCanBeReversed() async {
+        let saved = Snapshot.active; Snapshot.active = true
+        defer { Snapshot.active = saved }
+        var calls: [Bool] = []
+        var off: CheckedContinuation<Bool, Error>?
+        let awake = KeepAwakeController(demo: true, protectedLid: { on, _ in
+            calls.append(on)
+            if !on { return try await withCheckedThrowingContinuation { off = $0 } }
+            return true
+        })
+        awake.deactivate(silent: true)
+        awake.toggleLid()
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        XCTAssertTrue(awake.lidApplied)
+        awake.toggleLid()
+        XCTAssertEqual(awake.pendingLidTarget, false)
+        XCTAssertTrue(awake.lidApplied)
+        for _ in 0..<100 where off == nil { await Task.yield() }
+        awake.toggleLid()
+        XCTAssertEqual(awake.pendingLidTarget, true)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        off?.resume(returning: false)
+        for _ in 0..<100 { await Task.yield() }
+        XCTAssertEqual(calls, [true, false, true])
+        XCTAssertTrue(awake.lidApplied)
+        XCTAssertNil(awake.pendingLidTarget)
+    }
+
+    func testASecondToggleCancelsAnEnableStillWaitingForTheService() async {
+        let saved = Snapshot.active; Snapshot.active = true
+        defer { Snapshot.active = saved }
+        var calls: [Bool] = []
+        var gate: CheckedContinuation<Bool, Error>?
+        let awake = KeepAwakeController(demo: true, protectedLid: { on, _ in
+            calls.append(on)
+            if on { return try await withCheckedThrowingContinuation { gate = $0 } }
+            return false
+        })
+        awake.deactivate(silent: true)
+        awake.toggleLid()
+        for _ in 0..<100 where gate == nil { await Task.yield() }
+        XCTAssertNotNil(gate)
+        awake.toggleLid()
+        for _ in 0..<100 where calls.count < 2 { await Task.yield() }
+        XCTAssertEqual(calls, [true, false])
+        gate?.resume(returning: true)
+        for _ in 0..<100 { await Task.yield() }
+        XCTAssertFalse(awake.lidApplied)
+        XCTAssertFalse(awake.lidChanging)
+    }
+
     func testEnablingLidAloneDoesNotChooseInfinityOrAcquireAwake() async {
         let saved = Snapshot.active
         Snapshot.active = true

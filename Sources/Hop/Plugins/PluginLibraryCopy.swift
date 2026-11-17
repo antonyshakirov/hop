@@ -2,7 +2,7 @@ import Foundation
 import HopCore
 
 enum PluginLibraryResources {
-    static let contribute = URL(string: "https://github.com/antonyshakirov/hop/blob/feat/community-plugins-20261116/docs/plugins/authoring.md")!
+    static let contribute = URL(string: "https://github.com/antonyshakirov/hop/blob/main/docs/plugins/authoring.md")!
 }
 
 enum PluginLibraryCopy {

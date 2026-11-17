@@ -4,6 +4,15 @@
 
 # Hop
 
+**2.6.0**
+
+- Plugins personnels : importez vos fichiers dans les réglages. Chaque plugin est désactivé au départ et demande un accès avant de s’exécuter.
+- Les modes de refroidissement s’appliquent dès leur sélection ; le moniteur affiche le mode confirmé. Les Mac sans ventilateur l’indiquent.
+- Le bouton du capot et le minuteur Awake fonctionnent indépendamment.
+- Survolez une entrée du presse-papiers pour voir son texte ou son image. Son raccourci est désactivé par défaut.
+
+[SDK](../plugins/sdk-v1.md) · [créer son plugin](../plugins/authoring.md)
+
 **Un petit compagnon pour la barre de menus de macOS : minuteur, suivi du
 temps, liste de tâches, anti-veille, moniteur système, historique du
 presse-papiers, convertisseur de fichiers, gestionnaire de fenêtres, client
