@@ -216,11 +216,11 @@ copiados são guardados pelo nome (vários de uma vez aparecem como
 «nome +N»), e ao colar o arquivo em si volta. Senhas e outras entradas
 ocultas nunca são armazenadas.
 
+O atalho para abrir o histórico está desativado por padrão. Define-o em definições → atalhos. ⌘1–⌘9 copia um resultado; as setas e enter selecionam e copiam. Escape fecha a janela.
+
 <div align="center">
 <img src="https://hop.tools/screens/pt/clipboard.webp" width="420" alt="Hop – Histórico da área de transferência">
 </div>
-
-⌘⇧C abre o histórico numa janela de pesquisa. ⌘1–⌘9 copia um resultado; as setas e enter selecionam e copiam. escape fecha a janela.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

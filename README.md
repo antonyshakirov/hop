@@ -225,9 +225,7 @@ click to copy back or paste straight into the previous app. Copied files are
 kept by name (several at once show as "name +N"), and pasting puts the actual
 file back. Passwords and other concealed input are never stored.
 
-Press Command-Shift-C to search history in its own window. Command-1 through
-Command-9 copies a result; arrows and Return select and copy, and Escape closes
-the picker. The opening shortcut can be changed or disabled independently in settings.
+The shortcut for opening history is off by default. Assign it in settings → hotkeys. ⌘1–⌘9 copies a result; arrows and return select and copy. Escape closes the window.
 
 Hover over a text entry to preview its text or an image for a thumbnail.
 The preview appears after half a second and fits its content.

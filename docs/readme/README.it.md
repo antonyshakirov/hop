@@ -218,11 +218,11 @@ vengono ricordati per nome (più file insieme appaiono come «nome +N»), e
 incollando torna il file vero e proprio. Le password e gli altri input
 nascosti non vengono mai salvati.
 
+La scorciatoia per aprire la cronologia è disattivata per impostazione predefinita. Assegnala in impostazioni → scorciatoie. ⌘1–⌘9 copia un risultato; le frecce e invio selezionano e copiano. Escape chiude la finestra.
+
 <div align="center">
 <img src="https://hop.tools/screens/it/clipboard.webp" width="420" alt="Hop – Cronologia degli appunti">
 </div>
-
-⌘⇧C apre la cronologia in una finestra di ricerca. ⌘1–⌘9 copia un risultato; le frecce e invio selezionano e copiano. escape chiude la finestra.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

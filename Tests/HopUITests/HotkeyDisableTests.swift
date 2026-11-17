@@ -17,9 +17,48 @@ final class HotkeyDisableTests: XCTestCase {
         XCTAssertFalse(manager.isDefault(action))
         XCTAssertNil(HotkeyManager().combo(for: action))
         manager.reset(action)
-        XCTAssertNotNil(manager.combo(for: action))
+        XCTAssertNil(manager.combo(for: action))
         XCTAssertTrue(manager.isDefault(action))
     }
+    func testUnconfiguredClipboardIsOffAndResetReleasesACustomShortcut() throws {
+        let action = try XCTUnwrap(ModuleCatalog.open("clipboard"))
+        let defaults = UserDefaults.standard, manager = HotkeyManager.shared
+        let saved = defaults.object(forKey: action.storageKey)
+        let enabled = ModuleActivation.isOn("clipboard")
+        defer {
+            manager.disable(action)
+            if let saved { defaults.set(saved, forKey: action.storageKey) }
+            else { defaults.removeObject(forKey: action.storageKey) }
+        }
+        defaults.removeObject(forKey: action.storageKey)
+        XCTAssertNil(manager.combo(for: action))
+        let combo = HotkeyManager.Combo(keyCode: UInt32(kVK_F20), modifiers: UInt32(controlKey | optionKey | shiftKey | cmdKey))
+        XCTAssertTrue(manager.setCombo(combo, for: action))
+        manager.setHandler(action) {}
+        XCTAssertEqual(HotkeyManager().combo(for: action), combo)
+        manager.reset(action)
+        XCTAssertNil(manager.combo(for: action))
+        XCTAssertEqual(ModuleActivation.isOn("clipboard"), enabled)
+        var available: EventHotKeyRef?
+        let result = RegisterEventHotKey(combo.keyCode, combo.modifiers,
+            EventHotKeyID(signature: 0x48505453, id: 3), GetEventDispatcherTarget(), 0, &available)
+        if let available { UnregisterEventHotKey(available) }
+        XCTAssertEqual(result, noErr)
+    }
+
+    func testExplicitUserChoiceSurvivesTheNewDisabledDefault() throws {
+        let action = try XCTUnwrap(ModuleCatalog.open("clipboard"))
+        let defaults = UserDefaults.standard
+        let saved = defaults.object(forKey: action.storageKey)
+        defer {
+            if let saved { defaults.set(saved, forKey: action.storageKey) }
+            else { defaults.removeObject(forKey: action.storageKey) }
+        }
+        let selected = HotkeyManager.Combo(keyCode: UInt32(kVK_ANSI_C), modifiers: UInt32(cmdKey | shiftKey))
+        defaults.set(selected.storage, forKey: action.storageKey)
+        XCTAssertEqual(HotkeyManager().combo(for: action), selected)
+    }
+
     func testNativeClearButtonReleasesTheReservedCombination() throws {
         let action = try XCTUnwrap(ModuleCatalog.modules.first { $0.id == "clipboard" }?.actions.first)
         let defaults = UserDefaults.standard

@@ -213,11 +213,11 @@ aplikacji. Skopiowane pliki są pamiętane po nazwie (kilka naraz pokazuje
 się jako „nazwa +N"), a wklejenie przywraca sam plik. Hasła i inne ukryte
 dane wejściowe nigdy nie są zapisywane.
 
+Skrót otwierający historię jest domyślnie wyłączony. Ustaw go w ustawieniach → skróty. ⌘1–⌘9 kopiuje wynik; strzałki i enter wybierają i kopiują. Escape zamyka okno.
+
 <div align="center">
 <img src="https://hop.tools/screens/pl/clipboard.webp" width="420" alt="Hop – Historia schowka">
 </div>
-
-⌘⇧C otwiera historię w oknie wyszukiwania. ⌘1–⌘9 kopiuje wynik; strzałki i enter wybierają i kopiują. escape zamyka okno.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

@@ -193,11 +193,11 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 或直接粘贴到上一个应用。复制的文件会按文件名记住（多个文件显示为
 「名称 +N」），粘贴时会还原文件本身。密码等隐藏输入绝不会被记录。
 
+打开历史记录的快捷键默认关闭。可在设置 → 快捷键中指定。⌘1–⌘9 复制对应结果；方向键选择，回车键复制。escape 关闭窗口。
+
 <div align="center">
 <img src="https://hop.tools/screens/zh/clipboard.webp" width="420" alt="Hop – 剪贴板历史">
 </div>
-
-⌘⇧C 打开独立的历史记录搜索窗口。⌘1–⌘9 复制对应结果；方向键选择，回车键复制。escape 关闭窗口。
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

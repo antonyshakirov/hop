@@ -207,11 +207,11 @@ CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク�
 ペーストするとファイルそのものが戻ります。パスワードなどの秘匿入力は
 一切保存されません。
 
+履歴を開くショートカットは初期状態では無効です。設定 → ショートカットで割り当てられます。⌘1–⌘9 で対応する項目をコピーし、矢印キーで選択して return でコピーできます。escape で閉じます。
+
 <div align="center">
 <img src="https://hop.tools/screens/ja/clipboard.webp" width="420" alt="Hop – クリップボード履歴">
 </div>
-
-⌘⇧C で履歴の検索ウインドウを開きます。⌘1–⌘9 で対応する項目をコピーし、矢印キーで選択して return でコピーできます。escape で閉じます。
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

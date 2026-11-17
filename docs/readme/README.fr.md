@@ -221,11 +221,11 @@ Les fichiers copiés sont retenus par leur nom (plusieurs à la fois
 apparaissent en « nom +N »), et le collage ramène le fichier lui-même. Les
 mots de passe et autres saisies masquées ne sont jamais enregistrés.
 
+Le raccourci pour ouvrir l’historique est désactivé par défaut. Définissez-le dans réglages → raccourcis. ⌘1–⌘9 copie un résultat ; les flèches et entrée sélectionnent et copient. Échap ferme la fenêtre.
+
 <div align="center">
 <img src="https://hop.tools/screens/fr/clipboard.webp" width="420" alt="Hop – Historique du presse-papiers">
 </div>
-
-⌘⇧C ouvre une fenêtre de recherche dans l’historique. ⌘1–⌘9 copie un résultat ; les flèches et entrée sélectionnent et copient. échap ferme la fenêtre.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

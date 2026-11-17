@@ -214,11 +214,11 @@ Kopyalanan dosyalar adıyla saklanır (birden fazlası «ad +N» olarak görün�
 ve yapıştırınca dosyanın kendisi geri gelir. Parolalar ve diğer gizli
 girişler asla saklanmaz.
 
+Geçmişi açma kısayolu varsayılan olarak kapalıdır. Ayarlar → kısayollar bölümünden atayın. ⌘1–⌘9 bir sonucu kopyalar; ok tuşları ve enter seçip kopyalar. Escape pencereyi kapatır.
+
 <div align="center">
 <img src="https://hop.tools/screens/tr/clipboard.webp" width="420" alt="Hop – Pano geçmişi">
 </div>
-
-⌘⇧C geçmişi arama penceresinde açar. ⌘1–⌘9 bir sonucu kopyalar; ok tuşları ve enter seçip kopyalar. escape pencereyi kapatır.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

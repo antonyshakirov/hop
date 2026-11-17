@@ -1447,7 +1447,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and ready-image conditions both precede presentation. Main-thread rendering
   does not read or decode image files.
 
-- **Quick picker**: Command-Shift-C opens an independent, searchable history
+- **Quick picker**: A user-assigned shortcut opens an independent, searchable history
   window; the combination can be changed in the existing shortcut settings.
   It opens history without issuing Copy to the preceding app. Command-1 through
   Command-9 copies the corresponding first nine search results, in history
@@ -8075,9 +8075,15 @@ The local Hop Dev2.6 preview follows [Plugin SDK v1](plugins/sdk-v1.md). Plugins
 
 - A clear icon beside the clipboard shortcut unregisters only that shortcut.
   Clipboard capture and history remain enabled. The explicit disabled state
-  persists across launches; missing preferences keep the shipped default and
-  Reset restores it. Clearing also cancels an in-progress recording and removes
-  a stale shortcut-conflict warning.
+  persists across launches. The opening shortcut is disabled by default: missing
+  preferences reserve no global key. Reset returns it to disabled. Explicit user
+  assignments survive the default change; an empty stored value stays disabled.
+  Clearing also cancels an in-progress recording and removes a stale
+  shortcut-conflict warning.
+
+  Clipboard history remains available from the panel when its global opening
+  shortcut is off. The recorder stays visible with no combination assigned.
+  Cmd1–Cmd9 stay local to the opened picker and claim no global shortcut.
 
 ### Developer GUI launch environment
 

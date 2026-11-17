@@ -216,11 +216,11 @@ app. Gekopieerde bestanden worden op naam onthouden (meerdere tegelijk
 verschijnen als «naam +N»), en bij het plakken komt het bestand zelf terug.
 Wachtwoorden en andere verborgen invoer worden nooit opgeslagen.
 
+De sneltoets voor de geschiedenis staat standaard uit. Stel hem in bij instellingen → sneltoetsen. ⌘1–⌘9 kopieert een resultaat; pijltjes en enter selecteren en kopiëren. Escape sluit het venster.
+
 <div align="center">
 <img src="https://hop.tools/screens/nl/clipboard.webp" width="420" alt="Hop – Klembordgeschiedenis">
 </div>
-
-⌘⇧C opent de geschiedenis in een zoekvenster. ⌘1–⌘9 kopieert een resultaat; pijltjes en enter selecteren en kopiëren. escape sluit het venster.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

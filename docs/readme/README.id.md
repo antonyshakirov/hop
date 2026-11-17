@@ -217,11 +217,11 @@ sebelumnya. File yang disalin diingat berdasarkan namanya (beberapa sekaligus
 tampil sebagai «nama +N»), dan menempel akan mengembalikan file itu sendiri.
 Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
 
+Pintasan untuk membuka riwayat mati secara default. Atur di pengaturan → pintasan. ⌘1–⌘9 menyalin hasil; tombol panah dan enter memilih dan menyalin. Escape menutup jendela.
+
 <div align="center">
 <img src="https://hop.tools/screens/id/clipboard.webp" width="420" alt="Hop – Riwayat clipboard">
 </div>
-
-⌘⇧C membuka riwayat di jendela pencarian. ⌘1–⌘9 menyalin hasil; tombol panah dan enter memilih dan menyalin. escape menutup jendela.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

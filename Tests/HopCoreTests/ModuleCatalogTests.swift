@@ -56,7 +56,7 @@ final class ModuleCatalogTests: XCTestCase {
             Set(withDefaults),
             ["hotkey_timer", "hotkey_awake", "hotkey_color", "hotkey_ocr", "hotkey_keyboardLock",
              "hotkey_shot", "hotkey_annotate", "hotkey_annotate_pass", "hotkey_convert",
-             "hotkey_archive", "hotkey_uninstall", "hotkey_clipboard"]
+             "hotkey_archive", "hotkey_uninstall"]
         )
         XCTAssertNotNil(ModuleCatalog.panelAction.defaultCombo)
     }
@@ -149,11 +149,10 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertNotNil(ModuleCatalog.open("clipboard"), "the quick picker has its own window")
     }
 
-    func testClipboardHasConfigurableHistoryShortcut() {
+    func testClipboardHasConfigurableHistoryShortcutDisabledByDefault() {
         let action = ModuleCatalog.open("clipboard")
         XCTAssertEqual(action?.storageKey, "hotkey_clipboard")
-        XCTAssertEqual(action?.defaultCombo, ModuleCombo(
-            keyCode: 8, modifiers: ModuleCombo.command | ModuleCombo.shift))
+        XCTAssertNil(action?.defaultCombo)
         XCTAssertFalse(HotkeyActivation.registrable(inactiveModules: ["clipboard"]).contains {
             $0.storageKey == "hotkey_clipboard"
         })

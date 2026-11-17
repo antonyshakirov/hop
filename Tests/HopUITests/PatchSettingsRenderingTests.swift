@@ -63,6 +63,14 @@ final class PatchSettingsRenderingTests: XCTestCase {
                 try save(monitor, name: "monitor-settings-\(lang.rawValue)-\(dark ? "dark" : "light")")
                 link.performClick(nil); XCTAssertEqual(opened, 1)
                 monitorWindow.close()
+                defaults.removeObject(forKey: clipboard.storageKey)
+                manager.setHandler(clipboard) {}
+                let (offWindow, offKeys) = try await host(model, section: "hotkeys", dark: dark)
+                let disabled = try XCTUnwrap(buttons(offKeys).first { $0.identifier?.rawValue == "hop.hotkey.clear." + clipboard.storageKey })
+                XCTAssertFalse(disabled.isEnabled)
+                XCTAssertNil(manager.combo(for: clipboard))
+                try save(offKeys, name: "hotkeys-default-off-\(lang.rawValue)-\(dark ? "dark" : "light")")
+                offWindow.close()
                 defaults.set("768:90", forKey: clipboard.storageKey)
                 manager.setHandler(clipboard) {}
                 let (keysWindow, keys) = try await host(model, section: "hotkeys", dark: dark)

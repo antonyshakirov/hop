@@ -218,11 +218,11 @@ anterior. Los archivos copiados se guardan por su nombre (varios a la vez
 aparecen como «nombre +N»), y al pegar vuelve el archivo en sí. Las
 contraseñas y otras entradas ocultas nunca se guardan.
 
+El atajo para abrir el historial está desactivado por defecto. Asígnalo en ajustes → atajos. ⌘1–⌘9 copia un resultado; las flechas y enter seleccionan y copian. Escape cierra la ventana.
+
 <div align="center">
 <img src="https://hop.tools/screens/es/clipboard.webp" width="420" alt="Hop – Historial del portapapeles">
 </div>
-
-⌘⇧C abre el historial en una ventana de búsqueda. ⌘1–⌘9 copia un resultado; las flechas y enter seleccionan y copian. escape cierra la ventana.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

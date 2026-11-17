@@ -217,11 +217,11 @@ App. Kopierte Dateien werden mit Namen gemerkt (mehrere zeigen sich als
 „Name +N“), und beim Einfügen kommt die eigentliche Datei zurück. Passwörter
 und andere verdeckte Eingaben werden niemals gespeichert.
 
+Das Kürzel zum Öffnen des Verlaufs ist standardmäßig aus. Lege es unter Einstellungen → Kurzbefehle fest. ⌘1–⌘9 kopiert einen treffer; pfeiltasten und enter wählen und kopieren. Escape schließt das fenster.
+
 <div align="center">
 <img src="https://hop.tools/screens/de/clipboard.webp" width="420" alt="Hop – Zwischenablage-Verlauf">
 </div>
-
-⌘⇧C öffnet die suche im eigenen verlaufsfenster. ⌘1–⌘9 kopiert einen treffer; pfeiltasten und enter wählen und kopieren. escape schließt das fenster.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

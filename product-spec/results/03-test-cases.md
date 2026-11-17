@@ -193,7 +193,7 @@ delivery still requires the installed Dev check.
   cooling window. Monitor settings label opens cooling; its switch only controls
   visibility. Check English/Russian in light/dark appearances.
 - Clearing the clipboard shortcut releases its Carbon registration immediately,
-  keeps clipboard history enabled, persists after restart and resets to default.
+  keeps clipboard history enabled, persists after restart and resets to the disabled default.
   The clear action is reachable in the actual settings panel and has a localized
   tooltip/accessibility label.
 - Lid toggle alone leaves Awake inactive with no selected duration or deadline.
@@ -222,3 +222,10 @@ delivery still requires the installed Dev check.
   are absent. Arguments with spaces and shell metacharacters stay literal, child
   errors propagate, and invalid/missing HOME or failed/invalid temporary discovery
   cannot launch a child. All installer GUI branches use the same boundary.
+
+- Clipboard global history shortcut defaults off for fresh installs and existing
+  users without an explicit assignment. Existing explicit custom or old-default
+  assignments remain intact. Assigning works, clearing releases the Carbon key,
+  and Reset returns to no global binding without disabling capture/history.
+  Actual settings render the unassigned recorder and disabled clear action in
+  English/Russian/German/French and both appearances. Picker Cmd1–9 stay local.

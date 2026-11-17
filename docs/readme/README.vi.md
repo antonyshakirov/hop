@@ -210,11 +210,11 @@ chép được nhớ theo tên (nhiều tệp cùng lúc hiện là «tên +N»)
 chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác không bao giờ
 được lưu.
 
+Phím tắt mở lịch sử mặc định tắt. Gán phím trong cài đặt → phím tắt. ⌘1–⌘9 sao chép kết quả; phím mũi tên và enter để chọn và sao chép. Escape đóng cửa sổ.
+
 <div align="center">
 <img src="https://hop.tools/screens/vi/clipboard.webp" width="420" alt="Hop – Lịch sử clipboard">
 </div>
-
-⌘⇧C mở cửa sổ tìm kiếm lịch sử. ⌘1–⌘9 sao chép kết quả; phím mũi tên và enter để chọn và sao chép. escape đóng cửa sổ.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 

@@ -198,11 +198,11 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 기억하고(여러 개면 「이름 +N」), 붙여넣으면 파일 자체가 돌아옵니다. 암호를
 비롯한 가려진 입력은 절대 저장되지 않습니다.
 
+기록을 여는 단축키는 기본적으로 꺼져 있습니다. 설정 → 단축키에서 지정하세요. ⌘1–⌘9로 해당 결과를 복사하거나 화살표로 선택하고 return으로 복사합니다. Escape로 창을 닫습니다.
+
 <div align="center">
 <img src="https://hop.tools/screens/ko/clipboard.webp" width="420" alt="Hop – 클립보드 히스토리">
 </div>
-
-⌘⇧C로 기록 검색 창을 엽니다. ⌘1–⌘9로 해당 결과를 복사하거나 화살표로 선택하고 return으로 복사합니다. escape로 창을 닫습니다.
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
