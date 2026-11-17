@@ -382,3 +382,59 @@ test('missing system-extension permission remains a failure with XML display', a
   const result = await rejected(f);
   assert.match(result.output, /cannot install its network filter/);
 });
+
+
+test('GUI launch strips build credentials and preserves literal arguments', async t => {
+  const root = await mkdtemp(join(process.env.TMPDIR || '/private/tmp', 'hop-gui-launch-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const home = join(root, 'owner home'); await mkdir(home);
+  const helper = join(repository, 'scripts/gui-launch.sh');
+  const env = { HOME: home, USER: 'build-user', LOGNAME: 'build-user',
+    PATH: '/temporary/build-wrapper:/usr/bin:/bin', TMPDIR: '/private/tmp/build-only',
+    CFFIXED_USER_HOME: '/private/tmp/build-home', APPLE_ID: 'fixture@example.invalid',
+    APPLE_TEAM_ID: 'fixture-team', APPLE_APP_PASSWORD: 'fixture-notary-password',
+    HOP_NOTARIZE: '1', HOP_BUILD_OUTPUT: '/private/tmp/build-only/dist',
+    HOP_TEST_TOKEN: 'fixture-token', DYLD_INSERT_LIBRARIES: '/private/tmp/fixture.dylib' };
+  const result = await execute('/bin/zsh', ['-f', '-c', 'source "$1"; hop_gui_run /usr/bin/env', 'fixture', helper], { env });
+  const actual = Object.fromEntries(result.stdout.trim().split('\n').map(line => {
+    const at = line.indexOf('='); return [line.slice(0, at), line.slice(at + 1)];
+  }));
+  const user = (await execute('/usr/bin/id', ['-un'])).stdout.trim();
+  const temporary = (await execute('/usr/bin/getconf', ['DARWIN_USER_TEMP_DIR'])).stdout.trim();
+  assert.deepEqual(actual, { HOME: home, USER: user, LOGNAME: user,
+    PATH: '/usr/bin:/bin:/usr/sbin:/sbin', TMPDIR: temporary });
+  const args = ['with spaces', '$(printf unwanted)', '; echo unwanted'];
+  const literal = await execute('/bin/zsh', ['-f', '-c',
+    'source "$1"; shift; hop_gui_run /usr/bin/printf "<%s>\\n" "$@"', 'fixture', helper, ...args], { env });
+  assert.equal(literal.stdout, args.map(value => `<${value}>\n`).join(''));
+  await assert.rejects(execute('/bin/zsh', ['-f', '-c', 'source "$1"; hop_gui_run /usr/bin/false', 'fixture', helper], { env }), error => error.code === 1);
+});
+
+
+test('GUI launch fails closed before starting a child with invalid owner or temporary state', async t => {
+  const root = await mkdtemp(join(process.env.TMPDIR || '/private/tmp', 'hop-gui-reject-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const helper = join(repository, 'scripts/gui-launch.sh');
+  const marker = join(root, 'must-not-exist');
+  const file = join(root, 'not-a-directory'); await writeFile(file, 'fixture');
+  for (const bad of ['', 'relative', join(root, 'missing'), file]) {
+    await assert.rejects(execute('/bin/zsh', ['-f', '-c',
+      'source "$1"; hop_gui_temporary_directory() { /usr/bin/printf "%s" "$FAKE_TMP"; }; hop_gui_run /usr/bin/touch "$2"',
+      'fixture', helper, marker], { env: { HOME: root, FAKE_TMP: bad } }));
+  }
+  await assert.rejects(execute('/bin/zsh', ['-f', '-c',
+    'source "$1"; hop_gui_temporary_directory() { return 1; }; hop_gui_run /usr/bin/touch "$2"',
+    'fixture', helper, marker], { env: { HOME: root } }));
+  for (const home of ['', 'relative', join(root, 'missing'), file]) {
+    await assert.rejects(execute('/bin/zsh', ['-f', '-c',
+      'source "$1"; hop_gui_run /usr/bin/touch "$2"', 'fixture', helper, marker], { env: { HOME: home } }));
+  }
+  await assert.rejects(readFile(marker), error => error.code === 'ENOENT');
+});
+
+test('all developer installer launch routes use the clean GUI boundary', async () => {
+  const source = await readFile(join(repository, 'scripts/build-app.sh'), 'utf8');
+  assert.match(source, /source scripts\/gui-launch\.sh/);
+  assert.equal((source.match(/hop_gui_run \/usr\/bin\/open "\$TARGET"/g) || []).length, 3);
+  assert.doesNotMatch(source, /^\s*open "\$TARGET"/m);
+});

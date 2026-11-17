@@ -10,6 +10,7 @@
 #   HOP_NOTARIZE=1 is required to install a Dev build containing the hardware service.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+source scripts/gui-launch.sh
 
 DEV=0
 INSTALL=0
@@ -261,11 +262,11 @@ if [[ $INSTALL == 1 ]]; then
     rm -rf "$TARGET"
     cp -R "$APP" "$TARGET"
     if [[ $DEV == 1 && $SHOW_RELEASE_CARD == 1 ]]; then
-        open "$TARGET" --args --show-release-card
+        hop_gui_run /usr/bin/open "$TARGET" --args --show-release-card
     elif [[ $DEV == 1 && $OPEN_SOUND == 1 ]]; then
-        open "$TARGET" --args --open-sound
+        hop_gui_run /usr/bin/open "$TARGET" --args --open-sound
     else
-        open "$TARGET"
+        hop_gui_run /usr/bin/open "$TARGET"
     fi
     echo "installed and launched: $TARGET"
 fi

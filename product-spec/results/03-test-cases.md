@@ -216,3 +216,9 @@ delivery still requires the installed Dev check.
   the normal stop confirmation and explicitly releases both independent controls.
   A late pending-enable reply cannot rearm the lid after module-off. Ordinary
   timer/moon off still leaves the lid lease independent.
+
+- Developer GUI launch executes a real child with an exact environment allowlist;
+  fake notary credentials, test tokens, CFFIXED_USER_HOME and build PATH/TMPDIR
+  are absent. Arguments with spaces and shell metacharacters stay literal, child
+  errors propagate, and invalid/missing HOME or failed/invalid temporary discovery
+  cannot launch a child. All installer GUI branches use the same boundary.

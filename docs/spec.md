@@ -8078,3 +8078,13 @@ The local Hop Dev2.6 preview follows [Plugin SDK v1](plugins/sdk-v1.md). Plugins
   persists across launches; missing preferences keep the shipped default and
   Reset restores it. Clearing also cancels an in-progress recording and removes
   a stale shortcut-conflict warning.
+
+### Developer GUI launch environment
+
+- Developer installation launches every GUI route through a minimal environment:
+  the original owner HOME, OS account name, system command PATH and the OS
+  per-user temporary directory. Build/notary credentials, DYLD variables,
+  CFFIXED_USER_HOME and build-only paths never enter the launched application.
+  Invalid owner or temporary-directory discovery fails before launching; no
+  inherited temporary-directory fallback is used. Literal arguments and child
+  exit failures are preserved. This does not change hardware update barriers.
