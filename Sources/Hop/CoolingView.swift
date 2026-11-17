@@ -45,7 +45,7 @@ struct CoolingView: View {
                     ProgressView().controlSize(.small)
                 }
             }
-            if offersFanControls {
+            if allowsFanControls {
                 ForEach(controller.snapshot.fans) { fan in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
@@ -57,11 +57,13 @@ struct CoolingView: View {
                         HStack {
                             Text("\(Int(fan.minimum))–\(Int(fan.maximum)) rpm")
                             Spacer()
-                            Text(fan.manual && !controller.snapshot.active
-                                 ? t(.coolingExternal) : title(controller.snapshot.policy.mode))
+                            if offersFanControls {
+                                Text(fan.manual && !controller.snapshot.active
+                                     ? t(.coolingExternal) : title(controller.snapshot.policy.mode))
+                            }
                         }
                         .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
-                        if draft.mode == .fixed {
+                        if offersFanControls && draft.mode == .fixed {
                             HStack {
                                 if Snapshot.active {
                                     Capsule().fill(Theme.chipBg).frame(height: 4)
@@ -77,6 +79,8 @@ struct CoolingView: View {
                     }
                     .padding(12).background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 8))
                 }
+            }
+            if offersFanControls {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                     ForEach(FanPolicy.Mode.allCases, id: \.self) { mode in
                         Button {

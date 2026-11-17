@@ -181,3 +181,38 @@ delivery still requires the installed Dev check.
 - Standard notarized Dev installation embeds a sandbox XPC with distinct identifier; signed app bytes remain unchanged after external package changes.
 
 - Personal plugins (2026-11-17): fresh settings show no suggested packages or catalog download action. Import stays off; card shows author/version/description/access, toggle requests approval, cancel leaves off, disable restores core UI and removal clears only that package. Search matches installed metadata case-insensitively. No-match, empty, long-text, both-theme and RTL layouts are checked.
+
+## Pending patch follow-up: cooling and optional shortcut
+
+- Apple-style SMC modes: uppercase and lowercase mode keys work without `Ftst`;
+  transient takeover writes retry within the existing bound; release accepts
+  automatic readback 0 or 3. Unknown schemas reject writes and Intel release
+  preserves unrelated mask bits. Real Pro takeover/restoration remains a
+  separate hardware acceptance check.
+- Unsupported control with valid fan readings shows RPM and limits in a compact
+  cooling window. Monitor settings label opens cooling; its switch only controls
+  visibility. Check English/Russian in light/dark appearances.
+- Clearing the clipboard shortcut releases its Carbon registration immediately,
+  keeps clipboard history enabled, persists after restart and resets to default.
+  The clear action is reachable in the actual settings panel and has a localized
+  tooltip/accessibility label.
+- Lid toggle alone leaves Awake inactive with no selected duration or deadline.
+  Turning Awake off or switching durations leaves the confirmed lid lease alone;
+  explicit lid-off and shutdown still release it. Battery/heat/heartbeat recovery
+  remains in place. Ordinary idle sleep under a lid lease is not certified by
+  these UI state tests; physical device acceptance remains pending.
+
+- Idle lid release: known expired HID idle + current source sleep timeout + no
+  blocking assertions releases only the lid override without demand sleep.
+  Unknown/malformed/active assertion (including unknown types), sleep=0 and open
+  lid do not trigger. A durable idle marker precedes every restore write, retries
+  and restarts never demand sleep after that marker, and a failed marker save
+  prevents writes even on retry/shutdown. Manual fans survive release and the old
+  lid deadline; UI clears its lid indicator and future fan changes do not rearm it.
+  Hardware acceptance still requires music/agent assertions and actual closed-lid
+  sleep/wake on a Mac; synthetic tests alone do not mark this PASS.
+
+- Disabling the whole Awake module counts active or pending lid work, requests
+  the normal stop confirmation and explicitly releases both independent controls.
+  A late pending-enable reply cannot rearm the lid after module-off. Ordinary
+  timer/moon off still leaves the lid lease independent.

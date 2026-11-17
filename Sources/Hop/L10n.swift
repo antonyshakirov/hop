@@ -144,7 +144,7 @@ enum L10nKey: String, CaseIterable {
     case windowsGrid, windowsRow
     case convCanImages, convCanVideo, convCanAudio, convCompressOnly, convUnsupported, convConvert, convConverting, convApproxNote, convClear, convQualityOriginal, windowsLabel, showWindowsLabel, modulesLabel, monitorColorLabel
     case convertLabel, showConvertLabel, convDrop, convFormatLabel, convScaleLabel, convQualityLabel, convDestLabel, convDestDownloads, convDestSame
-    case hotkeysLabel, hkPanel, hkTimer, hkAwake, hkRecord, hkTaken
+    case hotkeysLabel, hkPanel, hkTimer, hkAwake, hkRecord, hkTaken, hkDisable
     case guideLink, groupAppearance
     case purposeTimer, purposeAwake, purposeClipboard, purposeConvert, purposeWindows, purposeSpeedtest, purposeTorrent, purposeColor, purposeOcr, purposeShot, purposeAnnotate, purposeArchive, purposeKeyboard, purposeVpn, purposeUninstall, purposeSystem, purposeTracker, purposeTodos
     case monitorDetailedLabel, thGeneralNote
@@ -527,28 +527,28 @@ enum L10n {
     private static func awakeHelp(_ lang: AppLanguage) -> String {
         let text: String
         switch lang {
-        case .en: text = "keeps the Mac awake from 15 minutes to ∞. “display stays on” also keeps the screen lit.\n\n{sym:lid} the lid button starts closed-lid mode; if awake is off, it starts an unlimited session. a second click turns lid mode off. amber means active.\n\nclosed-lid mode needs an administrator-approved service. it ends when battery charge reaches 10% on battery power, macOS reports excessive heat, or the session expires. after 90 seconds without Hop, the service restores sleep and fan control.\n\nupdates wait until closed-lid mode and manual fan control are off. use the Mac on a firm, ventilated surface."
-        case .ru: text = "не даёт маку заснуть от 15 минут до ∞. «экран не гаснет» оставляет включённым и экран.\n\n{sym:lid} кнопка крышки включает работу с закрытой крышкой; если запрет сна выключен, запускается сеанс на ∞. повторный клик выключает режим крышки. янтарный цвет означает, что он активен.\n\nдля режима нужна служба с разрешением администратора. режим прекращается при заряде 10% без питания от сети, сигнале macOS о перегреве или окончании сеанса. через 90 секунд без связи с Hop служба восстанавливает сон и управление вентиляторами.\n\nобновление ждёт выключения режима крышки и ручного охлаждения. ставь Mac на твёрдую поверхность с доступом воздуха."
-        case .de: text = "hält den Mac von 15 Minuten bis ∞ wach. „Bildschirm bleibt an“ lässt auch das Display eingeschaltet.\n\n{sym:lid} die Deckeltaste aktiviert den Betrieb bei geschlossenem Deckel. ist die Wachsperre aus, beginnt eine unbegrenzte Sitzung. erneut klicken schaltet den Deckelmodus aus. Bernstein bedeutet aktiv.\n\nder Modus benötigt einen vom Administrator erlaubten Dienst. er endet bei 10% Akku ohne Netzstrom, einer Hitzewarnung von macOS oder am Sitzungsende. nach 90 Sekunden ohne Hop stellt der Dienst Schlaf und Lüftersteuerung wieder her.\n\nUpdates warten, bis Deckelmodus und manuelle Lüftersteuerung aus sind. den Mac auf eine feste, belüftete Fläche stellen."
-        case .es: text = "mantiene el Mac despierto de 15 minutos a ∞. «la pantalla sigue encendida» mantiene también la pantalla iluminada.\n\n{sym:lid} el botón de tapa activa el uso con la tapa cerrada; si no se impedía el reposo, inicia una sesión sin límite. otro clic desactiva este modo. ámbar significa activo.\n\nrequiere un servicio autorizado por el administrador. termina con un 10% de batería sin corriente, una alerta de calor de macOS o al acabar la sesión. tras 90 segundos sin Hop, el servicio restablece el reposo y el control de ventiladores.\n\nlas actualizaciones esperan a que ambos controles estén desactivados. usa el Mac sobre una superficie firme y ventilada."
-        case .pt: text = "mantém o Mac acordado de 15 minutos a ∞. «o ecrã fica ligado» mantém também o ecrã aceso.\n\n{sym:lid} o botão da tampa ativa o uso com a tampa fechada; se o bloqueio de repouso estava desligado, inicia uma sessão sem limite. outro clique desliga este modo. âmbar significa ativo.\n\nrequer um serviço autorizado pelo administrador. termina com 10% de bateria sem corrente, um aviso de calor do macOS ou no fim da sessão. após 90 segundos sem Hop, o serviço repõe o repouso e o controlo das ventoinhas.\n\nas atualizações aguardam que ambos os controlos sejam desligados. usa o Mac numa superfície firme e ventilada."
-        case .fr: text = "garde le Mac éveillé de 15 minutes à ∞. «l’écran reste allumé» garde aussi l’écran éclairé.\n\n{sym:lid} le bouton du capot active le travail à capot fermé ; si la veille n’était pas bloquée, une session illimitée commence. un autre clic désactive ce mode. ambre signifie actif.\n\nce mode nécessite un service autorisé par l’administrateur. il s’arrête à 10% de batterie sans secteur, en cas d’alerte de chaleur de macOS ou en fin de session. après 90 secondes sans Hop, le service rétablit la veille et le contrôle des ventilateurs.\n\nles mises à jour attendent l’arrêt des deux contrôles. posez le Mac sur une surface ferme et ventilée."
-        case .it: text = "tiene sveglio il Mac da 15 minuti a ∞. «lo schermo resta acceso» mantiene acceso anche lo schermo.\n\n{sym:lid} il pulsante del coperchio attiva il lavoro a coperchio chiuso; se il blocco del sonno era spento, avvia una sessione illimitata. un altro clic disattiva il modo. ambra significa attivo.\n\nserve un servizio autorizzato dall’amministratore. si ferma al 10% di batteria senza alimentazione, con un avviso di calore di macOS o a fine sessione. dopo 90 secondi senza Hop, il servizio ripristina sonno e controllo delle ventole.\n\ngli aggiornamenti attendono che entrambi i controlli siano spenti. usa il Mac su una superficie solida e ventilata."
-        case .zh: text = "让 Mac 保持唤醒 15 分钟至无限。“屏幕常亮”也会保持屏幕开启。\n\n{sym:lid} 点击盖子按钮开启合盖运行；若尚未阻止睡眠，将开启无限时长的会话。再次点击关闭合盖模式。琥珀色表示已开启。\n\n合盖模式需要管理员批准的服务。使用电池时电量降至 10%、macOS 报告过热或会话到期，模式会结束。与 Hop 失联 90 秒后，服务恢复睡眠和风扇控制。\n\n更新会等到合盖模式和手动风扇控制关闭。请将 Mac 放在坚固、通风的表面上。"
-        case .ja: text = "Mac を15分から無制限まで起動したままにします。「画面を消さない」は画面も点灯させます。\n\n{sym:lid} ふたのボタンでふたを閉じたまま動作します。スリープ防止がオフなら無制限のセッションを開始します。再クリックで解除。アンバーは有効です。\n\n管理者が許可したサービスが必要です。バッテリー駆動で残量10%、macOS の過熱警告、セッション終了で解除されます。Hop と90秒間通信できない場合、サービスがスリープとファン制御を復元します。\n\n更新はふたモードと手動ファン制御の解除を待ちます。Mac は硬く通気のよい面に置いてください。"
-        case .nl: text = "houdt de Mac wakker van 15 minuten tot ∞. „scherm blijft aan” laat ook het scherm branden.\n\n{sym:lid} de klepknop schakelt werken met gesloten klep in; staat slaapblokkering uit, dan begint een onbeperkte sessie. nogmaals klikken schakelt de klepmodus uit. amber betekent actief.\n\nde modus vereist een door de beheerder toegestane dienst. hij stopt bij 10% batterij zonder netstroom, een hittemelding van macOS of het einde van de sessie. na 90 seconden zonder Hop herstelt de dienst slaap en ventilatorbesturing.\n\nupdates wachten tot beide regelingen uit zijn. zet de Mac op een stevige, geventileerde ondergrond."
-        case .ko: text = "Mac을 15분부터 무제한으로 깨어 있게 합니다. “화면 유지”는 화면도 켜 둡니다.\n\n{sym:lid} 덮개 버튼으로 덮개를 닫고 작업합니다. 잠자기 방지가 꺼져 있으면 무제한 세션을 시작합니다. 다시 누르면 덮개 모드를 끕니다. 황색은 활성 상태입니다.\n\n관리자가 허용한 서비스가 필요합니다. 배터리 사용 중 잔량 10%, macOS 과열 경고 또는 세션 종료 시 중단됩니다. Hop과 90초 동안 통신하지 못하면 서비스가 잠자기와 팬 제어를 복원합니다.\n\n업데이트는 덮개 모드와 수동 팬 제어가 꺼질 때까지 기다립니다. Mac을 단단하고 통풍이 잘되는 곳에 놓으세요."
-        case .th: text = "ทำให้ Mac ตื่นตั้งแต่ 15 นาทีถึงไม่จำกัด “เปิดหน้าจอไว้” จะให้หน้าจอสว่างด้วย\n\n{sym:lid} ปุ่มฝาเปิดโหมดปิดฝาทำงาน หากยังไม่ได้ป้องกันการพัก จะเริ่มเซสชันไม่จำกัด กดอีกครั้งเพื่อปิดโหมด สีอำพันหมายถึงกำลังทำงาน\n\nต้องใช้บริการที่ผู้ดูแลอนุญาต โหมดจะหยุดเมื่อใช้แบตเตอรี่เหลือ 10% เมื่อ macOS แจ้งความร้อนสูง หรือเซสชันสิ้นสุด หากขาดการติดต่อกับ Hop 90 วินาที บริการจะคืนการพักและการควบคุมพัดลม\n\nการอัปเดตรอให้ปิดโหมดฝาและการควบคุมพัดลมด้วยตนเอง วาง Mac บนพื้นผิวแข็งที่อากาศถ่ายเทได้"
-        case .vi: text = "giữ Mac thức từ 15 phút đến ∞. “giữ màn hình sáng” cũng giữ màn hình bật.\n\n{sym:lid} nút nắp bật chế độ làm việc khi đóng nắp; nếu chưa ngăn ngủ, một phiên không giới hạn sẽ bắt đầu. nhấn lại để tắt. màu hổ phách nghĩa là đang bật.\n\ncần dịch vụ được quản trị viên cho phép. chế độ dừng khi pin còn 10% lúc không cắm điện, macOS báo quá nóng hoặc phiên kết thúc. sau 90 giây không liên lạc với Hop, dịch vụ khôi phục chế độ ngủ và điều khiển quạt.\n\ncập nhật chờ hai chế độ được tắt. đặt Mac trên bề mặt cứng và thông thoáng."
-        case .hi: text = "Mac को 15 मिनट से ∞ तक जागृत रखता है। “स्क्रीन चालू रहे” स्क्रीन भी जलाए रखता है।\n\n{sym:lid} ढक्कन बटन बंद ढक्कन के साथ काम चालू करता है; नींद रोकना बंद हो तो असीमित सत्र शुरू होता है। दोबारा क्लिक इसे बंद करता है। अंबर रंग सक्रिय होने का संकेत है।\n\nइसके लिए व्यवस्थापक की अनुमति वाली सेवा चाहिए। बैटरी पर 10% चार्ज, macOS की गर्मी चेतावनी या सत्र समाप्त होने पर यह रुकता है। Hop से 90 सेकंड संपर्क न होने पर सेवा नींद और पंखे का नियंत्रण बहाल करती है।\n\nअपडेट दोनों नियंत्रण बंद होने की प्रतीक्षा करता है। Mac को सख्त, हवादार सतह पर रखें।"
-        case .id: text = "menjaga Mac tetap terjaga dari 15 menit hingga ∞. “layar tetap menyala” juga menjaga layar tetap terang.\n\n{sym:lid} tombol tutup mengaktifkan kerja dengan tutup tertutup; jika pencegahan tidur mati, sesi tanpa batas dimulai. klik lagi untuk mematikan. kuning berarti aktif.\n\nperlu layanan yang diizinkan administrator. mode berhenti saat baterai 10% tanpa daya listrik, macOS melaporkan panas berlebih, atau sesi berakhir. setelah 90 detik tanpa Hop, layanan memulihkan tidur dan kendali kipas.\n\npembaruan menunggu kedua kendali dimatikan. letakkan Mac di permukaan keras dengan ventilasi baik."
-        case .tr: text = "Mac’i 15 dakikadan ∞’a kadar uyanık tutar. “ekran açık kalsın” ekranı da açık tutar.\n\n{sym:lid} kapak düğmesi kapak kapalı çalışmayı açar; uyku engeli kapalıysa sınırsız bir oturum başlar. yeniden tıklamak modu kapatır. kehribar etkin demektir.\n\nyönetici onaylı bir hizmet gerekir. prizde değilken pil %10’a düşünce, macOS aşırı ısı bildirince veya oturum bitince durur. Hop ile 90 saniye iletişim kurulmazsa hizmet uyku ve fan kontrolünü geri yükler.\n\ngüncellemeler iki kontrol de kapanana kadar bekler. Mac’i sağlam, havalandırılan bir yüzeye koyun."
-        case .pl: text = "utrzymuje Maca w stanie czuwania od 15 minut do ∞. „ekran pozostaje włączony” utrzymuje też podświetlenie.\n\n{sym:lid} przycisk pokrywy włącza pracę z zamkniętą pokrywą; gdy blokada snu jest wyłączona, zaczyna sesję bez limitu. kolejny klik wyłącza tryb. bursztyn oznacza aktywność.\n\ntryb wymaga usługi zatwierdzonej przez administratora. kończy się przy 10% baterii bez zasilania, ostrzeżeniu macOS o przegrzaniu lub końcu sesji. po 90 sekundach bez Hop usługa przywraca sen i sterowanie wentylatorami.\n\naktualizacje czekają na wyłączenie obu funkcji. ustaw Maca na twardej, wentylowanej powierzchni."
-        case .ar: text = "يبقي Mac مستيقظاً من 15 دقيقة إلى ∞. خيار إبقاء الشاشة مضاءة يبقي الشاشة أيضاً قيد التشغيل.\n\n{sym:lid} زر الغطاء يفعّل العمل والغطاء مغلق؛ إن كان منع السكون مطفأً تبدأ جلسة بلا حد. نقرة أخرى توقف الوضع. الكهرماني يعني أنه مفعّل.\n\nيتطلب خدمة وافق عليها المسؤول. يتوقف عند وصول البطارية إلى 10% دون كهرباء، أو تحذير حرارة من macOS، أو نهاية الجلسة. بعد 90 ثانية دون اتصال بـ Hop، تعيد الخدمة السكون والتحكم بالمراوح.\n\nتنتظر التحديثات إيقاف وضعي الغطاء والتحكم اليدوي بالمراوح. ضع Mac على سطح ثابت وجيد التهوية."
-        case .he: text = "משאיר את ה‑Mac ער מ־15 דקות עד ∞. האפשרות להשאיר מסך דולק משאירה גם את התצוגה פעילה.\n\n{sym:lid} כפתור המכסה מפעיל עבודה עם מכסה סגור; אם מניעת השינה כבויה, מתחיל סשן ללא הגבלה. לחיצה נוספת מכבה. ענבר מסמן פעילות.\n\nנדרש שירות שאושר בידי מנהל. המצב מסתיים ב־10% סוללה ללא חשמל, בהתרעת חום של macOS או בסוף הסשן. אחרי 90 שניות ללא קשר עם Hop, השירות משחזר שינה ושליטה במאווררים.\n\nעדכונים ממתינים לכיבוי מצב המכסה והשליטה הידנית במאווררים. הנח את ה‑Mac על משטח קשיח ומאוורר."
-        case .fa: text = "از ۱۵ دقیقه تا ∞، Mac را بیدار نگه می‌دارد. گزینهٔ روشن ماندن صفحه، نمایشگر را هم روشن نگه می‌دارد.\n\n{sym:lid} دکمهٔ در، کار با درِ بسته را فعال می‌کند؛ اگر جلوگیری از خواب خاموش باشد، نشستی نامحدود آغاز می‌شود. کلیک دوباره آن را خاموش می‌کند. کهربایی یعنی فعال است.\n\nبه سرویسی با تأیید مدیر نیاز دارد. با باتری ۱۰٪ بدون برق، هشدار گرمای macOS یا پایان نشست متوقف می‌شود. پس از ۹۰ ثانیه بدون ارتباط با Hop، سرویس خواب و کنترل فن را بازمی‌گرداند.\n\nبه‌روزرسانی منتظر خاموش شدن حالت در و کنترل دستی فن می‌ماند. Mac را روی سطح سفت با تهویهٔ مناسب بگذارید."
-        case .ur: text = "آپ کے Mac کو ۱۵ منٹ سے ∞ تک جاگتا رکھتا ہے۔ اسکرین روشن رکھنے کا اختیار اسکرین بھی چلائے رکھتا ہے۔\n\n{sym:lid} ڈھکن کا بٹن بند ڈھکن کے ساتھ کام شروع کرتا ہے؛ نیند روکنا بند ہو تو لامحدود سیشن شروع ہوتا ہے۔ دوبارہ کلک بند کرتا ہے۔ عنبری رنگ فعال ہونے کی علامت ہے۔\n\nمنتظم کی منظور کردہ سروس درکار ہے۔ بجلی کے بغیر بیٹری ۱۰٪ ہونے، macOS کی گرمی کی تنبیہ یا سیشن کے اختتام پر رک جاتا ہے۔ Hop سے ۹۰ سیکنڈ رابطہ نہ ہونے پر سروس نیند اور پنکھے کا کنٹرول بحال کرتی ہے۔\n\nاپڈیٹ دونوں کنٹرول بند ہونے کا انتظار کرتا ہے۔ Mac کو سخت اور ہوادار سطح پر رکھیں۔"
-        case .sr: text = "држи Mac будним од 15 минута до ∞. „екран остаје укључен” држи и екран осветљеним.\n\n{sym:lid} дугме поклопца укључује рад са затвореним поклопцем; ако је забрана спавања искључена, почиње неограничена сесија. поновни клик искључује режим. ћилибарна значи активно.\n\nпотребна је услуга коју је одобрио администратор. режим престаје на 10% батерије без струје, уз macOS упозорење о прегревању или по истеку сесије. после 90 секунди без Hop-а услуга враћа спавање и контролу вентилатора.\n\nажурирања чекају да се оба режима искључе. постави Mac на чврсту и проветрену површину."
+        case .en: text = "keeps the Mac awake from 15 minutes to ∞. “display stays on” also keeps the screen lit.\n\n{sym:lid} the lid button toggles closed-lid mode independently of Awake. it does not select ∞ or change the timer. amber means active.\n\nwith the lid closed, the mode turns off after the system sleep timeout if no application keeps the Mac awake. macOS then decides when to sleep; manual fans keep their mode.\n\nclosed-lid mode needs an administrator-approved service. it ends when battery charge reaches 10% on battery power or macOS reports excessive heat. after 90 seconds without Hop, the service restores sleep and fan control.\n\nupdates wait until closed-lid mode and manual fan control are off. use the Mac on a firm, ventilated surface."
+        case .ru: text = "не даёт маку заснуть от 15 минут до ∞. «экран не гаснет» оставляет включённым и экран.\n\n{sym:lid} кнопка крышки включает и выключает работу с закрытой крышкой независимо от запрета сна. она не выбирает ∞ и не меняет таймер. янтарный цвет означает, что режим активен.\n\nпри закрытой крышке режим выключается после системного срока бездействия, если приложения не удерживают Mac от сна. дальше сон определяет macOS; режим вентиляторов сохраняется.\n\nдля режима нужна служба с разрешением администратора. режим прекращается при заряде 10% без питания от сети или сигнале macOS о перегреве. через 90 секунд без связи с Hop служба восстанавливает сон и управление вентиляторами.\n\nобновление ждёт выключения режима крышки и ручного охлаждения. ставь Mac на твёрдую поверхность с доступом воздуха."
+        case .de: text = "hält den Mac von 15 Minuten bis ∞ wach. „Bildschirm bleibt an“ lässt auch das Display eingeschaltet.\n\n{sym:lid} die Deckeltaste schaltet den Betrieb bei geschlossenem Deckel unabhängig von Awake um. sie wählt weder ∞ noch ändert sie den Timer. Bernstein bedeutet aktiv.\n\nbei geschlossenem Deckel endet der Modus nach dem System-Ruhezustandstimer, wenn keine App den Mac wach hält. danach entscheidet macOS über den Schlaf; der Lüftermodus bleibt bestehen.\n\nder Modus benötigt einen vom Administrator erlaubten Dienst. er endet bei 10% Akku ohne Netzstrom oder einer Hitzewarnung von macOS. nach 90 Sekunden ohne Hop stellt der Dienst Schlaf und Lüftersteuerung wieder her.\n\nUpdates warten, bis Deckelmodus und manuelle Lüftersteuerung aus sind. den Mac auf eine feste, belüftete Fläche stellen."
+        case .es: text = "mantiene el Mac despierto de 15 minutos a ∞. «la pantalla sigue encendida» mantiene también la pantalla iluminada.\n\n{sym:lid} el botón de tapa activa o desactiva el modo con tapa cerrada independientemente de Awake. no selecciona ∞ ni cambia el temporizador. ámbar significa activo.\n\ncon la tapa cerrada, el modo termina al vencer el tiempo de reposo del sistema si ninguna app mantiene el Mac despierto. macOS decide cuándo dormir; el modo de ventiladores se conserva.\n\nrequiere un servicio autorizado por el administrador. termina con un 10% de batería sin corriente o una alerta de calor de macOS. tras 90 segundos sin Hop, el servicio restablece el reposo y el control de ventiladores.\n\nlas actualizaciones esperan a que ambos controles estén desactivados. usa el Mac sobre una superficie firme y ventilada."
+        case .pt: text = "mantém o Mac acordado de 15 minutos a ∞. «o ecrã fica ligado» mantém também o ecrã aceso.\n\n{sym:lid} o botão da tampa liga ou desliga o modo de tampa fechada independentemente de Awake. não seleciona ∞ nem altera o temporizador. âmbar significa ativo.\n\ncom a tampa fechada, o modo termina após o tempo de repouso do sistema se nenhuma app mantiver o Mac acordado. o macOS decide quando dormir; o modo das ventoinhas mantém-se.\n\nrequer um serviço autorizado pelo administrador. termina com 10% de bateria sem corrente ou um aviso de calor do macOS. após 90 segundos sem Hop, o serviço repõe o repouso e o controlo das ventoinhas.\n\nas atualizações aguardam que ambos os controlos sejam desligados. usa o Mac numa superfície firme e ventilada."
+        case .fr: text = "garde le Mac éveillé de 15 minutes à ∞. «l’écran reste allumé» garde aussi l’écran éclairé.\n\n{sym:lid} le bouton du capot active ou désactive le mode capot fermé indépendamment d’Awake. il ne sélectionne pas ∞ et ne modifie pas le minuteur. ambre signifie actif.\n\ncapot fermé, le mode s’arrête après le délai de veille du système si aucune app ne garde le Mac éveillé. macOS décide ensuite de la veille ; le mode des ventilateurs est conservé.\n\nce mode nécessite un service autorisé par l’administrateur. il s’arrête à 10% de batterie sans secteur ou en cas d’alerte de chaleur de macOS. après 90 secondes sans Hop, le service rétablit la veille et le contrôle des ventilateurs.\n\nles mises à jour attendent l’arrêt des deux contrôles. posez le Mac sur une surface ferme et ventilée."
+        case .it: text = "tiene sveglio il Mac da 15 minuti a ∞. «lo schermo resta acceso» mantiene acceso anche lo schermo.\n\n{sym:lid} il pulsante del coperchio attiva o disattiva il modo a coperchio chiuso indipendentemente da Awake. non seleziona ∞ e non cambia il timer. ambra significa attivo.\n\na coperchio chiuso, il modo termina dopo il tempo di sonno del sistema se nessuna app tiene sveglio il Mac. macOS decide quando dormire; il modo delle ventole rimane.\n\nserve un servizio autorizzato dall’amministratore. si ferma al 10% di batteria senza alimentazione o con un avviso di calore di macOS. dopo 90 secondi senza Hop, il servizio ripristina sonno e controllo delle ventole.\n\ngli aggiornamenti attendono che entrambi i controlli siano spenti. usa il Mac su una superficie solida e ventilata."
+        case .zh: text = "让 Mac 保持唤醒 15 分钟至无限。“屏幕常亮”也会保持屏幕开启。\n\n{sym:lid} 盖子按钮独立于 Awake 开关合盖模式，不会选择 ∞ 或更改计时器。琥珀色表示已开启。\n\n合盖时，若没有应用阻止睡眠，模式会在系统空闲睡眠时限后关闭。随后由 macOS 决定何时睡眠；风扇模式保持不变。\n\n合盖模式需要管理员批准的服务。使用电池时电量降至 10%、macOS 报告过热，模式会结束。与 Hop 失联 90 秒后，服务恢复睡眠和风扇控制。\n\n更新会等到合盖模式和手动风扇控制关闭。请将 Mac 放在坚固、通风的表面上。"
+        case .ja: text = "Mac を15分から無制限まで起動したままにします。「画面を消さない」は画面も点灯させます。\n\n{sym:lid} ふたのボタンは Awake とは独立して、ふたを閉じたまま動作するモードを切り替えます。∞ を選んだりタイマーを変更したりしません。アンバーは有効です。\n\nふたを閉じた状態で、アプリがスリープを防いでいなければ、システムの待機時間後にモードを解除します。その後のスリープは macOS が判断し、ファンモードは維持します。\n\n管理者が許可したサービスが必要です。バッテリー駆動で残量10%、macOS の過熱警告で解除されます。Hop と90秒間通信できない場合、サービスがスリープとファン制御を復元します。\n\n更新はふたモードと手動ファン制御の解除を待ちます。Mac は硬く通気のよい面に置いてください。"
+        case .nl: text = "houdt de Mac wakker van 15 minuten tot ∞. „scherm blijft aan” laat ook het scherm branden.\n\n{sym:lid} de dekselknop schakelt de gesloten-dekselmodus onafhankelijk van Awake. hij kiest geen ∞ en verandert de timer niet. amber betekent actief.\n\nmet gesloten deksel stopt de modus na de systeemslaaptimer als geen app de Mac wakker houdt. macOS bepaalt daarna de slaap; de ventilatormodus blijft behouden.\n\nde modus vereist een door de beheerder toegestane dienst. hij stopt bij 10% batterij zonder netstroom of een hittemelding van macOS. na 90 seconden zonder Hop herstelt de dienst slaap en ventilatorbesturing.\n\nupdates wachten tot beide regelingen uit zijn. zet de Mac op een stevige, geventileerde ondergrond."
+        case .ko: text = "Mac을 15분부터 무제한으로 깨어 있게 합니다. “화면 유지”는 화면도 켜 둡니다.\n\n{sym:lid} 덮개 버튼은 Awake와 별개로 덮개를 닫고 사용하는 모드를 켜거나 끕니다. ∞를 선택하거나 타이머를 변경하지 않습니다. 호박색은 활성 상태입니다.\n\n덮개를 닫은 상태에서 앱이 잠자기를 막지 않으면 시스템 대기 시간이 지난 후 모드가 꺼집니다. 이후 잠자기는 macOS가 결정하며 팬 모드는 유지됩니다.\n\n관리자가 허용한 서비스가 필요합니다. 배터리 사용 중 잔량 10%, macOS 과열 경고 시 중단됩니다. Hop과 90초 동안 통신하지 못하면 서비스가 잠자기와 팬 제어를 복원합니다.\n\n업데이트는 덮개 모드와 수동 팬 제어가 꺼질 때까지 기다립니다. Mac을 단단하고 통풍이 잘되는 곳에 놓으세요."
+        case .th: text = "ทำให้ Mac ตื่นตั้งแต่ 15 นาทีถึงไม่จำกัด “เปิดหน้าจอไว้” จะให้หน้าจอสว่างด้วย\n\n{sym:lid} ปุ่มฝาเปิดหรือปิดโหมดปิดฝาทำงานแยกจาก Awake ไม่เลือก ∞ หรือเปลี่ยนตัวจับเวลา สีอำพันหมายถึงกำลังทำงาน\n\nเมื่อปิดฝา โหมดจะหยุดตามเวลาพักของระบบหากไม่มีแอปป้องกันการพัก จากนั้น macOS จะตัดสินใจเรื่องการพัก โดยคงโหมดพัดลมไว้\n\nต้องใช้บริการที่ผู้ดูแลอนุญาต โหมดจะหยุดเมื่อใช้แบตเตอรี่เหลือ 10% เมื่อ macOS แจ้งความร้อนสูง หากขาดการติดต่อกับ Hop 90 วินาที บริการจะคืนการพักและการควบคุมพัดลม\n\nการอัปเดตรอให้ปิดโหมดฝาและการควบคุมพัดลมด้วยตนเอง วาง Mac บนพื้นผิวแข็งที่อากาศถ่ายเทได้"
+        case .vi: text = "giữ Mac thức từ 15 phút đến ∞. “giữ màn hình sáng” cũng giữ màn hình bật.\n\n{sym:lid} nút nắp bật hoặc tắt chế độ đóng nắp độc lập với Awake. nút không chọn ∞ hay thay đổi bộ hẹn giờ. màu hổ phách nghĩa là đang bật.\n\nkhi đóng nắp, chế độ tắt sau thời gian ngủ của hệ thống nếu không có ứng dụng giữ Mac thức. macOS quyết định khi nào ngủ; chế độ quạt được giữ nguyên.\n\ncần dịch vụ được quản trị viên cho phép. chế độ dừng khi pin còn 10% lúc không cắm điện hoặc macOS báo quá nóng. sau 90 giây không liên lạc với Hop, dịch vụ khôi phục chế độ ngủ và điều khiển quạt.\n\ncập nhật chờ hai chế độ được tắt. đặt Mac trên bề mặt cứng và thông thoáng."
+        case .hi: text = "Mac को 15 मिनट से ∞ तक जागृत रखता है। “स्क्रीन चालू रहे” स्क्रीन भी जलाए रखता है।\n\n{sym:lid} ढक्कन बटन Awake से स्वतंत्र रूप से बंद ढक्कन वाला मोड चालू या बंद करता है। यह ∞ नहीं चुनता और टाइमर नहीं बदलता। अंबर रंग सक्रिय होने का संकेत है।\n\nढक्कन बंद होने पर, कोई ऐप Mac को जागृत न रखे तो सिस्टम के निष्क्रियता समय के बाद यह मोड बंद होता है। फिर नींद का निर्णय macOS करता है; पंखे का मोड बना रहता है।\n\nइसके लिए व्यवस्थापक की अनुमति वाली सेवा चाहिए। बैटरी पर 10% चार्ज, macOS की गर्मी चेतावनी पर यह रुकता है। Hop से 90 सेकंड संपर्क न होने पर सेवा नींद और पंखे का नियंत्रण बहाल करती है।\n\nअपडेट दोनों नियंत्रण बंद होने की प्रतीक्षा करता है। Mac को सख्त, हवादार सतह पर रखें।"
+        case .id: text = "menjaga Mac tetap terjaga dari 15 menit hingga ∞. “layar tetap menyala” juga menjaga layar tetap terang.\n\n{sym:lid} tombol tutup mengaktifkan atau mematikan mode tutup tertutup secara terpisah dari Awake. tombol ini tidak memilih ∞ atau mengubah timer. kuning berarti aktif.\n\nsaat tutup tertutup, mode mati setelah waktu tidur sistem jika tidak ada aplikasi yang menjaga Mac terjaga. macOS lalu menentukan waktu tidur; mode kipas tetap sama.\n\nperlu layanan yang diizinkan administrator. mode berhenti saat baterai 10% tanpa daya listrik atau macOS melaporkan panas berlebih. setelah 90 detik tanpa Hop, layanan memulihkan tidur dan kendali kipas.\n\npembaruan menunggu kedua kendali dimatikan. letakkan Mac di permukaan keras dengan ventilasi baik."
+        case .tr: text = "Mac’i 15 dakikadan ∞’a kadar uyanık tutar. “ekran açık kalsın” ekranı da açık tutar.\n\n{sym:lid} kapak düğmesi kapalı kapak modunu Awake’den bağımsız açıp kapatır. ∞ seçmez ve zamanlayıcıyı değiştirmez. kehribar etkin demektir.\n\nkapak kapalıyken hiçbir uygulama Mac’i uyanık tutmuyorsa sistemin uyku süresi sonunda mod kapanır. ardından uykuya macOS karar verir; fan modu korunur.\n\nyönetici onaylı bir hizmet gerekir. prizde değilken pil %10’a düşünce, macOS aşırı ısı bildirince durur. Hop ile 90 saniye iletişim kurulmazsa hizmet uyku ve fan kontrolünü geri yükler.\n\ngüncellemeler iki kontrol de kapanana kadar bekler. Mac’i sağlam, havalandırılan bir yüzeye koyun."
+        case .pl: text = "utrzymuje Maca w stanie czuwania od 15 minut do ∞. „ekran pozostaje włączony” utrzymuje też podświetlenie.\n\n{sym:lid} przycisk pokrywy przełącza tryb zamkniętej pokrywy niezależnie od Awake. nie wybiera ∞ ani nie zmienia minutnika. bursztyn oznacza aktywność.\n\nprzy zamkniętej pokrywie tryb kończy się po systemowym czasie bezczynności, jeśli żadna aplikacja nie utrzymuje Maca w czuwaniu. macOS decyduje o uśpieniu; tryb wentylatorów pozostaje.\n\ntryb wymaga usługi zatwierdzonej przez administratora. kończy się przy 10% baterii bez zasilania lub ostrzeżeniu macOS o przegrzaniu. po 90 sekundach bez Hop usługa przywraca sen i sterowanie wentylatorami.\n\naktualizacje czekają na wyłączenie obu funkcji. ustaw Maca na twardej, wentylowanej powierzchni."
+        case .ar: text = "يبقي Mac مستيقظاً من 15 دقيقة إلى ∞. خيار إبقاء الشاشة مضاءة يبقي الشاشة أيضاً قيد التشغيل.\n\n{sym:lid} زر الغطاء يفعّل أو يوقف وضع الغطاء المغلق بشكل مستقل عن Awake. لا يختار ∞ ولا يغيّر المؤقت. الكهرماني يعني أنه مفعّل.\n\nعند إغلاق الغطاء، يتوقف الوضع بعد مهلة سكون النظام إذا لم يمنع أي تطبيق السكون. يقرر macOS بعدها موعد السكون، ويبقى وضع المراوح كما هو.\n\nيتطلب خدمة وافق عليها المسؤول. يتوقف عند وصول البطارية إلى 10% دون كهرباء، أو تحذير حرارة من macOS. بعد 90 ثانية دون اتصال بـ Hop، تعيد الخدمة السكون والتحكم بالمراوح.\n\nتنتظر التحديثات إيقاف وضعي الغطاء والتحكم اليدوي بالمراوح. ضع Mac على سطح ثابت وجيد التهوية."
+        case .he: text = "משאיר את ה‑Mac ער מ־15 דקות עד ∞. האפשרות להשאיר מסך דולק משאירה גם את התצוגה פעילה.\n\n{sym:lid} כפתור המכסה מפעיל ומכבה את מצב המכסה הסגור בנפרד מ‑Awake. הוא לא בוחר ∞ ולא משנה את הטיימר. ענבר מסמן פעילות.\n\nכשהמכסה סגור, המצב נכבה לאחר זמן ההמתנה לשינה של המערכת אם אין יישום שמשאיר את ה‑Mac ער. macOS מחליט אז על השינה, ומצב המאווררים נשמר.\n\nנדרש שירות שאושר בידי מנהל. המצב מסתיים ב־10% סוללה ללא חשמל, בהתרעת חום של macOS. אחרי 90 שניות ללא קשר עם Hop, השירות משחזר שינה ושליטה במאווררים.\n\nעדכונים ממתינים לכיבוי מצב המכסה והשליטה הידנית במאווררים. הנח את ה‑Mac על משטח קשיח ומאוורר."
+        case .fa: text = "از ۱۵ دقیقه تا ∞، Mac را بیدار نگه می‌دارد. گزینهٔ روشن ماندن صفحه، نمایشگر را هم روشن نگه می‌دارد.\n\n{sym:lid} دکمهٔ در، حالت درِ بسته را مستقل از Awake روشن یا خاموش می‌کند. ∞ را انتخاب نمی‌کند و زمان‌سنج را تغییر نمی‌دهد. کهربایی یعنی فعال است.\n\nبا درِ بسته، اگر برنامه‌ای Mac را بیدار نگه ندارد، پس از مهلت خواب سیستم این حالت خاموش می‌شود. سپس macOS دربارهٔ خواب تصمیم می‌گیرد؛ حالت فن حفظ می‌شود.\n\nبه سرویسی با تأیید مدیر نیاز دارد. با باتری ۱۰٪ بدون برق، هشدار گرمای macOS متوقف می‌شود. پس از ۹۰ ثانیه بدون ارتباط با Hop، سرویس خواب و کنترل فن را بازمی‌گرداند.\n\nبه‌روزرسانی منتظر خاموش شدن حالت در و کنترل دستی فن می‌ماند. Mac را روی سطح سفت با تهویهٔ مناسب بگذارید."
+        case .ur: text = "آپ کے Mac کو ۱۵ منٹ سے ∞ تک جاگتا رکھتا ہے۔ اسکرین روشن رکھنے کا اختیار اسکرین بھی چلائے رکھتا ہے۔\n\n{sym:lid} ڈھکن کا بٹن Awake سے الگ بند ڈھکن کا موڈ چلاتا یا بند کرتا ہے۔ یہ ∞ منتخب نہیں کرتا اور ٹائمر نہیں بدلتا۔ عنبری رنگ فعال ہونے کی علامت ہے۔\n\nڈھکن بند ہونے پر، کوئی ایپ Mac کو جاگتا نہ رکھے تو سسٹم کے مقررہ وقت کے بعد یہ موڈ بند ہوتا ہے۔ پھر macOS نیند کا فیصلہ کرتا ہے؛ پنکھے کا موڈ برقرار رہتا ہے۔\n\nمنتظم کی منظور کردہ سروس درکار ہے۔ بجلی کے بغیر بیٹری ۱۰٪ ہونے، macOS کی گرمی کی تنبیہ پر رک جاتا ہے۔ Hop سے ۹۰ سیکنڈ رابطہ نہ ہونے پر سروس نیند اور پنکھے کا کنٹرول بحال کرتی ہے۔\n\nاپڈیٹ دونوں کنٹرول بند ہونے کا انتظار کرتا ہے۔ Mac کو سخت اور ہوادار سطح پر رکھیں۔"
+        case .sr: text = "држи Mac будним од 15 минута до ∞. „екран остаје укључен” држи и екран осветљеним.\n\n{sym:lid} дугме поклопца укључује и искључује режим затвореног поклопца независно од Awake. не бира ∞ и не мења тајмер. ћилибарна значи активно.\n\nса затвореним поклопцем, режим се искључује по системском року неактивности ако ниједна апликација не држи Mac будним. macOS затим одлучује о спавању; режим вентилатора остаје.\n\nпотребна је услуга коју је одобрио администратор. режим престаје на 10% батерије без струје, уз macOS упозорење о прегревању. после 90 секунди без Hop-а услуга враћа спавање и контролу вентилатора.\n\nажурирања чекају да се оба режима искључе. постави Mac на чврсту и проветрену површину."
         }
         return HangingWords.glued(text, shortWords: shortWords(lang), trailing: trailingWords(lang))
     }
@@ -1095,6 +1095,7 @@ enum L10n {
             .hkTimer: "timer: start/pause",
             .hkAwake: "awake on/off",
             .hkRecord: "press keys…",
+            .hkDisable: "disable shortcut",
             .hkTaken: "shortcut is taken",
             .purposeTimer: "counts down and tells you when the time is up",
             .purposeAwake: "keeps the mac from falling asleep",
@@ -2002,6 +2003,7 @@ enum L10n {
             .hkTimer: "таймер: старт/пауза",
             .hkAwake: "«запрет сна» вкл/выкл",
             .hkRecord: "нажмите сочетание…",
+            .hkDisable: "отключить сочетание",
             .hkTaken: "сочетание занято",
             .purposeTimer: "отсчитывает время и\u{00A0}говорит, когда оно вышло",
             .purposeAwake: "не\u{00A0}даёт маку уснуть",
@@ -2909,6 +2911,7 @@ enum L10n {
             .hkTimer: "timer: start/pause",
             .hkAwake: "wach an/aus",
             .hkRecord: "tasten drücken…",
+            .hkDisable: "tastenkürzel deaktivieren",
             .hkTaken: "kombination belegt",
             .purposeTimer: "zählt die zeit herunter und sagt bescheid",
             .purposeAwake: "hält den mac wach",
@@ -3816,6 +3819,7 @@ enum L10n {
             .hkTimer: "temporizador: inicio/pausa",
             .hkAwake: "despierto sí/no",
             .hkRecord: "pulsa teclas…",
+            .hkDisable: "desactivar atajo",
             .hkTaken: "atajo ocupado",
             .purposeTimer: "cuenta el tiempo y\u{00A0}avisa cuando se acaba",
             .purposeAwake: "impide que el mac se duerma",
@@ -4723,6 +4727,7 @@ enum L10n {
             .hkTimer: "temporizador: iniciar/pausar",
             .hkAwake: "acordado on/off",
             .hkRecord: "pressione teclas…",
+            .hkDisable: "desativar atalho",
             .hkTaken: "atalho ocupado",
             .purposeTimer: "faz a\u{00A0}contagem e\u{00A0}avisa quando o\u{00A0}tempo acaba",
             .purposeAwake: "impede o\u{00A0}mac de adormecer",
@@ -5630,6 +5635,7 @@ enum L10n {
             .hkTimer: "minuteur : démarrer/pause",
             .hkAwake: "éveil on/off",
             .hkRecord: "appuyez sur les touches…",
+            .hkDisable: "désactiver le raccourci",
             .hkTaken: "raccourci occupé",
             .purposeTimer: "décompte le temps et prévient à\u{00A0}la fin",
             .purposeAwake: "empêche le mac de s'endormir",
@@ -6537,6 +6543,7 @@ enum L10n {
             .hkTimer: "timer: avvio/pausa",
             .hkAwake: "sveglio on/off",
             .hkRecord: "premi i\u{00A0}tasti…",
+            .hkDisable: "disattiva scorciatoia",
             .hkTaken: "scorciatoia occupata",
             .purposeTimer: "conta il tempo e\u{00A0}avvisa quando è\u{00A0}finito",
             .purposeAwake: "impedisce al mac di addormentarsi",
@@ -7444,6 +7451,7 @@ enum L10n {
             .hkTimer: "计时器：开始/暂停",
             .hkAwake: "防休眠开/关",
             .hkRecord: "按下组合键…",
+            .hkDisable: "停用快捷键",
             .hkTaken: "快捷键已被占用",
             .purposeTimer: "倒计时，时间到了会提醒",
             .purposeAwake: "让 mac 保持清醒",
@@ -8342,6 +8350,7 @@ enum L10n {
             .hkTimer: "タイマー：開始/一時停止",
             .hkAwake: "防スリープ オン/オフ",
             .hkRecord: "キーを押す…",
+            .hkDisable: "ショートカットを無効にする",
             .hkTaken: "ショートカットは使用中",
             .purposeTimer: "時間を数え、終わりを知らせます",
             .purposeAwake: "mac を眠らせません",
@@ -9233,6 +9242,7 @@ enum L10n {
             .hkTimer: "timer: start/pauze",
             .hkAwake: "wakker blijven aan/uit",
             .hkRecord: "druk toetsen…",
+            .hkDisable: "sneltoets uitschakelen",
             .hkTaken: "sneltoets is bezet",
             .purposeTimer: "telt af en zegt wanneer de tijd om is",
             .purposeAwake: "houdt de mac wakker",
@@ -10169,6 +10179,7 @@ enum L10n {
             .hkTimer: "타이머: 시작/일시정지",
             .hkAwake: "깨우기 켬/끔",
             .hkRecord: "키를 누르세요…",
+            .hkDisable: "단축키 끄기",
             .hkTaken: "단축키가 사용 중",
             .purposeTimer: "시간을 세고 끝나면 알려 줍니다",
             .purposeAwake: "맥이 잠들지 않게 합니다",
@@ -11060,6 +11071,7 @@ enum L10n {
             .hkTimer: "ตัวจับเวลา: เริ่ม/หยุด",
             .hkAwake: "ห้ามหลับ เปิด/ปิด",
             .hkRecord: "กดปุ่ม…",
+            .hkDisable: "ปิดปุ่มลัด",
             .hkTaken: "คีย์ลัดถูกใช้แล้ว",
             .purposeTimer: "นับเวลาถอยหลังและบอกเมื่อหมดเวลา",
             .purposeAwake: "ไม่ให้แมคหลับ",
@@ -11983,6 +11995,7 @@ enum L10n {
             .hkTimer: "hẹn giờ: chạy/dừng",
             .hkAwake: "không ngủ bật/tắt",
             .hkRecord: "nhấn phím…",
+            .hkDisable: "tắt phím tắt",
             .hkTaken: "phím tắt đã dùng",
             .purposeTimer: "đếm ngược và báo khi hết giờ",
             .purposeAwake: "giữ cho mac không ngủ",
@@ -12906,6 +12919,7 @@ enum L10n {
             .hkTimer: "टाइमर: चालू/रोकें",
             .hkAwake: "जागते रहो चालू/बंद",
             .hkRecord: "कुंजियाँ दबाएँ…",
+            .hkDisable: "शॉर्टकट बंद करें",
             .hkTaken: "शॉर्टकट व्यस्त है",
             .purposeTimer: "समय गिनता है और खत्म होने पर बताता है",
             .purposeAwake: "मैक को सोने नहीं देता",
@@ -13858,6 +13872,7 @@ enum L10n {
             .hkTimer: "timer: mulai/jeda",
             .hkAwake: "tetap bangun on/off",
             .hkRecord: "tekan tombol…",
+            .hkDisable: "nonaktifkan pintasan",
             .hkTaken: "pintasan sudah dipakai",
             .purposeTimer: "menghitung waktu dan memberi tahu saat habis",
             .purposeAwake: "menjaga mac tetap terjaga",
@@ -14781,6 +14796,7 @@ enum L10n {
             .hkTimer: "zamanlayıcı: başlat/durdur",
             .hkAwake: "uyuma aç/kapat",
             .hkRecord: "tuşlara bas…",
+            .hkDisable: "kısayolu kapat",
             .hkTaken: "kısayol dolu",
             .purposeTimer: "süreyi sayar ve bittiğinde haber verir",
             .purposeAwake: "mac'in uykuya dalmasını engeller",
@@ -15704,6 +15720,7 @@ enum L10n {
             .hkTimer: "minutnik: start/pauza",
             .hkAwake: "«nie usypiaj» wł/wył",
             .hkRecord: "naciśnij klawisze…",
+            .hkDisable: "wyłącz skrót",
             .hkTaken: "skrót zajęty",
             .purposeTimer: "odlicza czas i\u{00A0}mówi, gdy minie",
             .purposeAwake: "nie pozwala macowi zasnąć",
@@ -16644,6 +16661,7 @@ enum L10n {
             .hkTimer: "المؤقّت: تشغيل/إيقاف مؤقت",
             .hkAwake: "اليقظة: تشغيل/إيقاف",
             .hkRecord: "اضغط المفاتيح…",
+            .hkDisable: "تعطيل الاختصار",
             .hkTaken: "الاختصار مستخدم",
             .purposeTimer: "يعدّ الوقت ويخبرك حين ينتهي",
             .purposeAwake: "يمنع الماك من النوم",
@@ -17626,6 +17644,7 @@ enum L10n {
             .hkTimer: "טיימר: הפעלה/השהיה",
             .hkAwake: "ערנות: הפעלה/כיבוי",
             .hkRecord: "הקישו מקשים…",
+            .hkDisable: "כיבוי קיצור המקלדת",
             .hkTaken: "הקיצור כבר תפוס",
             .purposeTimer: "סופר את הזמן ומודיע כשנגמר",
             .purposeAwake: "לא נותן למק להירדם",
@@ -18608,6 +18627,7 @@ enum L10n {
             .hkTimer: "تایمر: شروع/مکث",
             .hkAwake: "بیداری: روشن/خاموش",
             .hkRecord: "کلیدها را بزنید…",
+            .hkDisable: "غیرفعال کردن میانبر",
             .hkTaken: "این میان‌بر گرفته شده",
             .purposeTimer: "زمان را می‌شمارد و\u{00A0}پایانش را می‌گوید",
             .purposeAwake: "نمی‌گذارد مک بخوابد",
@@ -19590,6 +19610,7 @@ enum L10n {
             .hkTimer: "ٹائمر: شروع/وقفہ",
             .hkAwake: "بیداری: چالو/بند",
             .hkRecord: "کلیدیں دبائیں…",
+            .hkDisable: "شارٹ کٹ بند کریں",
             .hkTaken: "یہ شارٹ کٹ پہلے سے استعمال میں ہے",
             .purposeTimer: "وقت گنتا ہے اور\u{00A0}ختم ہونے پر بتاتا ہے",
             .purposeAwake: "میک کو سونے نہیں دیتا",
@@ -20802,6 +20823,7 @@ enum L10n {
             .hkTimer: "тајмер: покрени/паузирај",
             .hkAwake: "забрана спавања укљ/искљ",
             .hkRecord: "притисните тастере…",
+            .hkDisable: "искључи пречицу",
             .hkTaken: "пречица је заузета",
             .guideLink: "детаљно упутство",
             .groupAppearance: "изглед",

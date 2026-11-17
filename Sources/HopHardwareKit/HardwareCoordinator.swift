@@ -16,13 +16,14 @@ public struct HardwareRecovery: Codable, Equatable {
     public var lidOverrideApplied: Bool
     public var sleepOverrideRestored: Bool
     public var maintenance: HardwareMaintenance?
+    public var idleLidRelease = false
     public init(sleepDisabledBefore: Bool? = nil, fans: [Int] = [], maintenance: HardwareMaintenance? = nil,
                 lidOverrideApplied: Bool = false, sleepOverrideRestored: Bool = false) {
         self.sleepDisabledBefore = sleepDisabledBefore; self.fans = fans
         self.maintenance = maintenance; self.lidOverrideApplied = lidOverrideApplied
         self.sleepOverrideRestored = sleepOverrideRestored
     }
-    private enum CodingKeys: String, CodingKey { case sleepDisabledBefore, fans, maintenance, lidOverrideApplied, sleepOverrideRestored }
+    private enum CodingKeys: String, CodingKey { case sleepDisabledBefore, fans, maintenance, lidOverrideApplied, sleepOverrideRestored, idleLidRelease }
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         sleepDisabledBefore = try values.decodeIfPresent(Bool.self, forKey: .sleepDisabledBefore)
@@ -30,11 +31,13 @@ public struct HardwareRecovery: Codable, Equatable {
         maintenance = try values.decodeIfPresent(HardwareMaintenance.self, forKey: .maintenance)
         lidOverrideApplied = try values.decodeIfPresent(Bool.self, forKey: .lidOverrideApplied) ?? false
         sleepOverrideRestored = try values.decodeIfPresent(Bool.self, forKey: .sleepOverrideRestored) ?? false
+        idleLidRelease = try values.decodeIfPresent(Bool.self, forKey: .idleLidRelease) ?? false
     }
     public var hasOverrides: Bool { sleepDisabledBefore != nil || !fans.isEmpty }
     public var empty: Bool { !hasOverrides && maintenance == nil }
     public var valid: Bool {
-        (!lidOverrideApplied || sleepDisabledBefore == false)
+        (!idleLidRelease || lidOverrideApplied)
+            && (!lidOverrideApplied || sleepDisabledBefore == false)
             && (!sleepOverrideRestored || lidOverrideApplied)
             && fans.count <= 8 && Set(fans).count == fans.count && fans.allSatisfy { (0..<8).contains($0) }
             && (maintenance.map { HardwareIdentity.applications.contains($0.application) && $0.user != 0 } ?? true)
@@ -54,8 +57,13 @@ public protocol HardwareBackend: AnyObject {
     func sleepDisabled() throws -> Bool
     func setSleepDisabled(_ disabled: Bool) throws
     func restoreClosedLidBehavior() throws
+    func idleLidReleaseReady() -> Bool
     func setFans(_ targets: [Int: Double]) throws
     func restoreFans(_ indices: [Int]) throws
+}
+
+public extension HardwareBackend {
+    func idleLidReleaseReady() -> Bool { false }
 }
 
 /// Serializes hardware ownership, independent cutoffs and durable recovery.
@@ -102,11 +110,46 @@ public final class HardwareCoordinator {
         if let deadline, time >= deadline { stop(.expired); return }
         if time - lastHeartbeat >= 90 || time < lastHeartbeat { stop(.heartbeat); return }
         if let cutoff = cutoff(configuration, observation) { stop(cutoff); return }
+        if configuration.lid, observation.lidClosed == true, backend.idleLidReleaseReady() {
+            releaseIdleLid()
+            return
+        }
         if configuration.fan.mode != .automatic {
             do {
                 let speeds = try fanSpeeds(configuration.fan, observation)
                 try backend.setFans(speeds)
             } catch { stop(error as? HardwareReason ?? .commandFailed) }
+        }
+    }
+
+    private func releaseIdleLid() {
+        guard var desired = configuration, desired.lid else { return }
+        do {
+            recovery.idleLidRelease = true
+            try journal.save(recovery)
+            try restoreSleep(requestSleep: false)
+            var next = recovery
+            next.sleepDisabledBefore = nil
+            next.lidOverrideApplied = false
+            next.sleepOverrideRestored = false
+            next.idleLidRelease = false
+            desired.lid = false
+            desired.duration = nil
+            deadline = nil
+            if desired.needsLease {
+                try journal.save(next)
+                recovery = next
+                configuration = desired
+            } else {
+                try journal.clear()
+                recovery = .init()
+                configuration = nil; owner = nil; deadline = nil
+                reason = .stopped
+                journal.release(); locked = false
+            }
+        } catch {
+            configuration = nil; owner = nil; deadline = nil
+            reason = .restoreFailed
         }
     }
 
@@ -230,6 +273,7 @@ public final class HardwareCoordinator {
             next.sleepDisabledBefore = nil
             next.lidOverrideApplied = false
             next.sleepOverrideRestored = false
+            next.idleLidRelease = false
         }
         try journal.save(next)
         recovery = next
@@ -292,6 +336,8 @@ public final class HardwareCoordinator {
 
     private func restoreSleep(requestSleep: Bool = true) throws {
         guard let original = recovery.sleepDisabledBefore else { return }
+        // SPEC: every retry must persist idle intent before changing sleep state.
+        if recovery.idleLidRelease { try journal.save(recovery) }
         if !recovery.sleepOverrideRestored {
             if !original, !recovery.lidOverrideApplied, try backend.sleepDisabled() {
                 // SPEC: retain confirmed ownership even when a journal failure requires best-effort reset.
@@ -305,7 +351,7 @@ public final class HardwareCoordinator {
         if recovery.lidOverrideApplied {
             var saved = true
             do { try journal.save(recovery) } catch { saved = false }
-            if requestSleep {
+            if requestSleep && !recovery.idleLidRelease {
                 // SPEC: a later foreign override is not ours to reset or bypass during retry.
                 guard try !backend.sleepDisabled() else { throw HardwareReason.restoreFailed }
                 try backend.restoreClosedLidBehavior()

@@ -177,11 +177,13 @@ tourne. Voir [docs/automation.md](../automation.md).
 
 Garde le Mac éveillé de 15 minutes à ∞. «l’écran reste allumé» garde aussi l’écran éclairé.
 
-Le bouton du capot active le travail à capot fermé ; si la veille n’était pas bloquée, une session illimitée commence. Un autre clic désactive ce mode. Ambre signifie actif.
+Le bouton du capot active ou désactive le mode capot fermé indépendamment d’Awake. il ne sélectionne pas ∞ et ne modifie pas le minuteur. ambre signifie actif.
 
-Ce mode nécessite un service autorisé par l’administrateur. Il s’arrête à 10% de batterie sans secteur, en cas d’alerte de chaleur de macOS ou en fin de session. Après 90 secondes sans Hop, le service rétablit la veille et le contrôle des ventilateurs.
+Capot fermé, le mode s’arrête après le délai de veille du système si aucune app ne garde le Mac éveillé. macOS décide ensuite de la veille ; le mode des ventilateurs est conservé.
 
-Les mises à jour attendent l’arrêt des deux contrôles. Posez le Mac sur une surface ferme et ventilée.
+Ce mode nécessite un service autorisé par l’administrateur. il s’arrête à 10% de batterie sans secteur ou en cas d’alerte de chaleur de macOS. après 90 secondes sans Hop, le service rétablit la veille et le contrôle des ventilateurs.
+
+Les mises à jour attendent l’arrêt des deux contrôles. posez le Mac sur une surface ferme et ventilée.
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/awake.webp" width="420" alt="Hop – Anti-veille">

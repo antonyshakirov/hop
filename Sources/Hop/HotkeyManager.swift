@@ -92,9 +92,9 @@ final class HotkeyManager: ObservableObject {
 
     /// The combination an action answers to; nil while it has none.
     func combo(for action: ModuleAction) -> Combo? {
-        if let raw = UserDefaults.standard.string(forKey: action.storageKey),
-           let combo = Combo(storage: raw) {
-            return combo
+        if let raw = UserDefaults.standard.string(forKey: action.storageKey) {
+            if raw.isEmpty { return nil }
+            if let combo = Combo(storage: raw) { return combo }
         }
         guard let fallback = action.defaultCombo else { return nil }
         return Combo(fallback)
@@ -155,6 +155,12 @@ final class HotkeyManager: ObservableObject {
         UserDefaults.standard.string(forKey: action.storageKey) == nil
     }
 
+    func disable(_ action: ModuleAction) {
+        objectWillChange.send()
+        UserDefaults.standard.set("", forKey: action.storageKey)
+        unregister(action)
+    }
+
     /// Hand the action its shipped combination back.
     func reset(_ action: ModuleAction) {
         UserDefaults.standard.removeObject(forKey: action.storageKey)
@@ -169,6 +175,7 @@ final class HotkeyManager: ObservableObject {
 
     private func unregister(_ action: ModuleAction) {
         claimed[action.hotKeyID] = nil
+        if conflicts.contains(action) { conflicts.remove(action) }
         guard let ref = refs[action.hotKeyID] else { return }
         UnregisterEventHotKey(ref)
         refs[action.hotKeyID] = nil

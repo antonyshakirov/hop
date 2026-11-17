@@ -170,11 +170,13 @@ lub sprawdzić, co jest uruchomione. Zobacz [docs/automation.md](../automation.m
 
 Utrzymuje Maca w stanie czuwania od 15 minut do ∞. „ekran pozostaje włączony” utrzymuje też podświetlenie.
 
-Przycisk pokrywy włącza pracę z zamkniętą pokrywą; gdy blokada snu jest wyłączona, zaczyna sesję bez limitu. Kolejny klik wyłącza tryb. Bursztyn oznacza aktywność.
+Przycisk pokrywy przełącza tryb zamkniętej pokrywy niezależnie od Awake. nie wybiera ∞ ani nie zmienia minutnika. bursztyn oznacza aktywność.
 
-Tryb wymaga usługi zatwierdzonej przez administratora. Kończy się przy 10% baterii bez zasilania, ostrzeżeniu macOS o przegrzaniu lub końcu sesji. Po 90 sekundach bez Hop usługa przywraca sen i sterowanie wentylatorami.
+Przy zamkniętej pokrywie tryb kończy się po systemowym czasie bezczynności, jeśli żadna aplikacja nie utrzymuje Maca w czuwaniu. macOS decyduje o uśpieniu; tryb wentylatorów pozostaje.
 
-Aktualizacje czekają na wyłączenie obu funkcji. Ustaw Maca na twardej, wentylowanej powierzchni.
+Tryb wymaga usługi zatwierdzonej przez administratora. kończy się przy 10% baterii bez zasilania lub ostrzeżeniu macOS o przegrzaniu. po 90 sekundach bez Hop usługa przywraca sen i sterowanie wentylatorami.
+
+Aktualizacje czekają na wyłączenie obu funkcji. ustaw Maca na twardej, wentylowanej powierzchni.
 
 <div align="center">
 <img src="https://hop.tools/screens/pl/awake.webp" width="420" alt="Hop – Blokada uśpienia">

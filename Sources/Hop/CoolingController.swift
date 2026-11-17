@@ -98,6 +98,13 @@ final class CoolingController: ObservableObject {
             || (busy && !updating)
     }
 
+    var updateDiagnosticState: [String: Bool] {
+        ["active": snapshot.active, "restorationPending": snapshot.restorationPending,
+         "snapshotBusy": snapshot.reason == .busy, "maintenance": snapshot.maintenance,
+         "pendingTransaction": pendingTransaction != nil, "busy": busy,
+         "updating": updating, "inFlight": inFlight, "blocksUpdates": blocksUpdates]
+    }
+
     private var pendingTransaction: UUID? {
         transaction ?? UserDefaults.standard.string(forKey: Self.updateRegistrationKey).flatMap(UUID.init(uuidString:))
     }
@@ -294,9 +301,12 @@ final class CoolingController: ObservableObject {
         if status.reason != .busy, failure == .busy || failure == .serviceApproval || failure == .serviceMissing {
             failure = nil
         }
+        if wasLid, !status.lid {
+            desired.lid = false; lidDeadline = nil
+            lidDidStop?(status.reason)
+        }
         if !status.active {
             desired = .init(); lidDeadline = nil
-            if wasLid, !status.lid { lidDidStop?(status.reason) }
             if wasActive, let reason = status.reason, reason != .stopped,
                reason != lastNotified, !preview, !Snapshot.active {
                 lastNotified = reason

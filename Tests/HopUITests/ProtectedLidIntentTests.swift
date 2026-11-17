@@ -4,6 +4,70 @@ import XCTest
 
 @MainActor
 final class ProtectedLidIntentTests: XCTestCase {
+    func testEnablingLidAloneDoesNotChooseInfinityOrAcquireAwake() async {
+        let saved = Snapshot.active
+        Snapshot.active = true
+        defer { Snapshot.active = saved }
+        var deadlines: [Date?] = []
+        let awake = KeepAwakeController(demo: true, protectedLid: { on, until in deadlines.append(until); return on })
+        awake.deactivate(silent: true)
+        awake.setLidEnabled(true)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        XCTAssertTrue(awake.lidApplied)
+        XCTAssertFalse(awake.isActive)
+        XCTAssertNil(awake.selected)
+        XCTAssertNil(awake.until)
+        XCTAssertEqual(deadlines.count, 1)
+        XCTAssertNil(deadlines.first!)
+        awake.setLidEnabled(false)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+    }
+
+    func testTurningAwakeOffDoesNotDisableTheLidLease() async {
+        let saved = Snapshot.active
+        Snapshot.active = true
+        defer { Snapshot.active = saved }
+        var calls: [Bool] = []
+        let awake = KeepAwakeController(demo: true, protectedLid: { on, _ in calls.append(on); return on })
+        awake.setLidEnabled(true)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        awake.deactivate()
+        for _ in 0..<30 { await Task.yield() }
+        XCTAssertFalse(awake.isActive)
+        XCTAssertTrue(awake.lidApplied)
+        XCTAssertEqual(calls, [true])
+        awake.releaseLidForShutdown()
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        XCTAssertFalse(awake.lidApplied)
+    }
+
+    func testModuleOffReleasesActiveAndPendingLidWithoutLateRearm() async {
+        let saved = Snapshot.active
+        Snapshot.active = true
+        defer { Snapshot.active = saved }
+        for pending in [false, true] {
+            var reply: CheckedContinuation<Bool, Error>?
+            var calls: [Bool] = []
+            let awake = KeepAwakeController(demo: true, protectedLid: { on, _ in
+                calls.append(on)
+                if on && pending { return try await withCheckedThrowingContinuation { reply = $0 } }
+                return on
+            })
+            awake.deactivate(silent: true)
+            awake.setLidEnabled(true)
+            for _ in 0..<100 where pending ? reply == nil : awake.lidChanging { await Task.yield() }
+            XCTAssertTrue(awake.hasModuleWork)
+            awake.stopForModuleOff()
+            for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+            reply?.resume(returning: true)
+            for _ in 0..<30 { await Task.yield() }
+            XCTAssertEqual(calls, [true, false])
+            XCTAssertFalse(awake.hasModuleWork)
+            XCTAssertFalse(awake.isActive)
+            XCTAssertFalse(awake.lidApplied)
+        }
+    }
+
     func testOffDuringPendingEnableCannotBeUndoneByItsLateReply() async {
         let wasSnapshot = Snapshot.active
         Snapshot.active = true
@@ -28,7 +92,7 @@ final class ProtectedLidIntentTests: XCTestCase {
         XCTAssertFalse(awake.lidChanging)
     }
 
-    func testChangingDurationDuringPendingLidEnableUpdatesTheRootDeadline() async {
+    func testChangingDurationDuringPendingLidEnableKeepsIndependentLease() async {
         let wasSnapshot = Snapshot.active
         Snapshot.active = true
         defer { Snapshot.active = wasSnapshot }
@@ -46,13 +110,11 @@ final class ProtectedLidIntentTests: XCTestCase {
         awake.setLidEnabled(true)
         for _ in 0..<100 where firstReply == nil { await Task.yield() }
         XCTAssertNotNil(firstReply)
-        let firstDeadline = awake.until
         awake.activate(.init(label: "2h", seconds: 7200))
         firstReply?.resume(returning: true)
         for _ in 0..<100 { await Task.yield() }
-        XCTAssertEqual(deadlines.count, 2)
-        XCTAssertEqual(deadlines.first!, firstDeadline)
-        XCTAssertEqual(deadlines.last!, awake.until)
+        XCTAssertEqual(deadlines.count, 1)
+        XCTAssertNil(deadlines.first!)
         XCTAssertTrue(awake.lidApplied)
     }
 
@@ -95,10 +157,12 @@ final class ProtectedLidIntentTests: XCTestCase {
         awake.setLidEnabled(true)
         for _ in 0..<100 where awake.lidChanging { await Task.yield() }
         XCTAssertEqual(calls, 1)
+        XCTAssertEqual(awake.lidFailure, .commandFailed)
         awake.activate(.init(label: "2h", seconds: 7200))
         for _ in 0..<100 { await Task.yield() }
         XCTAssertEqual(calls, 1)
         XCTAssertFalse(awake.lidApplied)
+        XCTAssertEqual(awake.lidFailure, .commandFailed)
     }
 
     func testOffWhenAlreadyOffDoesNotStartAnAwakeSessionOrContactService() async {

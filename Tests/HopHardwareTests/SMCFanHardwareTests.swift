@@ -7,12 +7,21 @@ final class SMCFanHardwareTests: XCTestCase {
         var writes: [String] = []
         var reject: Set<String> = []
         var ignore: Set<String> = []
+        var transientFailures: [String: Int] = [:]
+        var systemAutomaticOnRelease = false
         func read(_ key: String) -> SMCValue? { values[key] }
         func write(_ key: String, bytes: [UInt8]) throws {
             writes.append(key)
             if reject.contains(key) { throw HardwareReason.commandFailed }
+            if let remaining = transientFailures[key], remaining > 0 {
+                transientFailures[key] = remaining - 1
+                throw HardwareReason.commandFailed
+            }
             guard let old = values[key], old.bytes.count == bytes.count else { throw HardwareReason.invalid }
-            if !ignore.contains(key) { values[key] = SMCValue(type: old.type, bytes: bytes) }
+            if !ignore.contains(key) {
+                let released = systemAutomaticOnRelease && (key.hasSuffix("Md") || key.hasSuffix("md")) && bytes == [0]
+                values[key] = SMCValue(type: old.type, bytes: released ? [3] : bytes)
+            }
         }
         func keyCount() -> Int { values.keys.count }
         func key(at index: Int) -> String? { values.keys.sorted()[index] }
@@ -54,6 +63,71 @@ final class SMCFanHardwareTests: XCTestCase {
         XCTAssertFalse(hardware.read().fans.contains(where: \.manual))
     }
 
+    func testLowercaseDirectControlWithoutTestKeyKeepsFanIDsAndRestores() throws {
+        let transport = apple()
+        transport.values["Ftst"] = nil
+        for index in 0..<2 {
+            transport.values["F\(index)md"] = transport.values.removeValue(forKey: "F\(index)Md")
+        }
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        XCTAssertTrue(hardware.read().supportsControl)
+        try hardware.setTargets([0: 3000, 1: 4000])
+        XCTAssertEqual(transport.read("F1Tg")?.number, 4000)
+        XCTAssertTrue(hardware.read().fans.allSatisfy(\.manual))
+        try hardware.restore(indices: [0, 1])
+        XCTAssertFalse(hardware.read().fans.contains(where: \.manual))
+        XCTAssertFalse(transport.writes.contains("Ftst"))
+    }
+
+    func testUppercaseDirectControlDoesNotRequireGlobalTestKey() throws {
+        let transport = apple()
+        transport.values["Ftst"] = nil
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        XCTAssertTrue(hardware.read().supportsControl)
+        try hardware.setTargets([0: 3000, 1: 4000])
+        try hardware.restore(indices: [0, 1])
+        XCTAssertFalse(transport.writes.contains("Ftst"))
+    }
+
+    func testTemporaryModeWriteRejectionCanYieldBeforeTakeover() throws {
+        let transport = apple()
+        transport.transientFailures["F0Md"] = 2
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        try hardware.setTargets([0: 3000, 1: 4000])
+        XCTAssertEqual(transport.read("F0Md")?.number, 1)
+        try hardware.restore(indices: [0, 1])
+    }
+
+    func testPermanentFirmwareRejectionAndIgnoredModeWritesCannotApplyTargets() throws {
+        for silent in [false, true] {
+            let transport = apple()
+            if silent { transport.ignore.insert("F0Md") }
+            else { transport.reject.insert("F0Md") }
+            let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+            let start = ProcessInfo.processInfo.systemUptime
+            XCTAssertThrowsError(try hardware.setTargets([0: 3000, 1: 4000]))
+            let elapsed = ProcessInfo.processInfo.systemUptime - start
+            XCTAssertGreaterThanOrEqual(elapsed, 2.8)
+            XCTAssertLessThan(elapsed, 6)
+            XCTAssertFalse(transport.writes.contains("F0Tg"))
+            XCTAssertFalse(transport.writes.contains("F1Tg"))
+            transport.reject.removeAll(); transport.ignore.removeAll()
+            try hardware.restore(indices: [0, 1])
+            XCTAssertEqual(transport.values["F0Md"]?.number, 0)
+            XCTAssertEqual(transport.values["F1Md"]?.number, 0)
+        }
+    }
+
+    func testSystemAutomaticReadbackAfterReleaseIsNotARecoveryFailure() throws {
+        let transport = apple()
+        transport.systemAutomaticOnRelease = true
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        try hardware.setTargets([0: 3000, 1: 4000])
+        try hardware.restore(indices: [0, 1])
+        XCTAssertEqual(transport.read("F0Md")?.number, 3)
+        XCTAssertFalse(hardware.read().fans.contains(where: \.manual))
+    }
+
     func testIntelUsesFixedPointAndPreservesOtherManualBits() throws {
         let transport = Transport()
         transport.byte("FNum", 1)
@@ -83,6 +157,13 @@ final class SMCFanHardwareTests: XCTestCase {
         XCTAssertFalse(hardware.read().supportsControl)
         transport.byte("FNum", 250)
         XCTAssertTrue(hardware.read().fans.isEmpty)
+    }
+
+    func testDuplicateRecoveryIndicesAreRejectedBeforeWriting() {
+        let transport = apple()
+        let hardware = SMCFanHardware(transport: transport, canWrite: { true })
+        XCTAssertThrowsError(try hardware.restore(indices: [0, 0]))
+        XCTAssertTrue(transport.writes.isEmpty)
     }
 
     func testRootAndRangeChecksPrecedeEveryWrite() {

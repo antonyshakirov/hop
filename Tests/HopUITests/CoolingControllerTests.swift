@@ -16,6 +16,8 @@ private final class ClientJournal: HardwareJournal {
 }
 
 private final class ClientHardware: HardwareBackend {
+    var idleReady = false
+    func idleLidReleaseReady() -> Bool { idleReady }
     var sleep = false
     var targets: [Int: Double] = [:]
     var reading = HardwareObservation(fans: [.init(id: 0, rpm: 1200, minimum: 1000, maximum: 6000, manual: false)],
@@ -76,6 +78,35 @@ private final class ClientService: CoolingService {
 
 @MainActor
 final class CoolingControllerTests: XCTestCase {
+    func testIdleLidReleaseUpdatesUIWithoutRearmingWhenFanPolicyChanges() async throws {
+        let (controller, service) = try fixture()
+        let defaults = UserDefaults.standard
+        let saved = defaults.object(forKey: SettingsKey.panelTabs)
+        defaults.removeObject(forKey: SettingsKey.panelTabs)
+        defer {
+            if let saved { defaults.set(saved, forKey: SettingsKey.panelTabs) }
+            else { defaults.removeObject(forKey: SettingsKey.panelTabs) }
+        }
+        var stopped = 0
+        controller.lidDidStop = { _ in stopped += 1 }
+        try await controller.setLid(true, until: nil)
+        controller.apply(.init(mode: .maximum))
+        for _ in 0..<100 where controller.busy { await Task.yield() }
+        XCTAssertTrue(controller.snapshot.active)
+        XCTAssertEqual(controller.snapshot.policy.mode, .maximum)
+        service.hardware.reading.lidClosed = true; service.hardware.idleReady = true
+        service.root.tick()
+        controller.open(); await controller.refresh()
+        XCTAssertFalse(controller.snapshot.lid)
+        XCTAssertTrue(controller.snapshot.active)
+        XCTAssertEqual(stopped, 1)
+        controller.apply(.init(mode: .fixed, targets: [0: 2000]))
+        for _ in 0..<100 where controller.busy { await Task.yield() }
+        XCTAssertFalse(service.hardware.sleep)
+        XCTAssertFalse(controller.snapshot.lid)
+        XCTAssertEqual(service.hardware.targets, [0: 2000])
+    }
+
     func testInitialAdministratorApprovalIsReportedWithoutChangingSleep() async throws {
         let (controller, service) = try fixture()
         service.state = .missing

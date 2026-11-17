@@ -174,11 +174,13 @@ waktu, menambah tugas berpengingat, atau membaca apa yang sedang berjalan. Lihat
 
 Menjaga Mac tetap terjaga dari 15 menit hingga ∞. “layar tetap menyala” juga menjaga layar tetap terang.
 
-Tombol tutup mengaktifkan kerja dengan tutup tertutup; jika pencegahan tidur mati, sesi tanpa batas dimulai. Klik lagi untuk mematikan. Kuning berarti aktif.
+Tombol tutup mengaktifkan atau mematikan mode tutup tertutup secara terpisah dari Awake. tombol ini tidak memilih ∞ atau mengubah timer. kuning berarti aktif.
 
-Perlu layanan yang diizinkan administrator. Mode berhenti saat baterai 10% tanpa daya listrik, macOS melaporkan panas berlebih, atau sesi berakhir. Setelah 90 detik tanpa Hop, layanan memulihkan tidur dan kendali kipas.
+Saat tutup tertutup, mode mati setelah waktu tidur sistem jika tidak ada aplikasi yang menjaga Mac terjaga. macOS lalu menentukan waktu tidur; mode kipas tetap sama.
 
-Pembaruan menunggu kedua kendali dimatikan. Letakkan Mac di permukaan keras dengan ventilasi baik.
+Perlu layanan yang diizinkan administrator. mode berhenti saat baterai 10% tanpa daya listrik atau macOS melaporkan panas berlebih. setelah 90 detik tanpa Hop, layanan memulihkan tidur dan kendali kipas.
+
+Pembaruan menunggu kedua kendali dimatikan. letakkan Mac di permukaan keras dengan ventilasi baik.
 
 <div align="center">
 <img src="https://hop.tools/screens/id/awake.webp" width="420" alt="Hop – Anti-tidur">

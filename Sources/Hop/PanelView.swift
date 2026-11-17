@@ -3288,7 +3288,7 @@ struct PanelView: View {
         }
         return ModuleShutdown.Activity(
             timerRunning: engineState == .running || engineState == .paused,
-            keepAwakeActive: model.keepAwake.isActive,
+            keepAwakeActive: model.keepAwake.hasModuleWork,
             trackerRunning: model.tracker.isTracking,
             activeDownloads: downloading.count,
             converterBusy: model.converter.busy,
@@ -3316,7 +3316,7 @@ struct PanelView: View {
     private func stopModuleWork(_ key: String) {
         switch key {
         case "timer": model.engine.reset()
-        case "awake": model.keepAwake.deactivate()
+        case "awake": model.keepAwake.stopForModuleOff()
         case "tracker": model.tracker.engine.stopActive()
         case "torrent":
             for torrent in model.torrent.torrents { model.torrent.pause(id: torrent.id) }
@@ -5321,10 +5321,12 @@ struct PanelView: View {
             if comboLast {
                 hotkeyClash(action)
                 hotkeyReset(action)
+                hotkeyDisable(action)
                 hotkeyCombo(action)
             } else {
                 hotkeyCombo(action)
                 hotkeyReset(action)
+                hotkeyDisable(action)
                 hotkeyClash(action)
             }
         }
@@ -5336,6 +5338,23 @@ struct PanelView: View {
             startRecording(action)
         }
         .help(t(.hotkeysLabel))
+    }
+
+    @ViewBuilder
+    private func hotkeyDisable(_ action: ModuleAction) -> some View {
+        if action.storageKey == "hotkey_clipboard" {
+            HotkeyClearButton(label: t(.hkDisable), id: action.storageKey) {
+                if recordingHotkey == action {
+                    if let monitor = hotkeyMonitor { NSEvent.removeMonitor(monitor); hotkeyMonitor = nil }
+                    recordingHotkey = nil
+                }
+                hotkeys.disable(action)
+            }
+            .frame(width: 18, height: 18)
+            .disabled(hotkeys.combo(for: action) == nil)
+            .opacity(hotkeys.combo(for: action) == nil ? 0 : 1)
+            .accessibilityHidden(hotkeys.combo(for: action) == nil)
+        }
     }
 
     private func hotkeyReset(_ action: ModuleAction) -> some View {
@@ -5649,9 +5668,8 @@ struct PanelView: View {
         VStack(spacing: 12) {
 
             HStack {
-                Text(t(.coolingTitle))
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.textPrimary)
+                CoolingSettingsLink(title: t(.coolingTitle), action: { model.openCoolingWindow?() })
+                    .fixedSize()
                 Spacer()
                 Theme.MiniSwitch(isOn: $monitorCoolingVisible)
             }

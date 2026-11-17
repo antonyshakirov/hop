@@ -168,11 +168,13 @@ chạy. Xem [docs/automation.md](../automation.md).
 
 Giữ Mac thức từ 15 phút đến ∞. “giữ màn hình sáng” cũng giữ màn hình bật.
 
-Nút nắp bật chế độ làm việc khi đóng nắp; nếu chưa ngăn ngủ, một phiên không giới hạn sẽ bắt đầu. Nhấn lại để tắt. Màu hổ phách nghĩa là đang bật.
+Nút nắp bật hoặc tắt chế độ đóng nắp độc lập với Awake. nút không chọn ∞ hay thay đổi bộ hẹn giờ. màu hổ phách nghĩa là đang bật.
 
-Cần dịch vụ được quản trị viên cho phép. Chế độ dừng khi pin còn 10% lúc không cắm điện, macOS báo quá nóng hoặc phiên kết thúc. Sau 90 giây không liên lạc với Hop, dịch vụ khôi phục chế độ ngủ và điều khiển quạt.
+Khi đóng nắp, chế độ tắt sau thời gian ngủ của hệ thống nếu không có ứng dụng giữ Mac thức. macOS quyết định khi nào ngủ; chế độ quạt được giữ nguyên.
 
-Cập nhật chờ hai chế độ được tắt. Đặt Mac trên bề mặt cứng và thông thoáng.
+Cần dịch vụ được quản trị viên cho phép. chế độ dừng khi pin còn 10% lúc không cắm điện hoặc macOS báo quá nóng. sau 90 giây không liên lạc với Hop, dịch vụ khôi phục chế độ ngủ và điều khiển quạt.
+
+Cập nhật chờ hai chế độ được tắt. đặt Mac trên bề mặt cứng và thông thoáng.
 
 <div align="center">
 <img src="https://hop.tools/screens/vi/awake.webp" width="420" alt="Hop – Chống ngủ">

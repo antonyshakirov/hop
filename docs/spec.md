@@ -1206,8 +1206,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   three-second deadline and 16 KiB output limit; durable recovery and actual
   sleep-state verification still precede the confirmed lid indicator.
   A failed lid action reports its reason inline beneath Awake; it never opens
-  the fan-control window. The latest intent owns the error; retry and ordinary
-  off clear it. Busy copy explains that another Hop instance may own lid/cooling
+  the fan-control window. The latest lid intent owns the error; a lid retry
+  clears it. Awake timer changes do not dismiss an unrelated lid failure. Busy copy explains that another Hop instance may own lid/cooling
   and must release it there; no other instance is stopped or taken over.
 - **Hardware service updates** wait until lid override and manual cooling
   are off and their restoration is confirmed. They restore, unregister the
@@ -1226,11 +1226,29 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   sleep); "display stays on" → PreventUserIdleDisplaySleep.
 - Lid: the laptop button enables the protected lid session through the bundled
   hardware service. First use may need administrator approval in Login Items &
-  Extensions; it never installs a new sudoers rule. When awake is off the
-  button first starts an endless ordinary awake session. The lid indicator is
-  applied only after the service confirms success, and input is disabled while
-  the request is pending. Turning awake off, quitting and expiry release the
-  owned override; switching duration updates the service's independent deadline.
+  Extensions; it never installs a new sudoers rule. Lid and Awake are independent:
+  enabling lid mode never starts Awake or chooses infinity. Turning Awake off,
+  expiring its timer, or changing its duration does not release or retime the lid
+  lease. The lid indicator appears only after service confirmation and is disabled
+  while the request is pending. Explicit lid-off and quitting release its override.
+  Safety cutoffs remain independent of both UI controls.
+  Disabling the whole Awake module confirms active or pending lid work and
+  explicitly releases both controls, including a pending enable reply.
+- **Ordinary idle release — Anton, 2026-11-17.** While the lid is closed,
+  the hardware service removes only Hop's lid override after the current power
+  source's system sleep timeout and confirmed HID inactivity, provided no active
+  system-wide power assertion blocks sleep. Awake's own assertion participates
+  in this check. A disabled system sleep timeout, unknown input, malformed data
+  or an unknown active assertion does not trigger release. The lid switch then
+  turns off without automatic rearming; independently configured manual fans
+  remain active and do not inherit the old lid deadline.
+  Idle release records its intent durably before any sleep-state write, including
+  retries and helper restarts. This path never requests forced system sleep:
+  macOS decides when to sleep after the override is restored. Assertion reads are
+  snapshots, not an atomic guarantee against a newly arriving assertion. A crash
+  before idle intent can be persisted retains the existing crash-recovery policy.
+  Battery, heat, expiry and heartbeat cutoffs retain their established behavior.
+  Real closed-lid idle/media/agent behavior still requires device acceptance.
 - **Keep awake survives an update** (Anton, 2026-10-01; revised 2026-10-25
   and protected-service agreement, 2026-11-15). Timed awake and all active or
   unresolved hardware overrides defer installation. Endless ordinary awake can
@@ -1280,6 +1298,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   hardware service as protected lid sessions. It restores system control on
   stop, loss of the app heartbeat and after its own restart. Dev and production
   share hardware ownership; a second client cannot take over an active lease.
+  Apple-style float target schemas accept typed `F<n>Md` or `F<n>md` mode
+  keys with optional `Ftst`; unknown schemas remain read-only. Manual takeover
+  retries transient writes/readback within three seconds. Release accepts mode
+  0 or firmware system mode 3 and uses the same discovered keys. Intel control
+  retains unrelated `FS!` bits. Reported fan readings stay visible even when
+  their schema cannot safely be controlled.
   Software tests do not certify fan behavior on untested Mac models.
   The automatic selector is labelled macOS and explains that macOS chooses the
   speed. The CPU-temperature selector uses Hop's explicit lower/upper thresholds.
@@ -1296,6 +1320,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   background extends 8 points past the content on each side without shifting
   those columns. A separate cooling switch in monitor settings hides/reveals the
   row and persists across launches; hiding it does not change fan or lid control.
+  The cooling label in monitor settings also opens the cooling window; its
+  separate visibility switch keeps the existing hide/show behavior.
   The trailing slot shows a subdued text label before the arrow only for a
   confirmed active manual fan policy. Idle macOS control, lid-only leases, pending
   recovery and unavailable service status do not show an active fan label.
@@ -8044,3 +8070,11 @@ Menu-bar audio spacing, 3 November 2026: trim two trailing points after the last
 # Community plugin preview
 
 The local Hop Dev2.6 preview follows [Plugin SDK v1](plugins/sdk-v1.md). Plugins are off on installation, run only after explicit approval, and use reversible panel/theme overlays over base preferences. Settings lists only manually imported plugins, with search and permission-gated enable switches. Removal is a separate trash icon at the bottom right of each card. No public catalog or suggested downloads are shown. An isolated runtime has no hardware, AgentBridge or generic host access. Recovery is independent of plugin UI.
+
+### Optional clipboard shortcut
+
+- A clear icon beside the clipboard shortcut unregisters only that shortcut.
+  Clipboard capture and history remain enabled. The explicit disabled state
+  persists across launches; missing preferences keep the shipped default and
+  Reset restores it. Clearing also cancels an in-progress recording and removes
+  a stale shortcut-conflict warning.

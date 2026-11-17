@@ -175,11 +175,13 @@ Ver [docs/automation.md](../automation.md).
 
 Mantiene el Mac despierto de 15 minutos a ∞. «la pantalla sigue encendida» mantiene también la pantalla iluminada.
 
-El botón de tapa activa el uso con la tapa cerrada; si no se impedía el reposo, inicia una sesión sin límite. Otro clic desactiva este modo. Ámbar significa activo.
+El botón de tapa activa o desactiva el modo con tapa cerrada independientemente de Awake. no selecciona ∞ ni cambia el temporizador. ámbar significa activo.
 
-Requiere un servicio autorizado por el administrador. Termina con un 10% de batería sin corriente, una alerta de calor de macOS o al acabar la sesión. Tras 90 segundos sin Hop, el servicio restablece el reposo y el control de ventiladores.
+Con la tapa cerrada, el modo termina al vencer el tiempo de reposo del sistema si ninguna app mantiene el Mac despierto. macOS decide cuándo dormir; el modo de ventiladores se conserva.
 
-Las actualizaciones esperan a que ambos controles estén desactivados. Usa el Mac sobre una superficie firme y ventilada.
+Requiere un servicio autorizado por el administrador. termina con un 10% de batería sin corriente o una alerta de calor de macOS. tras 90 segundos sin Hop, el servicio restablece el reposo y el control de ventiladores.
+
+Las actualizaciones esperan a que ambos controles estén desactivados. usa el Mac sobre una superficie firme y ventilada.
 
 <div align="center">
 <img src="https://hop.tools/screens/es/awake.webp" width="420" alt="Hop – Sin reposo">

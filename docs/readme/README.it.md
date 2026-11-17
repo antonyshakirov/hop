@@ -175,11 +175,13 @@ un'attività con promemoria o leggere cosa sta girando. Vedi
 
 Tiene sveglio il Mac da 15 minuti a ∞. «lo schermo resta acceso» mantiene acceso anche lo schermo.
 
-Il pulsante del coperchio attiva il lavoro a coperchio chiuso; se il blocco del sonno era spento, avvia una sessione illimitata. Un altro clic disattiva il modo. Ambra significa attivo.
+Il pulsante del coperchio attiva o disattiva il modo a coperchio chiuso indipendentemente da Awake. non seleziona ∞ e non cambia il timer. ambra significa attivo.
 
-Serve un servizio autorizzato dall’amministratore. Si ferma al 10% di batteria senza alimentazione, con un avviso di calore di macOS o a fine sessione. Dopo 90 secondi senza Hop, il servizio ripristina sonno e controllo delle ventole.
+A coperchio chiuso, il modo termina dopo il tempo di sonno del sistema se nessuna app tiene sveglio il Mac. macOS decide quando dormire; il modo delle ventole rimane.
 
-Gli aggiornamenti attendono che entrambi i controlli siano spenti. Usa il Mac su una superficie solida e ventilata.
+Serve un servizio autorizzato dall’amministratore. si ferma al 10% di batteria senza alimentazione o con un avviso di calore di macOS. dopo 90 secondi senza Hop, il servizio ripristina sonno e controllo delle ventole.
+
+Gli aggiornamenti attendono che entrambi i controlli siano spenti. usa il Mac su una superficie solida e ventilata.
 
 <div align="center">
 <img src="https://hop.tools/screens/it/awake.webp" width="420" alt="Hop – Niente stop">

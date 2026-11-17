@@ -173,11 +173,13 @@ Veja [docs/automation.md](../automation.md).
 
 Mantém o Mac acordado de 15 minutos a ∞. «o ecrã fica ligado» mantém também o ecrã aceso.
 
-O botão da tampa ativa o uso com a tampa fechada; se o bloqueio de repouso estava desligado, inicia uma sessão sem limite. Outro clique desliga este modo. Âmbar significa ativo.
+O botão da tampa liga ou desliga o modo de tampa fechada independentemente de Awake. não seleciona ∞ nem altera o temporizador. âmbar significa ativo.
 
-Requer um serviço autorizado pelo administrador. Termina com 10% de bateria sem corrente, um aviso de calor do macOS ou no fim da sessão. Após 90 segundos sem Hop, o serviço repõe o repouso e o controlo das ventoinhas.
+Com a tampa fechada, o modo termina após o tempo de repouso do sistema se nenhuma app mantiver o Mac acordado. o macOS decide quando dormir; o modo das ventoinhas mantém-se.
 
-As atualizações aguardam que ambos os controlos sejam desligados. Usa o Mac numa superfície firme e ventilada.
+Requer um serviço autorizado pelo administrador. termina com 10% de bateria sem corrente ou um aviso de calor do macOS. após 90 segundos sem Hop, o serviço repõe o repouso e o controlo das ventoinhas.
+
+As atualizações aguardam que ambos os controlos sejam desligados. usa o Mac numa superfície firme e ventilada.
 
 <div align="center">
 <img src="https://hop.tools/screens/pt/awake.webp" width="420" alt="Hop – Sem suspensão">

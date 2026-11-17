@@ -40,15 +40,21 @@ public final class SMCFanHardware: @unchecked Sendable {
               }) else { throw HardwareReason.unsupported }
         switch inventory.control {
         case .appleSilicon:
-            try transport.write("Ftst", bytes: [1])
+            let usesTestKey = transport.type(of: "Ftst") == "ui8 "
             let deadline = ProcessInfo.processInfo.systemUptime + 3
             while true {
-                var pending = false
-                for fan in inventory.fans where transport.read("F\(fan.id)Md")?.number != 1 {
-                    try transport.write("F\(fan.id)Md", bytes: [1])
-                    if transport.read("F\(fan.id)Md")?.number != 1 { pending = true }
+                do {
+                    if usesTestKey && transport.read("Ftst")?.number != 1 {
+                        try transport.write("Ftst", bytes: [1])
+                    }
+                    for fan in inventory.fans where transport.read(inventory.modes[fan.id]!)?.number != 1 {
+                        try transport.write(inventory.modes[fan.id]!, bytes: [1])
+                    }
+                } catch {
+                    // SPEC: temporary firmware rejection may yield within the bounded takeover window.
                 }
-                if !pending { break }
+                if inventory.modes.values.allSatisfy({ transport.read($0)?.number == 1 }),
+                   !usesTestKey || transport.read("Ftst")?.number == 1 { break }
                 guard ProcessInfo.processInfo.systemUptime < deadline else { throw HardwareReason.commandFailed }
                 Thread.sleep(forTimeInterval: 0.1)
             }
@@ -78,22 +84,30 @@ public final class SMCFanHardware: @unchecked Sendable {
     public func restore(indices: [Int]) throws {
         lock.lock(); defer { lock.unlock() }
         guard !indices.isEmpty else { return }
-        guard canWrite(), let transport, indices.count <= 8,
+        guard canWrite(), let transport, indices.count <= 8, Set(indices).count == indices.count,
               indices.allSatisfy({ (0..<8).contains($0) }) else { throw HardwareReason.unauthorized }
         var failed = false
-        let apple = transport.type(of: "Ftst") == "ui8 " && indices.allSatisfy {
-            transport.type(of: "F\($0)Md") == "ui8 " && transport.type(of: "F\($0)Tg") == "flt "
+        let modes = Dictionary(uniqueKeysWithValues: indices.compactMap { index in
+            modeKey(index).map { (index, $0) }
+        })
+        let apple = modes.count == indices.count && indices.allSatisfy {
+            transport.type(of: "F\($0)Tg") == "flt "
         }
         let intel = transport.type(of: "FS! ") == "ui16" && indices.allSatisfy {
             transport.type(of: "F\($0)Tg") == "fpe2"
         }
         if apple {
             for index in indices {
-                do { try transport.write("F\(index)Md", bytes: [0]) } catch { failed = true }
+                do { try transport.write(modes[index]!, bytes: [0]) } catch { failed = true }
             }
-            do { try transport.write("Ftst", bytes: [0]) } catch { failed = true }
-            for index in indices where transport.read("F\(index)Md")?.number != 0 { failed = true }
-            if transport.read("Ftst")?.number != 0 { failed = true }
+            if transport.type(of: "Ftst") == "ui8 " {
+                do { try transport.write("Ftst", bytes: [0]) } catch { failed = true }
+                if transport.read("Ftst")?.number != 0 { failed = true }
+            }
+            for index in indices {
+                if let value = transport.read(modes[index]!)?.number, value == 0 || value == 3 { continue }
+                failed = true
+            }
         } else if intel, let value = transport.read("FS! ")?.number, value.isFinite, (0...65535).contains(value) {
             let mask = indices.reduce(UInt16(value)) { $0 & ~(UInt16(1) << $1) }
             do { try transport.write("FS! ", bytes: [UInt8(mask >> 8), UInt8(mask & 255)]) }
@@ -103,28 +117,36 @@ public final class SMCFanHardware: @unchecked Sendable {
         if failed { throw HardwareReason.restoreFailed }
     }
 
-    private func inventory() -> (fans: [FanReading], control: Control) {
+    private func inventory() -> (fans: [FanReading], control: Control, modes: [Int: String]) {
         guard let transport, let count = transport.read("FNum")?.number,
-              count.isFinite, count.rounded() == count, (1...8).contains(count) else { return ([], .unsupported) }
+              count.isFinite, count.rounded() == count, (1...8).contains(count) else { return ([], .unsupported, [:]) }
         var fans: [FanReading] = []
-        var apple = transport.read("Ftst")?.type == "ui8 "
+        var apple = true
+        var modes: [Int: String] = [:]
         var intel = transport.read("FS! ")?.type == "ui16"
         let mask = transport.read("FS! ")?.number ?? 0
         for index in 0..<Int(count) {
             guard let rpm = transport.read("F\(index)Ac")?.number,
                   let minimum = transport.read("F\(index)Mn")?.number,
                   let maximum = transport.read("F\(index)Mx")?.number else { apple = false; intel = false; continue }
-            let manual = transport.read("F\(index)Md")?.number == 1
+            let key = modeKey(index)
+            let mode = key.flatMap { transport.read($0)?.number }
+            if let key { modes[index] = key }
+            let manual = mode == 1
                 || transport.read("Ftst")?.number == 1
                 || (mask.isFinite && (0...65535).contains(mask) && UInt16(mask) & (UInt16(1) << index) != 0)
             let fan = FanReading(id: index, rpm: rpm, minimum: minimum, maximum: maximum, manual: manual)
             guard fan.valid else { apple = false; intel = false; continue }
             fans.append(fan)
-            apple = apple && transport.read("F\(index)Md")?.type == "ui8 "
+            apple = apple && key != nil && (mode == 0 || mode == 1 || mode == 3)
                 && transport.read("F\(index)Tg")?.type == "flt "
             intel = intel && transport.read("F\(index)Tg")?.type == "fpe2" && maximum <= 16383.75
         }
-        guard fans.count == Int(count) else { return (fans, .unsupported) }
-        return (fans, apple ? .appleSilicon : intel ? .intel : .unsupported)
+        guard fans.count == Int(count) else { return (fans, .unsupported, modes) }
+        return (fans, apple ? .appleSilicon : intel ? .intel : .unsupported, modes)
     }
+    private func modeKey(_ index: Int) -> String? {
+        ["F\(index)Md", "F\(index)md"].first { transport?.type(of: $0) == "ui8 " }
+    }
+
 }

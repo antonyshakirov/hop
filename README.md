@@ -175,11 +175,13 @@ See [docs/automation.md](docs/automation.md).
 
 Keeps the Mac awake from 15 minutes to ∞. “display stays on” also keeps the screen lit.
 
-The lid button starts closed-lid mode; if awake is off, it starts an unlimited session. A second click turns lid mode off. Amber means active. Failures appear beneath the Awake controls with the reason.
+The lid button toggles closed-lid mode independently of Awake. it does not select ∞ or change the timer. amber means active.
 
-Closed-lid mode needs an administrator-approved service. It ends when battery charge reaches 10% on battery power, macOS reports excessive heat, or the session expires. After 90 seconds without Hop, the service restores sleep and fan control.
+With the lid closed, the mode turns off after the system sleep timeout if no application keeps the Mac awake. macOS then decides when to sleep; manual fans keep their mode.
 
-Updates wait until closed-lid mode and manual fan control are off. Use the Mac on a firm, ventilated surface.
+Closed-lid mode needs an administrator-approved service. it ends when battery charge reaches 10% on battery power or macOS reports excessive heat. after 90 seconds without Hop, the service restores sleep and fan control.
+
+Updates wait until closed-lid mode and manual fan control are off. use the Mac on a firm, ventilated surface.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – No sleep">
@@ -209,6 +211,8 @@ short.
 The monitor opens cooling controls: automatic, maximum, fixed RPM or a CPU
 temperature curve, wherever the Mac exposes a supported fan interface. Actual
 fan ranges bound every setting; a Mac without supported fans stays read-only.
+Open cooling directly from monitor settings; the adjacent switch only hides or
+shows its panel row. Reported RPM remains visible on read-only fan interfaces.
 An administrator-approved background service restores automatic control after
 a lost connection or heartbeat. The same service protects closed-lid sessions
 with battery, thermal and time limits. Updates wait for these controls to stop
@@ -223,7 +227,7 @@ file back. Passwords and other concealed input are never stored.
 
 Press Command-Shift-C to search history in its own window. Command-1 through
 Command-9 copies a result; arrows and Return select and copy, and Escape closes
-the picker. The opening shortcut can be changed in settings.
+the picker. The opening shortcut can be changed or disabled independently in settings.
 
 Hover over a text entry to preview its text or an image for a thumbnail.
 The preview appears after half a second and fits its content.

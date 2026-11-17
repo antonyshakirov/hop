@@ -174,11 +174,13 @@ abfragen, was gerade läuft. Siehe [docs/automation.md](../automation.md).
 
 Hält den Mac von 15 Minuten bis ∞ wach. „Bildschirm bleibt an“ lässt auch das Display eingeschaltet.
 
-Die Deckeltaste aktiviert den Betrieb bei geschlossenem Deckel. Ist die Wachsperre aus, beginnt eine unbegrenzte Sitzung. Erneut klicken schaltet den Deckelmodus aus. Bernstein bedeutet aktiv.
+Die Deckeltaste schaltet den Betrieb bei geschlossenem Deckel unabhängig von Awake um. sie wählt weder ∞ noch ändert sie den Timer. Bernstein bedeutet aktiv.
 
-Der Modus benötigt einen vom Administrator erlaubten Dienst. Er endet bei 10% Akku ohne Netzstrom, einer Hitzewarnung von macOS oder am Sitzungsende. Nach 90 Sekunden ohne Hop stellt der Dienst Schlaf und Lüftersteuerung wieder her.
+Bei geschlossenem Deckel endet der Modus nach dem System-Ruhezustandstimer, wenn keine App den Mac wach hält. danach entscheidet macOS über den Schlaf; der Lüftermodus bleibt bestehen.
 
-Updates warten, bis Deckelmodus und manuelle Lüftersteuerung aus sind. Den Mac auf eine feste, belüftete Fläche stellen.
+Der Modus benötigt einen vom Administrator erlaubten Dienst. er endet bei 10% Akku ohne Netzstrom oder einer Hitzewarnung von macOS. nach 90 Sekunden ohne Hop stellt der Dienst Schlaf und Lüftersteuerung wieder her.
+
+Updates warten, bis Deckelmodus und manuelle Lüftersteuerung aus sind. den Mac auf eine feste, belüftete Fläche stellen.
 
 <div align="center">
 <img src="https://hop.tools/screens/de/awake.webp" width="420" alt="Hop – Kein Schlaf">

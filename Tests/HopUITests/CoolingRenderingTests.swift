@@ -8,6 +8,27 @@ import XCTest
 
 @MainActor
 final class CoolingRenderingTests: XCTestCase {
+    func testReportedFanReadingsRemainVisibleWhenControlSchemaIsUnknown() async throws {
+        let wasSnapshot = Snapshot.active
+        Snapshot.active = true
+        defer { Snapshot.active = wasSnapshot }
+        let service = RenderCoolingService("unsupported")
+        let controller = CoolingController(service: service)
+        await controller.refresh()
+        let empty = try XCTUnwrap(ImageRenderer(content: CoolingView(controller: controller, lang: .en).frame(width: 500)).nsImage)
+        service.status.fans = [.init(id: 0, rpm: 2400, minimum: 1200, maximum: 6300, manual: false)]
+        service.status.supportsControl = false
+        await controller.refresh()
+        let image = try XCTUnwrap(ImageRenderer(content: CoolingView(controller: controller, lang: .en).frame(width: 500)).nsImage)
+        XCTAssertGreaterThan(image.size.height, empty.size.height + 55)
+        XCTAssertLessThan(image.size.height, 500)
+        if let directory = ProcessInfo.processInfo.environment["HOP_PLUGIN_RENDER_DIR"] {
+            let bitmap = try XCTUnwrap(NSBitmapImageRep(data: try XCTUnwrap(image.tiffRepresentation)))
+            try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+                .write(to: URL(fileURLWithPath: directory).appendingPathComponent("cooling-readings-without-controls.png"))
+        }
+    }
+
     func testMonitorCoolingVisibilityPreferenceRemovesAndRestoresTheRow() throws {
         let defaults = UserDefaults.standard
         let key = "monitorCoolingVisible"

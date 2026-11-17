@@ -172,9 +172,11 @@ okuyabilir. Bkz. [docs/automation.md](../automation.md).
 
 Mac’i 15 dakikadan ∞’a kadar uyanık tutar. “ekran açık kalsın” ekranı da açık tutar.
 
-Kapak düğmesi kapak kapalı çalışmayı açar; uyku engeli kapalıysa sınırsız bir oturum başlar. Yeniden tıklamak modu kapatır. Kehribar etkin demektir.
+Kapak düğmesi kapalı kapak modunu Awake’den bağımsız açıp kapatır. ∞ seçmez ve zamanlayıcıyı değiştirmez. kehribar etkin demektir.
 
-Yönetici onaylı bir hizmet gerekir. Prizde değilken pil %10’a düşünce, macOS aşırı ısı bildirince veya oturum bitince durur. Hop ile 90 saniye iletişim kurulmazsa hizmet uyku ve fan kontrolünü geri yükler.
+Kapak kapalıyken hiçbir uygulama Mac’i uyanık tutmuyorsa sistemin uyku süresi sonunda mod kapanır. ardından uykuya macOS karar verir; fan modu korunur.
+
+Yönetici onaylı bir hizmet gerekir. prizde değilken pil %10’a düşünce, macOS aşırı ısı bildirince durur. Hop ile 90 saniye iletişim kurulmazsa hizmet uyku ve fan kontrolünü geri yükler.
 
 Güncellemeler iki kontrol de kapanana kadar bekler. Mac’i sağlam, havalandırılan bir yüzeye koyun.
 

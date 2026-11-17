@@ -173,11 +173,13 @@ toevoegen of lezen wat er draait. Zie
 
 Houdt de Mac wakker van 15 minuten tot ∞. „scherm blijft aan” laat ook het scherm branden.
 
-De klepknop schakelt werken met gesloten klep in; staat slaapblokkering uit, dan begint een onbeperkte sessie. Nogmaals klikken schakelt de klepmodus uit. Amber betekent actief.
+De dekselknop schakelt de gesloten-dekselmodus onafhankelijk van Awake. hij kiest geen ∞ en verandert de timer niet. amber betekent actief.
 
-De modus vereist een door de beheerder toegestane dienst. Hij stopt bij 10% batterij zonder netstroom, een hittemelding van macOS of het einde van de sessie. Na 90 seconden zonder Hop herstelt de dienst slaap en ventilatorbesturing.
+Met gesloten deksel stopt de modus na de systeemslaaptimer als geen app de Mac wakker houdt. macOS bepaalt daarna de slaap; de ventilatormodus blijft behouden.
 
-Updates wachten tot beide regelingen uit zijn. Zet de Mac op een stevige, geventileerde ondergrond.
+De modus vereist een door de beheerder toegestane dienst. hij stopt bij 10% batterij zonder netstroom of een hittemelding van macOS. na 90 seconden zonder Hop herstelt de dienst slaap en ventilatorbesturing.
+
+Updates wachten tot beide regelingen uit zijn. zet de Mac op een stevige, geventileerde ondergrond.
 
 <div align="center">
 <img src="https://hop.tools/screens/nl/awake.webp" width="420" alt="Hop – Geen slaap">

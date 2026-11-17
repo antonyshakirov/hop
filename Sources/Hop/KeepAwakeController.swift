@@ -45,7 +45,6 @@ final class KeepAwakeController: ObservableObject {
     @Published private(set) var lidChanging = false
     @Published private(set) var lidFailure: HardwareReason?
     private var lidOperation = UUID()
-    private var lidRequested = false
     private var protectedLid: (Bool, Date?) async throws -> Bool = { on, until in
         try await CoolingController.shared.setLid(on, until: until)
         return CoolingController.shared.snapshot.lid
@@ -101,9 +100,8 @@ final class KeepAwakeController: ObservableObject {
         CoolingController.shared.lidDidStop = { [weak self] reason in
             guard let self else { return }
             self.lidApplied = false
-            self.lidRequested = false
             self.updateLidDimmer()
-            if reason != .stopped, self.isActive { self.deactivate() }
+            if let reason, reason != .stopped, self.isActive { self.deactivate() }
         }
         // safety net: on app exit, release the assertion and restore lid sleep
         terminateObserver = NotificationCenter.default.addObserver(
@@ -120,6 +118,14 @@ final class KeepAwakeController: ObservableObject {
                 }
             }
         }
+    }
+
+    var hasModuleWork: Bool { isActive || lidApplied || lidChanging }
+
+    // SPEC: disabling the whole module releases both independent controls.
+    func stopForModuleOff() {
+        deactivate()
+        releaseLidForShutdown()
     }
 
     var remaining: TimeInterval? {
@@ -152,7 +158,6 @@ final class KeepAwakeController: ObservableObject {
         shownMinutes = until.map { AwakeCountdown.minutes(remaining: $0.timeIntervalSinceNow) }
 
         startTicker()
-        if lidRequested { applyLidSleepDisabled(true, playCue: false) }
     }
 
     private func startTicker() {
@@ -167,7 +172,6 @@ final class KeepAwakeController: ObservableObject {
 
     func deactivate(silent: Bool = false) {
         if !relaunching && !cancelRelaunch(releaseActiveHandoff: true) { return }
-        lidFailure = nil
         if isActive && !silent {
             Sounds.awakeCue(on: false)
         }
@@ -182,12 +186,6 @@ final class KeepAwakeController: ObservableObject {
         shownMinutes = nil
         ticker?.invalidate()
         ticker = nil
-        // lid mode lives only inside an awake session: when the session ends
-        // (manual off or time expiry, not an option switch), sleep comes back —
-        // otherwise a closed lid would block sleep forever after the timer.
-        if !silent && (lidApplied || lidChanging) {
-            applyLidSleepDisabled(false, playCue: false) // the off cue already played
-        }
     }
 
     // SPEC: docs/spec.md — "Keep awake survives an update".
@@ -255,7 +253,7 @@ final class KeepAwakeController: ObservableObject {
         }
     }
 
-    /// Apply a settings change (assertion type / lid) on the fly.
+    /// Apply a display assertion setting without changing the lid lease.
     func refreshForSettingsChange() {
         guard isActive else { return }
         if hasAssertion {
@@ -276,7 +274,6 @@ final class KeepAwakeController: ObservableObject {
     func setLidEnabled(_ on: Bool) {
         guard !on || !lidChanging else { return }
         guard lidApplied != on || lidChanging else { return }
-        if on && !isActive { activate(Self.option(seconds: nil)) }
         applyLidSleepDisabled(on)
     }
 
@@ -300,7 +297,6 @@ final class KeepAwakeController: ObservableObject {
     // SPEC: docs/spec.md — Protected lid sessions.
     private func applyLidSleepDisabled(_ disabled: Bool, playCue: Bool = true) {
         let operation = UUID()
-        lidRequested = disabled
         lidOperation = operation
         lidChanging = true
         lidFailure = nil
@@ -308,15 +304,13 @@ final class KeepAwakeController: ObservableObject {
             guard let self else { return }
             defer { if self.lidOperation == operation { self.lidChanging = false } }
             do {
-                let applied = try await self.protectedLid(disabled, self.until)
+                let applied = try await self.protectedLid(disabled, nil)
                 guard self.lidOperation == operation else { return }
                 self.lidApplied = applied
-                self.lidRequested = applied
                 if playCue { Sounds.awakeCue(on: self.lidApplied) }
                 self.updateLidDimmer()
             } catch {
                 if self.lidOperation == operation {
-                    self.lidRequested = false
                     self.lidFailure = error as? HardwareReason ?? .commandFailed
                 }
             }
