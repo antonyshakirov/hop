@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Plugin personali: importa i tuoi file nelle impostazioni. Ogni plugin parte disattivato e chiede l’accesso prima di eseguire.
 - Le modalità di raffreddamento si applicano alla selezione; il monitor mostra quella confermata. I Mac senza ventole lo indicano.

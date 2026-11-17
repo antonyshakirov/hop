@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Persoonlijke plugins: importeer je bestanden in de instellingen. Elke plugin begint uitgeschakeld en vraagt vóór uitvoering om toegang.
 - Koelmodi worden bij selectie toegepast; de monitor toont de bevestigde modus. Macs zonder ventilatoren geven dat aan.

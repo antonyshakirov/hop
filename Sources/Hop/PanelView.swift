@@ -495,7 +495,7 @@ struct PanelView: View {
         ReleaseCard(id: "2.4.5", lines: [.news245Bar, .news245Groups, .news245Panel],
                     destination: .menuBar, action: .news245Action),
         ReleaseCard(id: "2.5", lines: [.news25Cooling, .news25Lid, .news25Clipboard]),
-        ReleaseCard(id: "2.6", lines: [.news26Plugins]),
+        ReleaseCard(id: "2.5.3", lines: [.news26Plugins]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason

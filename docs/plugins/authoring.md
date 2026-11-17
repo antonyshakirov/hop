@@ -1,6 +1,6 @@
 # Agent guide: personal Hop customization
 
-Personal plugins are imported from user-selected files and shared independently; there is no official third-party marketplace. SDK1 requires Hop2.6 or later. Settings lists installed packages only.
+Personal plugins are imported from user-selected files and shared independently; there is no official third-party marketplace. SDK1 requires Hop2.5.3 or later. Settings lists installed packages only.
 
 ## Choose the right scope
 

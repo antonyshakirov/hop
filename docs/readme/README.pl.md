@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Własne wtyczki: importuj pliki w ustawieniach. Każda wtyczka jest początkowo wyłączona i przed uruchomieniem prosi o dostęp.
 - Tryb chłodzenia działa po wybraniu, a monitor pokazuje potwierdzony tryb. Mac bez wentylatorów wyraźnie o tym informuje.

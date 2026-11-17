@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Personal plugins: import your own packages in Settings. Each starts disabled and asks for access before it runs.
 - Cooling modes apply when selected, and the monitor shows the confirmed mode. Macs without fans say so.

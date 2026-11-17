@@ -559,7 +559,7 @@ enum L10n {
         HangingWords.glued(text, shortWords: shortWords(lang), trailing: trailingWords(lang))
     }
 
-    static func release26Text(_ lang: AppLanguage) -> [String] {
+    static func patch253Text(_ lang: AppLanguage) -> [String] {
         let text: [String]
         switch lang {
         case .en: text = ["Personal plugins: import your own packages in Settings. Each starts disabled and asks for access before it runs.", "Cooling modes apply when selected, and the monitor shows the confirmed mode. Macs without fans say so.", "The lid switch and Awake timer work independently.", "Hover clipboard entries to preview text or images. Its shortcut is off by default."]
@@ -589,7 +589,7 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.6.0 – 2026-11-17\n\n" + release26Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n2.5.0 – 2026-11-16\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
+        "2.5.3 – 2026-11-18\n\n" + patch253Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n2.5.0 – 2026-11-16\n\n" + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")
             + "\n\n" + previous
     }
 

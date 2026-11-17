@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Plugins personnels : importez vos fichiers dans les réglages. Chaque plugin est désactivé au départ et demande un accès avant de s’exécuter.
 - Les modes de refroidissement s’appliquent dès leur sélection ; le moniteur affiche le mode confirmé. Les Mac sans ventilateur l’indiquent.

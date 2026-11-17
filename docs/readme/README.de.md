@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Eigene Plugins: Pakete in den Einstellungen importieren. Jedes Plugin startet deaktiviert und fragt vor dem Ausführen nach Zugriff.
 - Kühlmodi werden bei der Auswahl angewendet; der Monitor zeigt den bestätigten Modus. Macs ohne Lüfter weisen darauf hin.

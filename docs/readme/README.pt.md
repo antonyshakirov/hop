@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Plugins pessoais: importa os teus ficheiros nas definições. Cada plugin começa desligado e pede acesso antes de executar.
 - Os modos de arrefecimento aplicam-se ao selecionar; o monitor mostra o modo confirmado. Os Mac sem ventoinhas indicam-no.

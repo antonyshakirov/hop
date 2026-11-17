@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Plugin cá nhân: nhập tệp của bạn trong cài đặt. Mỗi plugin ban đầu đều tắt và xin quyền truy cập trước khi chạy.
 - Chế độ làm mát được áp dụng khi chọn; màn hình theo dõi hiển thị chế độ đã xác nhận. Mac không có quạt sẽ được thông báo rõ.

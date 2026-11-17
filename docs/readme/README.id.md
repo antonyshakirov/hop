@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Plugin pribadi: impor berkas sendiri di pengaturan. Setiap plugin awalnya nonaktif dan meminta akses sebelum berjalan.
 - Mode pendinginan diterapkan saat dipilih; monitor menampilkan mode yang sudah dikonfirmasi. Mac tanpa kipas menampilkan keterangan yang jelas.

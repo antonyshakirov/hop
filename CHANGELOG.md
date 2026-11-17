@@ -1,6 +1,6 @@
 # Hop - version history
 
-## 2.6.0 - 2026-11-17
+## 2.5.3 - 2026-11-17
 
 - Personal plugins customize native panel layout, colors and timer behavior. Import packages manually in Settings; every plugin starts disabled and requires permission approval. There is no official third-party catalog or bundled plugin collection.
 - Cooling modes apply on selection. Fixed-speed sliders show current speed, target and range; the monitor shows only a confirmed manual mode. Improved bounded fan takeover, target readback and return to macOS; known fanless Macs have an explicit explanation.

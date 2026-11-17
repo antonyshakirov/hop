@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Kişisel eklentiler: ayarlardan kendi dosyalarını içe aktar. Her eklenti başlangıçta kapalıdır ve çalışmadan önce erişim ister.
 - Soğutma modu seçildiğinde uygulanır; monitör doğrulanan modu gösterir. Fansız Mac’lerde bu durum açıkça belirtilir.

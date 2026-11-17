@@ -4,7 +4,7 @@
 
 # Hop
 
-**2.6.0**
+**2.5.3**
 
 - Plugins personales: importa tus archivos en los ajustes. Cada plugin empieza desactivado y pide acceso antes de ejecutarse.
 - Los modos de refrigeración se aplican al elegirlos; el monitor muestra el modo confirmado. Los Mac sin ventiladores lo indican.

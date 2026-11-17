@@ -18,17 +18,17 @@ final class HotfixReleaseTests: XCTestCase {
         let suite = "release-preview-\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
-        defaults.set(true, forKey: "newsSeen.2.6")
-        defaults.set(4, forKey: "newsShown.2.6")
-        defaults.set(Date(timeIntervalSince1970: 1), forKey: "newsFirstShown.2.6")
+        defaults.set(true, forKey: "newsSeen.2.5.3")
+        defaults.set(4, forKey: "newsShown.2.5.3")
+        defaults.set(Date(timeIntervalSince1970: 1), forKey: "newsFirstShown.2.5.3")
         defaults.set(true, forKey: "newsSeen.2.5")
         defaults.set(true, forKey: "newsSeen.2.4.5")
         defaults.set("de", forKey: SettingsKey.appLanguage)
         defaults.set("preserved", forKey: SettingsKey.panelTabs)
         PanelView.prepareLatestReleasePreview(defaults)
-        XCTAssertFalse(defaults.bool(forKey: "newsSeen.2.6"))
-        XCTAssertEqual(defaults.integer(forKey: "newsShown.2.6"), 0)
-        XCTAssertNil(defaults.object(forKey: "newsFirstShown.2.6"))
+        XCTAssertFalse(defaults.bool(forKey: "newsSeen.2.5.3"))
+        XCTAssertEqual(defaults.integer(forKey: "newsShown.2.5.3"), 0)
+        XCTAssertNil(defaults.object(forKey: "newsFirstShown.2.5.3"))
         XCTAssertTrue(defaults.bool(forKey: "newsSeen.2.5"))
         XCTAssertTrue(defaults.bool(forKey: "newsSeen.2.4.5"))
         XCTAssertEqual(defaults.string(forKey: SettingsKey.appLanguage), "de")
@@ -108,7 +108,7 @@ final class HotfixReleaseTests: XCTestCase {
     func testTheMinorReleaseHasItsCard() {
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.4.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.4"))
-        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.6.0")
+        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.5.3")
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.3.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.3"))
     }
@@ -133,12 +133,12 @@ final class HotfixReleaseTests: XCTestCase {
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.2.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.2"))
     }
-    func testRelease26HasItsCardAndLocalizedNotesInEveryLanguage() {
-        XCTAssertEqual(PanelView.releaseCardIDs.last, "2.6")
+    func testPatch253HasItsCardAndLocalizedNotesInEveryLanguage() {
+        XCTAssertEqual(PanelView.releaseCardIDs.last, "2.5.3")
         for lang in AppLanguage.allCases {
             let notes = L10n.t(.docNews, lang)
-            XCTAssertTrue(notes.hasPrefix("2.6.0 – 2026-11-17"), lang.rawValue)
-            for item in L10n.release26Text(lang) { XCTAssertTrue(notes.contains("• " + item), lang.rawValue) }
+            XCTAssertTrue(notes.hasPrefix("2.5.3 – 2026-11-18"), lang.rawValue)
+            for item in L10n.patch253Text(lang) { XCTAssertTrue(notes.contains("• " + item), lang.rawValue) }
         }
     }
 }
