@@ -189,7 +189,7 @@ Il pulsante del coperchio attiva o disattiva il modo a coperchio chiuso indipend
 
 A coperchio chiuso, il modo termina dopo il tempo di sonno del sistema se nessuna app tiene sveglio il Mac. macOS decide quando dormire; il modo delle ventole rimane.
 
-Serve un servizio autorizzato dall’amministratore. si ferma al 10% di batteria senza alimentazione o con un avviso di calore di macOS. dopo 90 secondi senza Hop, il servizio ripristina sonno e controllo delle ventole.
+La modalità passa da un servizio in background autorizzato una volta nelle Impostazioni di Sistema. il servizio ripristina da solo sonno e controllo delle ventole: al 10% di batteria senza alimentazione, con un avviso di calore di macOS, subito dopo la chiusura o un crash di Hop, e dopo 90 secondi se Hop non risponde più.
 
 Gli aggiornamenti attendono che entrambi i controlli siano spenti. usa il Mac su una superficie solida e ventilata.
 

@@ -182,7 +182,7 @@ Nút nắp bật hoặc tắt chế độ đóng nắp độc lập với Awake.
 
 Khi đóng nắp, chế độ tắt sau thời gian ngủ của hệ thống nếu không có ứng dụng giữ Mac thức. macOS quyết định khi nào ngủ; chế độ quạt được giữ nguyên.
 
-Cần dịch vụ được quản trị viên cho phép. chế độ dừng khi pin còn 10% lúc không cắm điện hoặc macOS báo quá nóng. sau 90 giây không liên lạc với Hop, dịch vụ khôi phục chế độ ngủ và điều khiển quạt.
+Chế độ chạy qua một dịch vụ nền được cho phép một lần trong Cài đặt hệ thống. dịch vụ tự khôi phục chế độ ngủ và điều khiển quạt: khi pin còn 10% lúc không cắm điện, khi macOS báo quá nóng, ngay khi Hop thoát hoặc bị lỗi, và sau 90 giây nếu Hop ngừng phản hồi.
 
 Cập nhật chờ hai chế độ được tắt. đặt Mac trên bề mặt cứng và thông thoáng.
 

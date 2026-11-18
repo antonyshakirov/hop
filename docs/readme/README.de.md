@@ -188,7 +188,7 @@ Die Deckeltaste schaltet den Betrieb bei geschlossenem Deckel unabhängig von Aw
 
 Bei geschlossenem Deckel endet der Modus nach dem System-Ruhezustandstimer, wenn keine App den Mac wach hält. danach entscheidet macOS über den Schlaf; der Lüftermodus bleibt bestehen.
 
-Der Modus benötigt einen vom Administrator erlaubten Dienst. er endet bei 10% Akku ohne Netzstrom oder einer Hitzewarnung von macOS. nach 90 Sekunden ohne Hop stellt der Dienst Schlaf und Lüftersteuerung wieder her.
+Der Modus läuft über einen Hintergrunddienst, der einmal in den Systemeinstellungen erlaubt wird. der Dienst stellt Schlaf und Lüftersteuerung selbst wieder her: bei 10% Akku ohne Netzstrom, bei einer Hitzewarnung von macOS, sofort nach dem Beenden oder Absturz von Hop und nach 90 Sekunden, wenn Hop nicht mehr reagiert.
 
 Updates warten, bis Deckelmodus und manuelle Lüftersteuerung aus sind. den Mac auf eine feste, belüftete Fläche stellen.
 

@@ -187,7 +187,7 @@ De dekselknop schakelt de gesloten-dekselmodus onafhankelijk van Awake. hij kies
 
 Met gesloten deksel stopt de modus na de systeemslaaptimer als geen app de Mac wakker houdt. macOS bepaalt daarna de slaap; de ventilatormodus blijft behouden.
 
-De modus vereist een door de beheerder toegestane dienst. hij stopt bij 10% batterij zonder netstroom of een hittemelding van macOS. na 90 seconden zonder Hop herstelt de dienst slaap en ventilatorbesturing.
+De modus loopt via een achtergronddienst die één keer in Systeeminstellingen wordt toegestaan. de dienst herstelt zelf slaap en ventilatorbesturing: bij 10% batterij zonder netstroom, bij een hittemelding van macOS, direct nadat Hop stopt of crasht, en na 90 seconden als Hop niet meer reageert.
 
 Updates wachten tot beide regelingen uit zijn. zet de Mac op een stevige, geventileerde ondergrond.
 

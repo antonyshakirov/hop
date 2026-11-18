@@ -191,7 +191,7 @@ The lid button toggles closed-lid mode independently of Awake. it does not selec
 
 With the lid closed, the mode turns off after the system sleep timeout if no application keeps the Mac awake. macOS then decides when to sleep; manual fans keep their mode.
 
-Closed-lid mode needs an administrator-approved service. it ends when battery charge reaches 10% on battery power or macOS reports excessive heat. after 90 seconds without Hop, the service restores sleep and fan control.
+Closed-lid mode runs through a background service approved once in System Settings. the service restores sleep and fan control on its own: at 10% battery on battery power, when macOS reports overheating, right after Hop quits or crashes, and after 90 seconds if Hop stops responding.
 
 Updates wait until closed-lid mode and manual fan control are off. use the Mac on a firm, ventilated surface.
 

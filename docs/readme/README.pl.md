@@ -184,7 +184,7 @@ Przycisk pokrywy przełącza tryb zamkniętej pokrywy niezależnie od Awake. nie
 
 Przy zamkniętej pokrywie tryb kończy się po systemowym czasie bezczynności, jeśli żadna aplikacja nie utrzymuje Maca w czuwaniu. macOS decyduje o uśpieniu; tryb wentylatorów pozostaje.
 
-Tryb wymaga usługi zatwierdzonej przez administratora. kończy się przy 10% baterii bez zasilania lub ostrzeżeniu macOS o przegrzaniu. po 90 sekundach bez Hop usługa przywraca sen i sterowanie wentylatorami.
+Tryb działa przez usługę w tle, zatwierdzaną raz w Ustawieniach systemowych. usługa sama przywraca sen i sterowanie wentylatorami: przy 10% baterii bez zasilania, przy ostrzeżeniu macOS o przegrzaniu, zaraz po zamknięciu lub awarii Hop oraz po 90 sekundach, gdy Hop przestanie odpowiadać.
 
 Aktualizacje czekają na wyłączenie obu funkcji. ustaw Maca na twardej, wentylowanej powierzchni.
 

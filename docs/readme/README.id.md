@@ -188,7 +188,7 @@ Tombol tutup mengaktifkan atau mematikan mode tutup tertutup secara terpisah dar
 
 Saat tutup tertutup, mode mati setelah waktu tidur sistem jika tidak ada aplikasi yang menjaga Mac terjaga. macOS lalu menentukan waktu tidur; mode kipas tetap sama.
 
-Perlu layanan yang diizinkan administrator. mode berhenti saat baterai 10% tanpa daya listrik atau macOS melaporkan panas berlebih. setelah 90 detik tanpa Hop, layanan memulihkan tidur dan kendali kipas.
+Mode ini berjalan lewat layanan latar yang diizinkan sekali di Pengaturan Sistem. layanan memulihkan tidur dan kendali kipas dengan sendirinya: saat baterai 10% tanpa daya listrik, saat macOS melaporkan panas berlebih, segera setelah Hop ditutup atau crash, dan setelah 90 detik jika Hop berhenti merespons.
 
 Pembaruan menunggu kedua kendali dimatikan. letakkan Mac di permukaan keras dengan ventilasi baik.
 

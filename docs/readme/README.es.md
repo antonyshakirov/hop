@@ -189,7 +189,7 @@ El botón de tapa activa o desactiva el modo con tapa cerrada independientemente
 
 Con la tapa cerrada, el modo termina al vencer el tiempo de reposo del sistema si ninguna app mantiene el Mac despierto. macOS decide cuándo dormir; el modo de ventiladores se conserva.
 
-Requiere un servicio autorizado por el administrador. termina con un 10% de batería sin corriente o una alerta de calor de macOS. tras 90 segundos sin Hop, el servicio restablece el reposo y el control de ventiladores.
+El modo funciona con un servicio en segundo plano que se autoriza una vez en Ajustes del Sistema. el servicio restablece por sí solo el reposo y el control de ventiladores: con un 10% de batería sin corriente, ante una alerta de calor de macOS, justo después de que Hop se cierre o falle, y tras 90 segundos si Hop deja de responder.
 
 Las actualizaciones esperan a que ambos controles estén desactivados. usa el Mac sobre una superficie firme y ventilada.
 

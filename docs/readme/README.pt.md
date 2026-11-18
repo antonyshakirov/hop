@@ -187,7 +187,7 @@ O botão da tampa liga ou desliga o modo de tampa fechada independentemente de A
 
 Com a tampa fechada, o modo termina após o tempo de repouso do sistema se nenhuma app mantiver o Mac acordado. o macOS decide quando dormir; o modo das ventoinhas mantém-se.
 
-Requer um serviço autorizado pelo administrador. termina com 10% de bateria sem corrente ou um aviso de calor do macOS. após 90 segundos sem Hop, o serviço repõe o repouso e o controlo das ventoinhas.
+O modo funciona através de um serviço em segundo plano autorizado uma vez nas Definições do Sistema. o serviço repõe sozinho o repouso e o controlo das ventoinhas: com 10% de bateria sem corrente, perante um aviso de calor do macOS, logo após o Hop fechar ou falhar, e após 90 segundos se o Hop deixar de responder.
 
 As atualizações aguardam que ambos os controlos sejam desligados. usa o Mac numa superfície firme e ventilada.
 

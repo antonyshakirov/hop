@@ -186,7 +186,7 @@ Kapak düğmesi kapalı kapak modunu Awake’den bağımsız açıp kapatır. �
 
 Kapak kapalıyken hiçbir uygulama Mac’i uyanık tutmuyorsa sistemin uyku süresi sonunda mod kapanır. ardından uykuya macOS karar verir; fan modu korunur.
 
-Yönetici onaylı bir hizmet gerekir. prizde değilken pil %10’a düşünce, macOS aşırı ısı bildirince durur. Hop ile 90 saniye iletişim kurulmazsa hizmet uyku ve fan kontrolünü geri yükler.
+Mod, Sistem Ayarları’nda bir kez onaylanan bir arka plan hizmetiyle çalışır. hizmet uykuyu ve fan kontrolünü kendiliğinden geri yükler: prizde değilken pil %10’a düşünce, macOS aşırı ısı bildirince, Hop kapanır ya da çökerse hemen, Hop yanıt vermeyi keserse 90 saniye sonra.
 
 Güncellemeler iki kontrol de kapanana kadar bekler. Mac’i sağlam, havalandırılan bir yüzeye koyun.
 
