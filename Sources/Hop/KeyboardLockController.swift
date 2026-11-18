@@ -24,6 +24,14 @@ final class KeyboardLockController: ObservableObject {
     static let durations: [Int] = [60, 300, 900, 0]
 
     @Published private(set) var isLocked = false
+    /// The duration just picked, from the click until the lock is proven or
+    /// refused: the chip lights at once while the probe runs.
+    /// SPEC: docs/spec.md — "Keyboard lock (cleaning mode)".
+    @Published private(set) var locking: Int?
+    /// Test seams: the permission check, the tap install and the proof.
+    var trusted: () -> Bool = { AXIsProcessTrusted() }
+    var installTapHook: (() -> Bool)?
+    var proofHook: ((@escaping (Bool) -> Void) -> Void)?
     /// Seconds left before the automatic unlock; nil when the timer is off.
     @Published private(set) var remaining: Int?
     /// When esc + shift went down together, nil when they are not both held.
@@ -91,15 +99,19 @@ final class KeyboardLockController: ObservableObject {
     /// so the hotkey has something to use. `then` is handed true only once the
     /// keyboard is measurably locked.
     func lock(seconds: Int? = nil, then: ((Bool) -> Void)? = nil) {
+        // a second click while the first is being proven neither re-locks nor
+        // changes the length the first one is locking for
+        if locking != nil { then?(false); return }
         if let seconds { duration = seconds }
         guard !isLocked, !verifying, !Snapshot.active else { then?(false); return }
         // Checked apart: the repair after a refusal drops Hop's TCC row, which
         // a working grant must not pay for.
-        guard AXIsProcessTrusted() else {
+        locking = duration
+        guard trusted() else {
             refuse(then, askSystem: true)
             return
         }
-        guard installTap() else {
+        guard installTapHook?() ?? installTap() else {
             refuse(then, askSystem: false)
             return
         }
@@ -113,6 +125,7 @@ final class KeyboardLockController: ObservableObject {
                 self.refuse(then, askSystem: false)
                 return
             }
+            self.locking = nil
             self.isLocked = true
             self.remaining = self.duration > 0 ? self.duration : nil
             self.showOverlay()
@@ -135,7 +148,8 @@ final class KeyboardLockController: ObservableObject {
     /// The measurement, with two retries: refusing a lock that would have worked
     /// is its own kind of lie, and a busy main thread can lose a probe.
     private func proveLock(attempts: Int = 3, _ done: @escaping (Bool) -> Void) {
-        verifySuppression { [weak self] proven in
+        let measure = proofHook ?? { [weak self] done in self?.verifySuppression(done) }
+        measure { [weak self] proven in
             guard let self, !proven, attempts > 1 else {
                 done(proven)
                 return
@@ -146,6 +160,7 @@ final class KeyboardLockController: ObservableObject {
 
     /// No lock happened, and macOS does the asking.
     private func refuse(_ then: ((Bool) -> Void)?, askSystem: Bool) {
+        locking = nil
         AccessibilityWatch.shared.reportBlocked()
         if askSystem { PermissionRepair.askAgain(.accessibility) }
         then?(false)

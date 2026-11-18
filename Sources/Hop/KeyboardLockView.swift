@@ -14,7 +14,7 @@ struct KeyboardLockView: View {
         // the internet row all sit the same distance from their icon
         HStack(spacing: 6) {
             ModuleMarkIcon(symbol: "keyboard",
-                           color: lock.isLocked ? Theme.editing : Theme.textSecondary)
+                           color: lock.isLocked || lock.locking != nil ? Theme.editing : Theme.textSecondary)
             Text(L10n.t(.keylockLabel, lang))
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textSecondary)
@@ -73,7 +73,7 @@ struct KeyboardLockView: View {
         } label: {
             Text(label(seconds))
                 .font(Theme.mono(isInfinity ? 15 : 11, weight: .medium))
-                .foregroundStyle(Theme.textSecondary)
+                .foregroundStyle(lock.locking == seconds ? Theme.editing : Theme.textSecondary)
                 .lineLimit(1)
                 // the mono ∞ sits below the optical centre — the same nudge
                 // keep-awake's row uses

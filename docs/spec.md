@@ -5093,6 +5093,11 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   cover and stayed clickable, which made the lock look like it had not taken
   (Anton, 2026-09-02). The menu bar is left uncovered on purpose — its
   locked-keyboard mark is what says why the keys do nothing.
+- **The chip lights on the click.** The picked duration shows lit
+  (`KeyboardLockController.locking`) from the click until the lock is proven or
+  refused, so the 60 ms–0.9 s of the proof is not a dead button; a refusal turns it
+  off again, and a second click during the proof changes nothing. The lock itself
+  still goes up only on a proven lock. Test: `KeyboardLockIntentTests`.
 - The keys are swallowed by a `CGEventTap` (session tap, head-insert) over
   keyDown, keyUp, flagsChanged AND `NX_SYSDEFINED` (14) — the brightness/volume/
   media row is not "keys" to macOS and would otherwise keep firing. Events are
