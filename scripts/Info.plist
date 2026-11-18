@@ -7,12 +7,22 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeExtensions</key><array><string>hopplugin</string></array>
-			<key>CFBundleTypeName</key><string>Hop Plugin</string>
-			<key>CFBundleTypeIconFile</key><string>DocPlugin</string>
-			<key>CFBundleTypeRole</key><string>Viewer</string>
-			<key>LSHandlerRank</key><string>Owner</string>
-			<key>LSItemContentTypes</key><array><string>com.antonshakirov.hopplugin</string></array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>hopplugin</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>DocPlugin</string>
+			<key>CFBundleTypeName</key>
+			<string>Hop Plugin</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.antonshakirov.hopplugin</string>
+			</array>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
@@ -188,7 +198,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.5.4</string>
+	<string>2.5.5</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -221,12 +231,25 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Hop records a short sample in memory only when you choose Check Microphone. Audio is processed locally and is not uploaded.</string>
 	<key>UTExportedTypeDeclarations</key>
-	<array><dict>
-		<key>UTTypeIdentifier</key><string>com.antonshakirov.hopplugin</string>
-		<key>UTTypeDescription</key><string>Hop Plugin</string>
-		<key>UTTypeConformsTo</key><array><string>public.json</string></array>
-		<key>UTTypeTagSpecification</key><dict><key>public.filename-extension</key><array><string>hopplugin</string></array></dict>
-	</dict></array>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Hop Plugin</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.antonshakirov.hopplugin</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>hopplugin</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict>
