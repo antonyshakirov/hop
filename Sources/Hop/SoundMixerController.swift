@@ -97,9 +97,8 @@ final class SoundMixerController: ObservableObject {
         let hardware = CoreSoundHardware()
         self.outputs = outputs ?? { hardware.devices(.output) }
         observeHardware = discover == nil && scan == nil
-        scanner = scan ?? (discover == nil ? { @Sendable clean in
-            if clean, #available(macOS 14.2, *) { SoundProcessTap.cleanStaleVirtualInput() }
-            return SoundMixerScan(apps: SoundMixerDiscovery.applications(), outputs: hardware.devices(.output))
+        scanner = scan ?? (discover == nil ? { @Sendable _ in
+            SoundMixerScan(apps: SoundMixerDiscovery.applications(), outputs: hardware.devices(.output))
         } : nil)
         defaults.removeObject(forKey: "soundMixerDenoiseAll")
         saved = defaults.data(forKey: "soundMixerChannels").flatMap { try? JSONDecoder().decode([String: SoundChannelSettings].self, from: $0) } ?? [:]
@@ -201,6 +200,9 @@ final class SoundMixerController: ObservableObject {
         scanSequence += 1
         let sequence = scanSequence
         let clean = observeHardware && !observingInput && !Snapshot.active
+        // WORKAROUND: the stale-input cleanup destroys a device by its fixed UID, so it stays on main,
+        // ordered with publishing the input; off main it could remove a just-created Hop Mix input.
+        if clean, #available(macOS 14.2, *) { SoundProcessTap.cleanStaleVirtualInput() }
         Task { [weak self] in
             let result = await SoundMixerScanQueue.run { scanner(clean) }
             guard let self, self.generation == token, self.starting else { return }
@@ -209,6 +211,7 @@ final class SoundMixerController: ObservableObject {
                 self.appliedRefresh = sequence
                 self.apply(result, applyStreams: false)
             }
+            guard self.enabled() else { self.starting = false; return }
             self.beginSession(token)
         }
     }
@@ -286,6 +289,7 @@ final class SoundMixerController: ObservableObject {
         scanSequence += 1
         let sequence = scanSequence
         latestRefresh = sequence
+        if cleanStale, #available(macOS 14.2, *) { SoundProcessTap.cleanStaleVirtualInput() }
         Task { [weak self] in
             let result = await SoundMixerScanQueue.run { scanner(cleanStale) }
             guard let self else { return }

@@ -363,6 +363,7 @@ final class NativeSoundCallSession: SoundCallSession {
     private var awaitingStart = false
     private var producerGeneration = 0
     private var buffer = Data()
+    private var stopEpoch = 0
     private var reapingProcesses: [Process] = []
     private var reaping: Int { reapingProcesses.count }
     private var afterReap: [() -> Void] = []
@@ -387,7 +388,14 @@ final class NativeSoundCallSession: SoundCallSession {
 
     func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) {
         guard !awaitingStop else { completed(.failure(.unsupported)); return }
-        if reaping > 0 { whenReaped { [weak self] in self?.start(configuration, completed: completed) }; return }
+        if reaping > 0 {
+            let epoch = stopEpoch
+            whenReaped { [weak self] in
+                guard let self, self.stopEpoch == epoch else { completed(.failure(.system(-1))); return }
+                self.start(configuration, completed: completed)
+            }
+            return
+        }
         Self.log.notice("start-requested")
         if unavailable {
             // An explicit retry starts from a fully reaped producer. Its old
@@ -447,6 +455,7 @@ final class NativeSoundCallSession: SoundCallSession {
     }
     func stop() { stop(completed: { _ in }) }
     func stop(completed: @escaping (Result<Void, SoundFailure>) -> Void) {
+        stopEpoch += 1
         stopCallbacks.append(completed)
         if awaitingStop { return }
         let cancellingStart = awaitingStart

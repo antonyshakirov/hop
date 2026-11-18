@@ -145,6 +145,22 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         }
     }
 
+    func testStopDuringADeferredStartCancelsItSoNoWorkerOutlivesTheStop() {
+        let stubborn = "trap '' TERM\nwhile :; do sleep 0.05; done"
+        let f = Fixture([stubborn, good]); defer { f.cleanup() }
+        f.session.start(.init(input: nil, apps: [])) { _ in }
+        var firstStopped = false
+        f.session.stop { _ in firstStopped = true }
+        var deferredResult: Result<Void, SoundFailure>?
+        f.session.start(.init(input: nil, apps: [])) { deferredResult = $0 }
+        var secondStopped = false
+        f.session.stop { _ in secondStopped = true }
+        waitFor({ firstStopped && secondStopped && deferredResult != nil }, timeout: 5)
+        if case .success = deferredResult { XCTFail("A start deferred behind a reap must not survive a later stop") }
+        XCTAssertEqual(f.producers.count, 1, "The cancelled deferred start cannot launch a worker")
+        XCTAssertFalse(f.producers[0].isRunning)
+    }
+
     func testStartDuringPendingReapWaitsForTheStubbornWorkerAndNeverOverlapsIt() {
         let stubborn = "trap '' TERM\nwhile :; do sleep 0.05; done"
         let f = Fixture([stubborn, good]); defer { f.cleanup() }
