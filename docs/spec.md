@@ -2686,6 +2686,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the user nothing they can act on. So `hidemy.name VPN` shows nothing in
   brackets, while a configuration named after its country shows `Client (Germany)`.
   No indicator light in the row — the switch already says on or off.
+- **The switch follows the click.** Clicking flips the switch at once to the
+  requested state (`VPNController.targets`) and keeps it there until a reading
+  taken after the command returned agrees, shows the other side (the system
+  refused — the switch goes back), the row is gone, or 20 s passed. A failing
+  `scutil` start/stop (non-zero exit) gives the switch back immediately. A second
+  click reverses the request, and the reply of the older command can no longer
+  touch it. `scutil` and `networksetup` run off the main thread. Test:
+  `VPNSwitchIntentTests`.
 - **Off stays off.** A configuration with on-demand rules is back within seconds
   of being stopped: the rules reconnect it the moment anything asks for a `.com`,
   which is how they are meant to work and why Hop's switch looked broken (Anton,

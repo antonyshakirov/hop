@@ -55,7 +55,7 @@ struct VPNView: View {
     }
 
     private func row(_ configuration: VPNConfiguration) -> some View {
-        let busy = configuration.state.isBusy || vpn.pending.contains(configuration.id)
+        let busy = configuration.state.isBusy
         // The switch carries the same orange as the menu-bar dot when this
         // tunnel is the one carrying nothing. Seeing orange in the bar is what
         // brings you here, and with more than one row the panel has to say
@@ -94,13 +94,13 @@ struct VPNView: View {
             .help(t(.vpnOpenApp))
             Spacer(minLength: 6)
             Theme.MiniSwitch(isOn: Binding(
-                get: { configuration.state.isOn },
+                get: { vpn.shownOn(configuration) },
                 set: { _ in vpn.toggle(configuration) }
             ), tint: stalled ? Theme.accentOrange : Theme.accentGreen)
             .opacity(busy ? 0.5 : 1)
             // Names the tunnel it flips: a row of identical switches says which
             // is which only on hover.
-            .help("\(t(configuration.state.isOn ? .vpnSwitchOff : .vpnSwitchOn)) — "
+            .help("\(t(vpn.shownOn(configuration) ? .vpnSwitchOff : .vpnSwitchOn)) — "
                   + Substitutions.isolate(configuration.title))
         }
         .padding(.vertical, 2)

@@ -33,9 +33,14 @@ final class VPNController: ObservableObject {
     private static let readTimeout: TimeInterval = 10
 
     @Published private(set) var configurations: [VPNConfiguration] = []
-    /// Set while a start/stop is in flight, so the row can show it immediately
-    /// rather than waiting for the next poll.
-    @Published private(set) var pending: Set<String> = []
+    /// SPEC: docs/spec.md — VPN, "The switch follows the click".
+    @Published private(set) var targets: [String: Bool] = [:]
+    var pending: Set<String> { Set(targets.keys) }
+    private var tokens: [String: Int] = [:]
+    private var commandDoneAt: [String: Date] = [:]
+    private static let confirmTimeout: TimeInterval = 20
+    typealias Runner = @Sendable ([String]) -> (output: String, ok: Bool)
+    private let runner: Runner
     /// The app Hop launched for its window, and is therefore responsible for
     /// closing again.
     @Published private(set) var openedApp: String?
@@ -104,10 +109,12 @@ final class VPNController: ObservableObject {
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
     private static let demoRows = 2
 
-    init(demo: Bool = false) {
+    /// `runner` is a test seam: when given, no system observation starts.
+    init(demo: Bool = false, runner: Runner? = nil) {
         self.demo = demo
+        self.runner = runner ?? { Self.runChecked($0) }
         configurations = (Snapshot.active || demo) ? Self.staged : []
-        if Snapshot.active { return }
+        if Snapshot.active || runner != nil { return }
         if demo {
             refresh()   // once: the user's own list makes the better picture
             return
@@ -148,6 +155,8 @@ final class VPNController: ObservableObject {
             tickInterval = 0
             watcher = nil
             configurations = []
+            targets = [:]
+            commandDoneAt = [:]
             return
         }
         guard watcher == nil else { return }
@@ -174,31 +183,44 @@ final class VPNController: ObservableObject {
         readStartedAt = started
         lastListRead = started
         Task { [weak self] in
-            await self?.reload()
+            await self?.reload(startedAt: started)
             guard let self, readStartedAt == started else { return }
             readStartedAt = nil
         }
     }
 
-    private func reload() async {
-        let output = await Self.runOffMain([Self.scutil, "--nc", "list"])
+    private func reload(startedAt: Date) async {
+        let runner = runner
+        let output = await Task.detached { runner([Self.scutil, "--nc", "list"]).output }.value
         let fresh = VPNConfigurations.parseList(output).map(Self.named)
         if demo {
             configurations = fresh.isEmpty ? Self.staged : Array(fresh.prefix(Self.demoRows))
             return
         }
-        // Keep a pending row on its optimistic state until the system agrees.
-        configurations = fresh.map { configuration in
-            guard pending.contains(configuration.id) else { return configuration }
-            var settled = configuration
-            if configuration.state.isBusy { return configuration }
-            settled.state = configuration.state
-            return settled
-        }
-        pending = pending.filter { id in
-            fresh.first { $0.id == id }?.state.isBusy ?? false
-        }
+        configurations = fresh
+        settleTargets(against: fresh, readingStartedAt: startedAt)
         await trackInterfaces()
+    }
+
+    private func settleTargets(against fresh: [VPNConfiguration], readingStartedAt: Date) {
+        for (id, target) in targets {
+            guard let doneAt = commandDoneAt[id] else { continue }
+            let row = fresh.first { $0.id == id }
+            let timedOut = Date().timeIntervalSince(doneAt) > Self.confirmTimeout
+            var settled = row == nil || timedOut
+            if let row, readingStartedAt >= doneAt, !row.state.isBusy { settled = true }
+            else if let row, row.state.isOn == target, !row.state.isBusy { settled = true }
+            if settled { clearTarget(id) }
+        }
+    }
+
+    private func clearTarget(_ id: String) {
+        targets[id] = nil
+        commandDoneAt[id] = nil
+    }
+
+    func shownOn(_ configuration: VPNConfiguration) -> Bool {
+        targets[configuration.id] ?? configuration.state.isOn
     }
 
     /// Ties every connected configuration to the interface its tunnel is on, and
@@ -323,40 +345,37 @@ final class VPNController: ObservableObject {
     /// settled state.
     func toggle(_ configuration: VPNConfiguration) {
         guard !Snapshot.active, !demo else { return }
-        let turningOff = configuration.state.isOn || configuration.state.isBusy
-        pending.insert(configuration.id)
-        // The system will announce this like any other change, but the row is
-        // waiting on it right now: enter the fast cadence without being told.
-        lastChange = Date()
+        let turningOffNow = targets[configuration.id].map { $0 }
+            ?? (configuration.state.isOn || configuration.state.isBusy)
         let id = configuration.id
+        let token = (tokens[id] ?? 0) + 1
+        tokens[id] = token
+        targets[id] = !turningOffNow
+        commandDoneAt[id] = nil
+        lastChange = Date()
         let name = configuration.name
         let wasEnabled = configuration.isEnabled
-        // Read here rather than inside the detached work: a setting is main-actor
-        // state, and this is the moment the user's choice applies.
         let holdOff = UserDefaults.standard.object(forKey: SettingsKey.vpnHoldOff) as? Bool ?? true
-        // The command answers in milliseconds but blocks; off the main thread it
-        // cannot stutter the panel.
+        let runner = runner
         Task { [weak self] in
-            await Task.detached {
-                if turningOff {
-                    _ = Self.run([Self.scutil, "--nc", "stop", id])
-                    // A tunnel is back within seconds of being stopped — its
-                    // own on-demand rules connect it again as soon as anything
-                    // asks for a `.com`, and a vendor's background helper can
-                    // do the same without any rules at all. Stopping is not
-                    // enough: the service itself leaves the network set, which
-                    // is the only lever a third-party configuration gives us.
-                    // Every configuration, not only the ones we can see rules
-                    // on — "off" has to mean the same thing for all of them.
-                    if holdOff { Self.setService(name, enabled: false) }
-                } else {
-                    // Switching one back on returns it to the set first, or the
-                    // start would have nothing to start.
-                    if !wasEnabled { Self.setService(name, enabled: true) }
-                    _ = Self.run([Self.scutil, "--nc", "start", id])
+            let ok = await Task.detached { () -> Bool in
+                if turningOffNow {
+                    let stopped = runner([Self.scutil, "--nc", "stop", id]).ok
+                    if holdOff {
+                        _ = runner([Self.networksetup, "-setnetworkserviceenabled", name, "off"])
+                    }
+                    return stopped
                 }
+                if !wasEnabled {
+                    _ = runner([Self.networksetup, "-setnetworkserviceenabled", name, "on"])
+                }
+                return runner([Self.scutil, "--nc", "start", id]).ok
             }.value
-            self?.refresh()
+            guard let self else { return }
+            if self.tokens[id] == token {
+                if ok { self.commandDoneAt[id] = Date() } else { self.clearTarget(id) }
+            }
+            self.refresh()
         }
     }
 
@@ -471,6 +490,10 @@ final class VPNController: ObservableObject {
     }
 
     private nonisolated static func run(_ arguments: [String]) -> String {
+        runChecked(arguments).output
+    }
+
+    private nonisolated static func runChecked(_ arguments: [String]) -> (output: String, ok: Bool) {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: arguments[0])
         process.arguments = Array(arguments.dropFirst())
@@ -481,10 +504,10 @@ final class VPNController: ObservableObject {
             try process.run()
         } catch {
             log.error("scutil failed: \(error.localizedDescription, privacy: .public)")
-            return ""
+            return ("", false)
         }
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
-        return String(data: data, encoding: .utf8) ?? ""
+        return (String(data: data, encoding: .utf8) ?? "", process.terminationStatus == 0)
     }
 }
