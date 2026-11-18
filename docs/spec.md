@@ -793,6 +793,10 @@ A fresh install does not start routing. No login item is added by this setting.
   refresh, and Stop during starting discards it. The agent application inventory is
   served from the last background scan and never blocks the main thread. Coverage:
   `SoundMixerAsyncScanTests`.
+- Stopping Hop Mix sends SIGTERM at once; the bounded wait, SIGKILL escalation and
+  reap run off the main thread. The stop completes, and any later start waits,
+  until the worker is reaped, so a restart never overlaps a live worker. Quitting
+  reaps synchronously. Coverage: `SoundCallSessionRecoveryTests`.
 
 - The Sound window has output-device controls, one compact row per app and
   selected-device microphone controls below a divider, all in the same window. Each app row has name, volume

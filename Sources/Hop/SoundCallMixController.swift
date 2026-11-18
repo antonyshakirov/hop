@@ -363,6 +363,9 @@ final class NativeSoundCallSession: SoundCallSession {
     private var awaitingStart = false
     private var producerGeneration = 0
     private var buffer = Data()
+    private var reapingProcesses: [Process] = []
+    private var reaping: Int { reapingProcesses.count }
+    private var afterReap: [() -> Void] = []
     private var timeout: Task<Void, Never>?
     private var acknowledgement: Task<Void, Never>?
 
@@ -384,6 +387,7 @@ final class NativeSoundCallSession: SoundCallSession {
 
     func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) {
         guard !awaitingStop else { completed(.failure(.unsupported)); return }
+        if reaping > 0 { whenReaped { [weak self] in self?.start(configuration, completed: completed) }; return }
         Self.log.notice("start-requested")
         if unavailable {
             // An explicit retry starts from a fully reaped producer. Its old
@@ -465,14 +469,35 @@ final class NativeSoundCallSession: SoundCallSession {
         }
     }
     private func finishStops() {
-        let result = retireInput()
-        if case .failure = result { stopProducer(); unavailable = true }
-        awaitingStop = false
-        let callbacks = stopCallbacks; stopCallbacks = []
-        callbacks.forEach { $0(result) }
+        whenReaped { [self] in
+            let result = retireInput()
+            if case .failure = result { stopProducer(); unavailable = true }
+            whenReaped { [self] in
+                awaitingStop = false
+                let callbacks = stopCallbacks; stopCallbacks = []
+                callbacks.forEach { $0(result) }
+            }
+        }
     }
     func shutdown() {
-        stop(); stopProducer(); finishStops()
+        stop(); stopProducer(blocking: true); finishStops()
+    }
+    private func whenReaped(_ work: @escaping () -> Void) {
+        if reaping == 0 { work() } else { afterReap.append(work) }
+    }
+    private func reapFinished(_ process: Process) {
+        guard let index = reapingProcesses.firstIndex(where: { $0 === process }) else { return }
+        reapingProcesses.remove(at: index)
+        guard reaping == 0 else { return }
+        let queued = afterReap; afterReap = []
+        queued.forEach { whenReaped($0) }
+    }
+    private static let reapQueue = DispatchQueue(label: "com.antonshakirov.hop.call-reap", qos: .userInitiated, attributes: .concurrent)
+    nonisolated private static func reap(_ process: Process) {
+        let deadline = Date().addingTimeInterval(1)
+        while process.isRunning, Date() < deadline { usleep(10000) }
+        if process.isRunning { kill(process.processIdentifier, SIGKILL) }
+        process.waitUntilExit()
     }
     private func retireInput() -> Result<Void, SoundFailure> {
         guard let retire = stopExport else { return .success(()) }
@@ -481,7 +506,7 @@ final class NativeSoundCallSession: SoundCallSession {
             return .success(())
         } catch { logError("virtual-input-removal", error); return .failure(.inputRemoval) }
     }
-    private func stopProducer() {
+    private func stopProducer(blocking: Bool = false) {
         producerGeneration += 1; awaitingStart = false; awaiting = nil
         retireMuteRoute()
         ready = false
@@ -492,10 +517,18 @@ final class NativeSoundCallSession: SoundCallSession {
         try? input?.close(); input = nil
         if let process, process.isRunning {
             process.terminate()
-            let deadline = Date().addingTimeInterval(1)
-            while process.isRunning, Date() < deadline { usleep(10000) }
-            if process.isRunning { kill(process.processIdentifier, SIGKILL) }
-            process.waitUntilExit()
+            reapingProcesses.append(process)
+            if !blocking {
+                Self.reapQueue.async { [weak self] in
+                    Self.reap(process)
+                    Task { @MainActor in self?.reapFinished(process) }
+                }
+            }
+        }
+        if blocking {
+            for doomed in reapingProcesses { Self.reap(doomed) }
+            let finished = reapingProcesses
+            finished.forEach { reapFinished($0) }
         }
         process = nil; output = nil; muteRelay = nil; microphoneMuted = false
         updateCompleted = nil
@@ -604,8 +637,10 @@ final class NativeSoundCallSession: SoundCallSession {
         let callback = completed; completed = nil
         let updated = updateCompleted; updateCompleted = nil
         stopProducer(); finishStops()
-        callback?(.failure(.system(-1)))
-        updated?(.failure(.system(-1)))
+        whenReaped {
+            callback?(.failure(.system(-1)))
+            updated?(.failure(.system(-1)))
+        }
     }
 }
 

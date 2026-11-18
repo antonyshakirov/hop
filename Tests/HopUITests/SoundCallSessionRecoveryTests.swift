@@ -123,7 +123,7 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         XCTAssertFalse(f.producers[0].isRunning)
     }
 
-    func testCancellingStartReapsProducerBeforeReturningAndAllowsFreshStart() {
+    func testCancellingStartReapsProducerBeforeTheNextStartAndAllowsFreshStart() {
         for ready in [false, true] {
             let blocked = (ready ? "printf '{\"ready\":true}\\n'\n" : "") + "while IFS= read -r command; do :; done"
             let f = Fixture([blocked, good]); defer { f.cleanup() }
@@ -131,18 +131,34 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
             f.session.start(.init(input: nil, apps: [])) { _ in cancelledResults += 1 }
             if ready { waitFor { f.published == 1 } }
             f.session.stop()
-            XCTAssertFalse(f.producers[0].isRunning, "Closing during startup must reap the producer immediately")
-            XCTAssertEqual(f.retired, ready ? 1 : 0, "Cancelled startup cannot leave its virtual input available")
             var succeeded = false
             var lateFailure = false
             f.session.start(.init(input: nil, apps: [])) {
                 switch $0 { case .success: succeeded = true; case .failure: lateFailure = true }
             }
             waitFor { succeeded || lateFailure }
+            XCTAssertFalse(f.producers[0].isRunning, "Closing during startup must reap the producer before the next start")
+            XCTAssertEqual(f.retired, ready ? 1 : 0, "Cancelled startup cannot leave its virtual input available")
             XCTAssertTrue(succeeded)
             XCTAssertFalse(lateFailure, "Events queued by the retired producer cannot poison its replacement")
             XCTAssertEqual(cancelledResults, 0)
         }
+    }
+
+    func testStartDuringPendingReapWaitsForTheStubbornWorkerAndNeverOverlapsIt() {
+        let stubborn = "trap '' TERM\nwhile :; do sleep 0.05; done"
+        let f = Fixture([stubborn, good]); defer { f.cleanup() }
+        f.session.start(.init(input: nil, apps: [])) { _ in }
+        var stopped = false
+        f.session.stop { if case .success = $0 { stopped = true } }
+        XCTAssertFalse(stopped, "Stop completes only once the ignored SIGTERM has been escalated and reaped")
+        var succeeded = false
+        f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { succeeded = true } }
+        XCTAssertEqual(f.producers.count, 1, "A second worker cannot launch beside the one still being reaped")
+        waitFor({ succeeded }, timeout: 5)
+        XCTAssertTrue(stopped)
+        XCTAssertFalse(f.producers[0].isRunning)
+        XCTAssertEqual(f.producers.count, 2)
     }
 
     func testStopDuringBlockedLiveUpdateReapsProducerBeforeCompleting() {
@@ -159,7 +175,7 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         f.session.update(.init(input: nil, apps: []))
         var stopped = false
         f.session.stop { if case .success = $0 { stopped = true } }
-        XCTAssertTrue(stopped)
+        waitFor { stopped }
         XCTAssertFalse(f.producers[0].isRunning)
         XCTAssertEqual(f.retired, 1)
     }
