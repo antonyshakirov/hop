@@ -12,6 +12,7 @@ final class CoolingInteractionTests: XCTestCase {
         var value = HardwareStatus()
         var requests: [HardwareRequest] = []
         var holdNext = false
+        var failConfigure = false
         var gate: CheckedContinuation<Void, Never>?
         init() {
             value.supportsControl = true; value.fanAvailability = .controllable
@@ -25,6 +26,7 @@ final class CoolingInteractionTests: XCTestCase {
         func request(_ request: HardwareRequest) async throws -> HardwareStatus {
             requests.append(request)
             if request.operation == .configure {
+                if failConfigure { throw HardwareReason.commandFailed }
                 if holdNext { holdNext = false; await withCheckedContinuation { gate = $0 } }
                 let policy = try XCTUnwrap(request.configuration?.fan)
                 value.policy = policy; value.active = policy.mode != .automatic
@@ -57,7 +59,7 @@ final class CoolingInteractionTests: XCTestCase {
         }
     }
 
-    func testModeClickAppliesWithoutASubmitAndSelectsOnlyAfterAcknowledgment() async throws {
+    func testModeClickAppliesWithoutASubmitAndSelectsAtOnce() async throws {
         withCleanState()
         let service = Service()
         let model = CoolingController(service: service)
@@ -78,7 +80,8 @@ final class CoolingInteractionTests: XCTestCase {
         for _ in 0..<100 where service.gate == nil { try await Task.sleep(nanoseconds: 10_000_000) }
         XCTAssertNotNil(service.gate)
         host.layoutSubtreeIfNeeded()
-        XCTAssertEqual(maximum.state, .off)
+        XCTAssertEqual(try XCTUnwrap(button("hop.cooling.mode.maximum", in: host)).state, .on)
+        XCTAssertNil(model.activeFanMode)
         let gate = service.gate; service.gate = nil; gate?.resume()
         for _ in 0..<100 where model.busy { try await Task.sleep(nanoseconds: 10_000_000) }
         host.layoutSubtreeIfNeeded()
@@ -90,6 +93,30 @@ final class CoolingInteractionTests: XCTestCase {
         XCTAssertFalse(model.snapshot.active)
         XCTAssertNil(model.activeFanMode)
         model.close()
+    }
+
+    func testFailedModeRequestReturnsTheSelectionToTheConfirmedMode() async throws {
+        withCleanState()
+        let service = Service()
+        let model = CoolingController(service: service)
+        await model.refresh()
+        Snapshot.active = false
+        let host = NSHostingView(rootView: CoolingView(controller: model, lang: .en).frame(width: 500))
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 500, height: 650),
+            styleMask: [.borderless], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false; window.contentView = host
+        defer { window.close(); model.close() }
+        host.layoutSubtreeIfNeeded()
+        service.failConfigure = true
+        try XCTUnwrap(button("hop.cooling.mode.maximum", in: host)).performClick(nil)
+        XCTAssertEqual(model.shownFanMode, .maximum)
+        for _ in 0..<100 where model.busy || model.pendingFanPolicy != nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        host.layoutSubtreeIfNeeded()
+        XCTAssertNotEqual(model.shownFanMode, .maximum)
+        XCTAssertNotNil(model.failure)
+        XCTAssertEqual(try XCTUnwrap(button("hop.cooling.mode.maximum", in: host)).state, .off)
     }
 
     private func slider(in view: NSView) -> NSSlider? {

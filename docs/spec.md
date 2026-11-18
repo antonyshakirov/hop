@@ -1348,8 +1348,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   request in flight and only the latest pending intent retained. Automatic
   supersedes queued manual settings. Pending requests block service updates.
   Current measured speed, requested fixed target and allowed range have distinct
-  labels; RPM is explained as revolutions per minute. A pending caption is separate
-  from the confirmed selection. Manual selection and the monitor label require
+  labels; RPM is explained as revolutions per minute. The selected
+  mode follows the click at once (Anton, 2026-11-18): the pending caption
+  stays, and a failed request drops the failed selection with its reason inline. The monitor badge stays confirmed. Manual selection and the monitor label require
   current manual readback from every owned fan and full control capability.
   Native buttons have no blue focus ring. Open Settings appears only while
   approval is required; an approved service does not retain that action.

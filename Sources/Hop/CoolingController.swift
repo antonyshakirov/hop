@@ -115,6 +115,9 @@ final class CoolingController: ObservableObject {
         return snapshot.fans.contains(where: \.manual) ? nil : .automatic
     }
 
+    // SPEC: docs/spec.md — Cooling controls, the selected mode follows the click.
+    var shownFanMode: FanPolicy.Mode? { pendingFanPolicy?.mode ?? confirmedFanMode }
+
     var activeFanMode: FanPolicy.Mode? {
         guard hasReadings, snapshot.supportsControl, serviceEnabled, !connectionFailed, snapshot.active,
               !snapshot.restorationPending, snapshot.policy.mode != .automatic else { return nil }

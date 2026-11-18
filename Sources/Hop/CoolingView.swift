@@ -189,7 +189,7 @@ struct CoolingView: View {
     }
 
     private func modeButton(_ mode: FanPolicy.Mode) -> some View {
-        let selected = controller.confirmedFanMode == mode
+        let selected = controller.shownFanMode == mode
         return Group {
             if Snapshot.active {
                 HStack(spacing: 6) {
