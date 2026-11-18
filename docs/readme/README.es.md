@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- Iniciar el mezclador de audio y detener Hop Mix ya no detiene Hop. El mezclador muestra el arranque desde el clic.
+
 **2.5.5**
 
 - Los controles responden al hacer clic: el botón de tapa cerrada, los modos de refrigeración, la VPN, el filtro de red, el bloqueo del teclado, el inicio al iniciar sesión y la parada del test de velocidad. Un cambio rechazado vuelve atrás con su motivo.

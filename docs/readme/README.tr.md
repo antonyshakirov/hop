@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- Ses mikserini başlatmak ve Hop Mix’i durdurmak artık Hop’u durdurmaz. Mikser tıklar tıklamaz başladığını gösterir.
+
 **2.5.5**
 
 - Denetimler tıklar tıklamaz yanıt verir: kapak kapalı düğmesi, soğutma modları, VPN, ağ filtresi, klavye kilidi, oturum açılışında başlatma ve hız testini durdurma. Reddedilen değişiklik nedeniyle birlikte geri döner.

@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- De audiomixer starten en Hop Mix stoppen houden Hop niet meer op. De mixer toont het starten vanaf de klik.
+
 **2.5.5**
 
 - Bediening reageert bij de klik: de knop voor gesloten deksel, koelmodi, VPN, het netwerkfilter, toetsenbordvergrendeling, starten bij inloggen en het stoppen van de snelheidstest. Een geweigerde wijziging springt terug met de reden.

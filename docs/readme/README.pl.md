@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- Uruchamianie miksera dźwięku i zatrzymywanie Hop Mix nie wstrzymują już Hop. Mikser pokazuje start od razu po kliknięciu.
+
 **2.5.5**
 
 - Przyciski reagują od razu po kliknięciu: tryb zamkniętej pokrywy, tryby chłodzenia, VPN, filtr sieci, blokada klawiatury, uruchamianie przy logowaniu i zatrzymanie testu prędkości. Odrzucona zmiana wraca z podaniem przyczyny.

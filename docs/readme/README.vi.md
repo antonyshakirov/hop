@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- Khởi động bộ trộn âm thanh và dừng Hop Mix không còn làm Hop bị đứng. Bộ trộn hiển thị trạng thái đang khởi động ngay khi bấm.
+
 **2.5.5**
 
 - Các nút phản hồi ngay khi bấm: nút gập máy, chế độ làm mát, VPN, bộ lọc mạng, khóa bàn phím, mở khi đăng nhập và dừng đo tốc độ. Thay đổi bị từ chối sẽ trở lại kèm lý do.

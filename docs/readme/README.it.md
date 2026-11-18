@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- Avviare il mixer audio e fermare Hop Mix non bloccano più Hop. Il mixer mostra l’avvio dal clic.
+
 **2.5.5**
 
 - I comandi rispondono al clic: pulsante del coperchio chiuso, modalità di raffreddamento, VPN, filtro di rete, blocco della tastiera, avvio all’accesso e arresto del test di velocità. Una modifica rifiutata torna indietro con il motivo.

@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- Starting the audio mixer and stopping Hop Mix no longer pause Hop. The mixer shows that it is starting from the click.
+
 **2.5.5**
 
 - Controls respond on click: the closed-lid button, cooling modes, VPN, the network filter, keyboard lock, launch at login and stopping the speed test. A refused change turns back with its reason.

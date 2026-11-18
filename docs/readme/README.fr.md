@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- Lancer le mixeur audio et arrêter Hop Mix ne figent plus Hop. Le mixeur affiche son démarrage dès le clic.
+
 **2.5.5**
 
 - Les commandes réagissent au clic : bouton capot fermé, refroidissement, VPN, filtre réseau, verrouillage du clavier, ouverture à la connexion et arrêt du test de débit. Un changement refusé revient en arrière avec sa raison.

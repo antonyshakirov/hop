@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- Memulai mixer audio dan menghentikan Hop Mix tidak lagi menahan Hop. Mixer menunjukkan proses mulai sejak diklik.
+
 **2.5.5**
 
 - Kontrol langsung merespons saat diklik: tombol tutup layar, mode pendinginan, VPN, filter jaringan, kunci keyboard, buka saat masuk, dan menghentikan uji kecepatan. Perubahan yang ditolak kembali dengan alasannya.

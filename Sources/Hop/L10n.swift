@@ -588,6 +588,35 @@ enum L10n {
         return patchNewsText(text, lang: lang)
     }
 
+    static func patch256Text(_ lang: AppLanguage) -> [String] {
+        let text: [String]
+        switch lang {
+        case .en: text = ["Starting the audio mixer and stopping Hop Mix no longer pause Hop. The mixer shows that it is starting from the click."]
+        case .ru: text = ["Запуск аудиомикшера и остановка Hop Mix больше не подвешивают Hop. Микшер показывает запуск сразу по клику."]
+        case .de: text = ["Den Audiomixer starten und Hop Mix stoppen hält Hop nicht mehr an. Der Mixer zeigt den Start ab dem Klick."]
+        case .es: text = ["Iniciar el mezclador de audio y detener Hop Mix ya no detiene Hop. El mezclador muestra el arranque desde el clic."]
+        case .pt: text = ["Iniciar o misturador de áudio e parar o Hop Mix já não param o Hop. O misturador mostra o arranque desde o clique."]
+        case .fr: text = ["Lancer le mixeur audio et arrêter Hop Mix ne figent plus Hop. Le mixeur affiche son démarrage dès le clic."]
+        case .it: text = ["Avviare il mixer audio e fermare Hop Mix non bloccano più Hop. Il mixer mostra l’avvio dal clic."]
+        case .zh: text = ["启动音频混音器和停止 Hop Mix 不再让 Hop 卡住。点击后混音器会立即显示正在启动。"]
+        case .ja: text = ["オーディオミキサーの起動と Hop Mix の停止で Hop が止まらなくなりました。ミキサーはクリック直後から起動中を表示します。"]
+        case .nl: text = ["De audiomixer starten en Hop Mix stoppen houden Hop niet meer op. De mixer toont het starten vanaf de klik."]
+        case .ko: text = ["오디오 믹서를 시작하거나 Hop Mix를 중지해도 Hop이 멈추지 않습니다. 믹서는 클릭하는 즉시 시작 중임을 표시합니다."]
+        case .th: text = ["การเริ่มมิกเซอร์เสียงและการหยุด Hop Mix ไม่ทำให้ Hop ค้างอีกต่อไป มิกเซอร์แสดงสถานะกำลังเริ่มทันทีที่คลิก"]
+        case .vi: text = ["Khởi động bộ trộn âm thanh và dừng Hop Mix không còn làm Hop bị đứng. Bộ trộn hiển thị trạng thái đang khởi động ngay khi bấm."]
+        case .hi: text = ["ऑडियो मिक्सर शुरू करने और Hop Mix रोकने पर Hop अब नहीं रुकता। मिक्सर क्लिक करते ही शुरू होना दिखाता है।"]
+        case .id: text = ["Memulai mixer audio dan menghentikan Hop Mix tidak lagi menahan Hop. Mixer menunjukkan proses mulai sejak diklik."]
+        case .tr: text = ["Ses mikserini başlatmak ve Hop Mix’i durdurmak artık Hop’u durdurmaz. Mikser tıklar tıklamaz başladığını gösterir."]
+        case .pl: text = ["Uruchamianie miksera dźwięku i zatrzymywanie Hop Mix nie wstrzymują już Hop. Mikser pokazuje start od razu po kliknięciu."]
+        case .ar: text = ["لم يعد تشغيل خلاط الصوت وإيقاف Hop Mix يوقفان Hop. ويعرض الخلاط بدء التشغيل فور النقر."]
+        case .he: text = ["הפעלת מערבל השמע ועצירת Hop Mix כבר לא עוצרות את Hop. המערבל מציג את ההפעלה מיד עם הלחיצה."]
+        case .fa: text = ["راه‌اندازی میکسر صدا و توقف Hop Mix دیگر Hop را متوقف نمی‌کنند. میکسر از لحظهٔ کلیک، شروع را نشان می‌دهد."]
+        case .ur: text = ["آڈیو مکسر شروع کرنے اور Hop Mix روکنے سے اب Hop نہیں رکتا۔ مکسر کلک کرتے ہی شروع ہونا دکھاتا ہے۔"]
+        case .sr: text = ["Покретање аудио миксера и заустављање Hop Mix-а више не заустављају Hop. Миксер приказује покретање од самог клика."]
+        }
+        return text.map { patchNewsText($0, lang: lang) }
+    }
+
     static func patch255Text(_ lang: AppLanguage) -> [String] {
         let text: [String]
         switch lang {
@@ -647,7 +676,8 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.5 – 2026-11-18\n\n" + patch255Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+        "2.5.6 – 2026-11-18\n\n" + patch256Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+            + "2.5.5 – 2026-11-18\n\n" + patch255Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.4 – 2026-11-18\n\n• " + patch254Text(lang) + "\n\n"
             + "2.5.3 – 2026-11-18\n\n" + patch253Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.2 – 2026-11-16\n\n" + (0..<3).map { "• " + news252Text(lang, $0) }.joined(separator: "\n\n")

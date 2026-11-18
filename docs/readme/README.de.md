@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.6**
+
+- Den Audiomixer starten und Hop Mix stoppen hält Hop nicht mehr an. Der Mixer zeigt den Start ab dem Klick.
+
 **2.5.5**
 
 - Bedienelemente reagieren beim Klick: Deckeltaste, Kühlmodi, VPN, Netzwerkfilter, Tastatursperre, Start bei Anmeldung und das Stoppen des Speedtests. Eine abgelehnte Änderung springt mit ihrem Grund zurück.
