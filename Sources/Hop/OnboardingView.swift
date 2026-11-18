@@ -685,17 +685,8 @@ struct OnboardingView: View {
             UserDefaults.standard.set(true, forKey: PanelView.newsSeenKey(id))
         }
         if launchAtLogin {
-            try? SMAppServiceHelper.enableLaunchAtLogin()
+            Task { await LaunchAtLogin.shared.set(true) }
         }
         finish()
-    }
-}
-
-enum SMAppServiceHelper {
-    static func enableLaunchAtLogin() throws {
-        guard Bundle.main.bundleIdentifier != nil else { return }
-        if SMAppService.mainApp.status != .enabled {
-            try SMAppService.mainApp.register()
-        }
     }
 }

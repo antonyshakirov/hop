@@ -5275,7 +5275,13 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
 
 - Protected lid mode and fan writes use a bundled root LaunchDaemon registered
   through SMAppService. The administrator permission row reflects its actual
-  registration/approval state. Its XPC channel accepts only the exact parent
+  registration/approval state. Registration, unregistration and every status
+  read run off the main thread (Anton, 2026-11-18): the app shows the last known
+  state at once, publishes a fresh read when it arrives, and a read that has been
+  superseded by a newer one is dropped. Enabling a hardware module, opening the
+  panel or the permissions page, and pressing Install never wait for
+  SMAppService; Install disables its button on the click. An unknown first state
+  is not shown as missing. Its XPC channel accepts only the exact parent
   app signing identifier and Developer ID team; the app verifies the helper's
   exact identifier and team. Each operation requires the active console user.
 - GUI copies cannot steal a live connection's lease. Dev and production share
@@ -5342,6 +5348,8 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   marker retains the existing quiet launch recovery; failure leaves the marker.
   The existing revoke action restores sleep before removing the old rule, and
   cannot run during a new hardware lid operation. Other apps' rules are untouched.
+  The password prompt runs on its own serial queue, so the rest of the app stays
+  responsive while it is open; a second press waits for the first (Anton, 2026-11-18).
 - Live status where it can be checked: `AXIsProcessTrusted()`,
   `CGPreflightScreenCaptureAccess()`, `UNUserNotificationCenter` settings,
   `SMAppService.mainApp.status`. The notification query is skipped in a
@@ -5425,7 +5433,8 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   stands has `KeyboardLockController.remeasure()` take the measurement again,
   tap and probe and all, without locking anything.
 - **The repair is `tccutil reset <service> <bundle id>` followed by the app's
-  own request** (`PermissionRepair`). Opening System Settings is useless when
+  own request** (`PermissionRepair`); a press never waits for `tccutil`: the reset
+  and the request share one serial queue, so the request still follows the reset. Opening System Settings is useless when
   the row is already there with its switch on: there is nothing to press.
   Dropping Hop's own row puts the decision back to "not made", and the request
   that follows shows the real system dialog.
@@ -6067,7 +6076,10 @@ converter (Anton, 2026-07-28).
   settings change; the system items beside them are not translated at all). In
   safe mode no model exists, so About and Settings
   do nothing and Quit quits.
-- Launch at login — SMAppService.mainApp.
+- Launch at login — SMAppService.mainApp. The switch flips on the click; the
+  registration and every status read run off the main thread, a refusal flips
+  the switch back to the actual state, and a reply superseded by a newer click
+  is dropped (Anton, 2026-11-18). The permissions row reads the same cached state.
 
 ## Window zones
 

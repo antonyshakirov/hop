@@ -338,16 +338,29 @@ final class KeepAwakeController: ObservableObject {
     /// sleeps and no longer any way for Hop to change that without asking again.
     func removeLidRule() {
         guard !Snapshot.active, Self.lidRuleInstalled, !lidApplied, !lidChanging,
-              !CoolingController.shared.snapshot.lid else { return }
+              !CoolingController.shared.snapshot.lid, !removingLidRule else { return }
+        removingLidRule = true
         let shell = "/usr/bin/pmset disablesleep 0 && /bin/rm -f \(Self.lidRulePath)"
         let source = "do shell script \"\(shell)\" with administrator privileges"
-        var error: NSDictionary?
-        NSAppleScript(source: source)?.executeAndReturnError(&error)
-        guard error == nil, !Self.lidRuleInstalled else { return }
-        lidApplied = false
-        UserDefaults.standard.set(false, forKey: "lidSleepAppliedPending")
-        updateLidDimmer()
+        // WORKAROUND: NSAppleScript is not thread-safe, so every run shares one serial queue; the
+        // password prompt must not freeze the app's main thread.
+        KeepAwakeController.adminScriptQueue.async { [weak self] in
+            var error: NSDictionary?
+            NSAppleScript(source: source)?.executeAndReturnError(&error)
+            let failed = error != nil
+            Task { @MainActor in
+                guard let self else { return }
+                self.removingLidRule = false
+                guard !failed, !KeepAwakeController.lidRuleInstalled else { return }
+                self.lidApplied = false
+                UserDefaults.standard.set(false, forKey: "lidSleepAppliedPending")
+                self.updateLidDimmer()
+            }
+        }
     }
+
+    private static let adminScriptQueue = DispatchQueue(label: "hop.admin-script")
+    private var removingLidRule = false
 
     /// The dimmer only runs while lid mode is active: the machine stays awake
     /// with the lid closed, so the built-in backlight must be blanked by us.
