@@ -1,5 +1,9 @@
 # Hop - version history
 
+## 2.5.4 - 2026-11-18
+
+- System monitor: hide unavailable battery temperature without hiding charge or charging status.
+
 ## 2.5.3 - 2026-11-18
 
 - Personal plugins customize native panel layout, colors and timer behavior. Import packages manually in Settings; every plugin starts disabled and requires permission approval. There is no official third-party catalog or bundled plugin collection.

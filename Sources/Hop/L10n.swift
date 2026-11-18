@@ -559,6 +559,35 @@ enum L10n {
         HangingWords.glued(text, shortWords: shortWords(lang), trailing: trailingWords(lang))
     }
 
+    static func patch254Text(_ lang: AppLanguage) -> String {
+        let text: String
+        switch lang {
+        case .en: text = "Battery temperature is hidden when unavailable. Charge and charging status stay visible."
+        case .ru: text = "Недоступная температура батареи скрыта. Заряд и состояние зарядки остаются видимыми."
+        case .de: text = "Fehlende Akkutemperatur wird ausgeblendet. Ladestand und Ladezustand bleiben sichtbar."
+        case .es: text = "Se oculta la temperatura de batería no disponible. La carga y su estado siguen visibles."
+        case .pt: text = "A temperatura da bateria fica oculta quando indisponível. A carga e seu estado continuam visíveis."
+        case .fr: text = "La température de la batterie est masquée si elle manque. La charge et son état restent visibles."
+        case .it: text = "La temperatura della batteria viene nascosta se non disponibile. Carica e stato di ricarica restano visibili."
+        case .zh: text = "电池温度不可用时会隐藏，电量和充电状态仍然显示。"
+        case .ja: text = "バッテリー温度を取得できない場合は非表示にします。残量と充電状態は引き続き表示します。"
+        case .nl: text = "De batterijtemperatuur wordt verborgen als die ontbreekt. Lading en laadstatus blijven zichtbaar."
+        case .ko: text = "배터리 온도를 읽을 수 없으면 숨깁니다. 배터리 잔량과 충전 상태는 계속 표시됩니다."
+        case .th: text = "ซ่อนอุณหภูมิแบตเตอรี่เมื่อไม่มีข้อมูล โดยยังแสดงระดับแบตเตอรี่และสถานะการชาร์จ"
+        case .vi: text = "Ẩn nhiệt độ pin khi không có dữ liệu. Mức pin và trạng thái sạc vẫn hiển thị."
+        case .hi: text = "बैटरी का तापमान उपलब्ध न होने पर छिपा रहता है। चार्ज और चार्जिंग की स्थिति दिखाई देती है।"
+        case .id: text = "Suhu baterai disembunyikan jika tidak tersedia. Daya dan status pengisian tetap terlihat."
+        case .tr: text = "Pil sıcaklığı okunamıyorsa gizlenir. Pil yüzdesi ve şarj durumu görünür kalır."
+        case .pl: text = "Niedostępna temperatura baterii jest ukryta. Poziom baterii i stan ładowania pozostają widoczne."
+        case .ar: text = "تُخفى حرارة البطارية عند عدم توفرها. تبقى نسبة الشحن وحالة الشحن ظاهرتين."
+        case .he: text = "טמפרטורת הסוללה מוסתרת כשאינה זמינה. אחוז הסוללה ומצב הטעינה נשארים גלויים."
+        case .fa: text = "دمای باتری در صورت نبود داده پنهان می‌شود. درصد باتری و وضعیت شارژ همچنان نمایش داده می‌شوند."
+        case .ur: text = "بیٹری کا درجہ حرارت دستیاب نہ ہو تو چھپا رہتا ہے۔ چارج اور چارجنگ کی حالت دکھائی دیتی ہے۔"
+        case .sr: text = "Недоступна температура батерије је скривена. Ниво батерије и статус пуњења остају видљиви."
+        }
+        return patchNewsText(text, lang: lang)
+    }
+
     static func patch253Text(_ lang: AppLanguage) -> [String] {
         let text: [String]
         switch lang {
@@ -589,7 +618,8 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.3 – 2026-11-18\n\n" + patch253Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+        "2.5.4 – 2026-11-18\n\n• " + patch254Text(lang) + "\n\n"
+            + "2.5.3 – 2026-11-18\n\n" + patch253Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.2 – 2026-11-16\n\n" + (0..<3).map { "• " + news252Text(lang, $0) }.joined(separator: "\n\n")
             + "\n\n2.5.1 – 2026-11-16\n\n• " + news251Text(lang) + "\n\n2.5.0 – 2026-11-16\n\n"
             + (0..<3).map { "• " + news25Text(lang, $0) }.joined(separator: "\n\n")

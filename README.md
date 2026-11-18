@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.4**
+
+- Battery temperature is hidden when unavailable. Charge and charging status stay visible.
+
 **2.5.3**
 
 - Personal plugins: import your own packages in Settings. Each starts disabled and asks for access before it runs.
