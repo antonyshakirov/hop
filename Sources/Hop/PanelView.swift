@@ -3877,7 +3877,7 @@ struct PanelView: View {
                     // same shape always: only color shows activity
                     lidGlyph(
                         closed: false,
-                        color: awake.lidApplied && awake.pendingLidTarget == nil
+                        color: awake.lidShown
                             ? Theme.editing
                             : (awake.isActive ? Theme.textSecondary : Theme.textTertiary)
                     )
@@ -3886,12 +3886,6 @@ struct PanelView: View {
                 }
                 .buttonStyle(.plain)
                 .hoverHighlight(4)
-                .overlay(alignment: .bottomTrailing) {
-                    if awake.lidChanging {
-                        ProgressView().controlSize(.mini).scaleEffect(0.6).frame(width: 8, height: 8)
-                            .allowsHitTesting(false).accessibilityHidden(true)
-                    }
-                }
                 .help(t(awake.pendingLidTarget.map { $0 ? L10nKey.awakeLidEnabling : .awakeLidDisabling } ?? .awakeLid))
                 .accessibilityIdentifier("hop.awake.lid")
                 .accessibilityValue(t(awake.pendingLidTarget.map { $0 ? L10nKey.awakeLidEnabling : .awakeLidDisabling } ?? .awakeLid))

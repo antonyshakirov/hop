@@ -316,7 +316,8 @@ final class CoolingController: ObservableObject {
         defer { busy = false; stopTimerIfIdle() }
         try await waitForRequest()
         guard revision == lidRevision else { throw HardwareReason.stopped }
-        if on, service.state == .missing {
+        refreshServiceState()
+        if on, serviceState == .missing {
             do {
                 let lock = try lockFactory()
                 defer { lock.release() }
@@ -329,8 +330,8 @@ final class CoolingController: ObservableObject {
                 if approvalRequired { settings() }
                 throw reason
             }
+            refreshServiceState()
         }
-        refreshServiceState()
         guard serviceEnabled else {
             if on, approvalRequired { settings() }
             let error = approvalRequired ? HardwareReason.serviceApproval : .serviceMissing

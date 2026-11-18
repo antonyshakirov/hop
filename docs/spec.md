@@ -1204,11 +1204,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Bounded system commands use direct process launch and immediate exit/readback
   collection rather than Foundation process polling. Each command retains its
   three-second deadline and 16 KiB output limit; durable recovery and actual
-  sleep-state verification still precede the confirmed lid indicator.
+  sleep-state verification still precede the actual applied flag.
   A lid click records the latest requested target immediately. Repeated clicks
   remain available while a reply is pending; they toggle that target rather than
-  the old confirmed state. Pending changes use a neutral icon with progress and
-  localized on/off help; orange means confirmed active control only. The actual
+  the old confirmed state. The indicator follows the click
+  at once (Anton, 2026-11-18): the panel button, the menu bar mark and the on/off
+  cue show the latest requested target with no progress mark, and a refused
+  request turns them back with its reason inline. The actual
   applied flag and display dimmer change only after acknowledgement. An obsolete
   queued enable is discarded after every wait and before registration/configure;
   it cannot rearm hardware after a newer off. Pending lid work blocks updates and
@@ -1247,8 +1249,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Extensions; it never installs a new sudoers rule. Lid and Awake are independent:
   enabling lid mode never starts Awake or chooses infinity. Turning Awake off,
   expiring its timer, or changing its duration does not release or retime the lid
-  lease. The lid indicator appears only after service confirmation and is disabled
-  while the request is pending. Explicit lid-off and quitting release its override.
+  lease. The lid indicator shows the requested state immediately and returns to
+  the confirmed state if the service refuses. Explicit lid-off and quitting release its override.
   Safety cutoffs remain independent of both UI controls.
   Disabling the whole Awake module confirms active or pending lid work and
   explicitly releases both controls, including a pending enable reply.

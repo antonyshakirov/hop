@@ -807,7 +807,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let busy = model.engine.state == .running
             || model.engine.state == .paused
             || model.keepAwake.isActive
-            || model.keepAwake.lidApplied
+            || model.keepAwake.lidShown
         guard busy else {
             QuitCause.current = "quit in Hop"
             NSApp.terminate(nil)

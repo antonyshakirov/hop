@@ -1017,7 +1017,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             tracking: tracking,
             taskTimeInTitle: taskTimeInTitle,
             noSleep: model.keepAwake.isActive && !off.contains("awake"),
-            lid: model.keepAwake.lidApplied && !off.contains("awake"),
+            lid: model.keepAwake.lidShown && !off.contains("awake"),
             alertSteady: alertSteady,
             alertBlinking: alertBlinking,
             blinkOn: blinkOn,

@@ -123,6 +123,9 @@ final class KeepAwakeController: ObservableObject {
 
     var hasModuleWork: Bool { isActive || lidApplied || lidChanging }
 
+    // SPEC: docs/spec.md — Protected lid sessions, the indicator follows the click.
+    var lidShown: Bool { pendingLidTarget ?? lidApplied }
+
     // SPEC: disabling the whole module releases both independent controls.
     func stopForModuleOff() {
         deactivate()
@@ -250,7 +253,7 @@ final class KeepAwakeController: ObservableObject {
     /// Ask immediately on exit; the service watchdog covers an interrupted exit.
     func releaseLidForShutdown() {
         if lidApplied || lidChanging {
-            applyLidSleepDisabled(false)
+            applyLidSleepDisabled(false, playCue: false)
         }
     }
 
@@ -300,6 +303,7 @@ final class KeepAwakeController: ObservableObject {
         lidChanging = true
         pendingLidTarget = disabled
         lidFailure = nil
+        if playCue { Sounds.awakeCue(on: disabled) }
         Task { [weak self] in
             guard let self, self.lidOperation == operation else { return }
             defer {
@@ -312,7 +316,6 @@ final class KeepAwakeController: ObservableObject {
                 let applied = try await self.protectedLid(disabled, nil)
                 guard self.lidOperation == operation else { return }
                 self.lidApplied = applied
-                if playCue { Sounds.awakeCue(on: self.lidApplied) }
                 self.updateLidDimmer()
             } catch {
                 if self.lidOperation == operation {

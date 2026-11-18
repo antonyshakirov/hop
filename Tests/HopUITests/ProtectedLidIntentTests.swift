@@ -284,4 +284,47 @@ final class ProtectedLidIntentTests: XCTestCase {
         XCTAssertNil(awake.lidFailure)
         XCTAssertFalse(awake.lidApplied)
     }
+
+    func testIndicatorFollowsTheClickBeforeTheServiceReplies() async {
+        let saved = Snapshot.active; Snapshot.active = true
+        defer { Snapshot.active = saved }
+        var reply: CheckedContinuation<Bool, Error>?
+        let awake = KeepAwakeController(demo: true, protectedLid: { _, _ in
+            try await withCheckedThrowingContinuation { reply = $0 }
+        })
+        awake.deactivate(silent: true)
+        awake.toggleLid()
+        XCTAssertTrue(awake.lidShown)
+        XCTAssertFalse(awake.lidApplied)
+        for _ in 0..<100 where reply == nil { await Task.yield() }
+        XCTAssertTrue(awake.lidShown)
+        reply?.resume(returning: true)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        XCTAssertTrue(awake.lidShown)
+        XCTAssertTrue(awake.lidApplied)
+        reply = nil
+        awake.toggleLid()
+        XCTAssertFalse(awake.lidShown)
+        for _ in 0..<100 where reply == nil { await Task.yield() }
+        reply?.resume(returning: false)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        XCTAssertFalse(awake.lidApplied)
+    }
+
+    func testRefusedEnableTurnsTheIndicatorBackOffWithItsReason() async {
+        let saved = Snapshot.active; Snapshot.active = true
+        defer { Snapshot.active = saved }
+        var reply: CheckedContinuation<Bool, Error>?
+        let awake = KeepAwakeController(demo: true, protectedLid: { _, _ in
+            try await withCheckedThrowingContinuation { reply = $0 }
+        })
+        awake.deactivate(silent: true)
+        awake.toggleLid()
+        XCTAssertTrue(awake.lidShown)
+        for _ in 0..<100 where reply == nil { await Task.yield() }
+        reply?.resume(throwing: HardwareReason.thermal)
+        for _ in 0..<100 where awake.lidChanging { await Task.yield() }
+        XCTAssertFalse(awake.lidShown)
+        XCTAssertEqual(awake.lidFailure, .thermal)
+    }
 }
