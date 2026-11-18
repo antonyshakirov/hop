@@ -29,7 +29,7 @@ final class SoundMixerLifecycleTests: XCTestCase {
         let factory: (@escaping (SoundFailure) -> Void) -> SoundMixingSession = {
             let session = Session($0); sessions.append(session); return session
         }
-        let first = SoundMixerController(defaults: defaults, makeSession: factory)
+        let first = SoundMixerController(defaults: defaults, makeSession: factory, discover: { [] }, outputs: { [] })
         defer { first.stop(); first.close() }
         first.resumeIfEnabled()
         XCTAssertTrue(sessions.isEmpty)
@@ -44,13 +44,13 @@ final class SoundMixerLifecycleTests: XCTestCase {
         XCTAssertFalse(first.running)
         XCTAssertEqual(sessions[0].stops, 1)
         XCTAssertEqual(defaults.data(forKey: "soundMixerChannels"), legacy)
-        let restored = SoundMixerController(defaults: defaults, makeSession: factory)
+        let restored = SoundMixerController(defaults: defaults, makeSession: factory, discover: { [] }, outputs: { [] })
         defer { restored.stop(); restored.close() }
         restored.resumeIfEnabled()
         XCTAssertTrue(restored.running)
         XCTAssertEqual(sessions.count, 2)
         restored.stop()
-        let stopped = SoundMixerController(defaults: defaults, makeSession: factory)
+        let stopped = SoundMixerController(defaults: defaults, makeSession: factory, discover: { [] }, outputs: { [] })
         stopped.resumeIfEnabled()
         XCTAssertFalse(stopped.requested)
         XCTAssertFalse(stopped.running)
@@ -63,7 +63,7 @@ final class SoundMixerLifecycleTests: XCTestCase {
         var enabled = true, sessions: [Session] = []
         let mixer = SoundMixerController(enabled: { enabled }, defaults: defaults, makeSession: {
             let session = Session($0); sessions.append(session); return session
-        })
+        }, discover: { [] }, outputs: { [] })
         defer { mixer.stop(); mixer.close() }
         mixer.start(); enabled = false; mixer.suspend()
         mixer.resumeIfEnabled()
@@ -80,7 +80,7 @@ final class SoundMixerLifecycleTests: XCTestCase {
         var sessions: [Session] = []
         let mixer = SoundMixerController(defaults: defaults, makeSession: {
             let session = Session($0); sessions.append(session); return session
-        })
+        }, discover: { [] }, outputs: { [] })
         defer { mixer.stop(); mixer.close() }
         mixer.start()
         sessions[0].failed(.permission)
@@ -99,7 +99,7 @@ final class SoundMixerLifecycleTests: XCTestCase {
     func testAppGainAndMutePersistAndInputEditsCannotStartCapture() throws {
         let (name, defaults) = settings()
         defer { defaults.removePersistentDomain(forName: name) }
-        let mixer = SoundMixerController(defaults: defaults, makeSession: { Session($0) })
+        let mixer = SoundMixerController(defaults: defaults, makeSession: { Session($0) }, discover: { [] }, outputs: { [] })
         defer { mixer.stop(); mixer.close() }
         let app = SoundMixerChannel(id: "browser", name: "Browser", input: false, settings: .init())
         mixer.update(app) { $0.gain = 1.8; $0.muted = true }

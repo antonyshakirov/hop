@@ -1,6 +1,7 @@
 import AppKit
 import CoreAudio
 import HopAudioEngine
+import HopCore
 
 struct SoundMixerAppSnapshot {
     var id: String
@@ -34,9 +35,39 @@ struct SoundProcessMetadataCache {
     mutating func retain(_ pids: Set<pid_t>) { entries = entries.filter { pids.contains($0.key) } }
 }
 
-@MainActor
+final class SoundProcessMetadataStore: @unchecked Sendable {
+    private let lock = NSLock()
+    private var cache = SoundProcessMetadataCache()
+
+    func value(pid: pid_t, launch: Date?, running: Bool, load: () -> SoundMixerAppSnapshot?) -> SoundMixerAppSnapshot? {
+        lock.lock(); defer { lock.unlock() }
+        return cache.value(pid: pid, launch: launch, running: running, load: load)
+    }
+    func retain(_ pids: Set<pid_t>) {
+        lock.lock(); defer { lock.unlock() }
+        cache.retain(pids)
+    }
+}
+
+struct SoundMixerScan: Sendable {
+    var apps: [SoundMixerAppSnapshot]
+    var outputs: [SoundDevice]
+}
+
+typealias SoundMixerScanner = @Sendable (_ cleanStale: Bool) -> SoundMixerScan
+
+enum SoundMixerScanQueue {
+    private static let queue = DispatchQueue(label: "com.antonshakirov.hop.sound-scan", qos: .userInitiated)
+
+    static func run<T: Sendable>(_ work: @escaping @Sendable () -> T) async -> T {
+        await withCheckedContinuation { continuation in
+            queue.async { continuation.resume(returning: work()) }
+        }
+    }
+}
+
 enum SoundMixerDiscovery {
-    private static var metadataCache = SoundProcessMetadataCache()
+    private static let metadataCache = SoundProcessMetadataStore()
 
     static func allowsApplication(_ id: String) -> Bool {
         !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty

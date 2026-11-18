@@ -787,6 +787,12 @@ output routing active. Normal quit suspends routing without clearing the choice;
 the next ordinary launch resumes it. Explicit Stop records false. Module disable
 suspends routing and closes the window; re-enable resumes a retained choice.
 A fresh install does not start routing. No login item is added by this setting.
+- Start Mixer redraws at once as starting. Application discovery, output listing
+  and stale virtual-input cleanup run off the main thread on one serial queue, and
+  the engine starts only when that scan returns. A late scan never replaces a newer
+  refresh, and Stop during starting discards it. The agent application inventory is
+  served from the last background scan and never blocks the main thread. Coverage:
+  `SoundMixerAsyncScanTests`.
 
 - The Sound window has output-device controls, one compact row per app and
   selected-device microphone controls below a divider, all in the same window. Each app row has name, volume

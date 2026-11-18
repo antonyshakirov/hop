@@ -68,6 +68,15 @@ final class SoundMixerController: ObservableObject {
     private let makeSession: (@escaping (SoundFailure) -> Void) -> SoundMixingSession
     private let discover: () -> [SoundMixerAppSnapshot]
     private let outputs: () -> [SoundDevice]
+    private let scanner: SoundMixerScanner?
+    private var scanSequence = 0
+    private var latestRefresh = 0
+    private var appliedRefresh = 0
+    private var appliedInventory = 0
+    private var inventory: [SoundMixerAppSnapshot] = []
+    private var inventoryDate: Date?
+    private var pendingStreams = false
+    private var inventoryScanning = false
     private let observeHardware: Bool
     private var saved: [String: SoundChannelSettings]
     private var preferences: [String: SoundAppPreference]
@@ -76,7 +85,8 @@ final class SoundMixerController: ObservableObject {
 
     init(enabled: @escaping () -> Bool = { true }, defaults: UserDefaults = .standard,
          makeSession: ((@escaping (SoundFailure) -> Void) -> SoundMixingSession)? = nil,
-         discover: (() -> [SoundMixerAppSnapshot])? = nil, outputs: (() -> [SoundDevice])? = nil) {
+         discover: (() -> [SoundMixerAppSnapshot])? = nil, outputs: (() -> [SoundDevice])? = nil,
+         scan: SoundMixerScanner? = nil) {
         self.enabled = enabled; self.defaults = defaults
         requested = defaults.bool(forKey: Self.enabledKey)
         self.makeSession = makeSession ?? { failed in
@@ -86,15 +96,20 @@ final class SoundMixerController: ObservableObject {
         self.discover = discover ?? { SoundMixerDiscovery.applications() }
         let hardware = CoreSoundHardware()
         self.outputs = outputs ?? { hardware.devices(.output) }
-        observeHardware = discover == nil
+        observeHardware = discover == nil && scan == nil
+        scanner = scan ?? (discover == nil ? { @Sendable clean in
+            if clean, #available(macOS 14.2, *) { SoundProcessTap.cleanStaleVirtualInput() }
+            return SoundMixerScan(apps: SoundMixerDiscovery.applications(), outputs: hardware.devices(.output))
+        } : nil)
         defaults.removeObject(forKey: "soundMixerDenoiseAll")
         saved = defaults.data(forKey: "soundMixerChannels").flatMap { try? JSONDecoder().decode([String: SoundChannelSettings].self, from: $0) } ?? [:]
         preferences = defaults.data(forKey: Self.preferencesKey).flatMap { try? JSONDecoder().decode([String: SoundAppPreference].self, from: $0) } ?? [:]
     }
     func open() {
         guard enabled(), available else { return }
-        if #available(macOS 14.2, *), observeHardware, !running, !observingInput, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
-        visible = true; refresh(); watch(); updateActivityTimer()
+        visible = true
+        refresh(cleanStale: observeHardware && !running && !starting && !observingInput && !Snapshot.active)
+        watch(); updateActivityTimer()
     }
     func close() {
         visible = false; updateActivityTimer()
@@ -175,9 +190,29 @@ final class SoundMixerController: ObservableObject {
     func start() {
         guard enabled(), available, !running, !starting else { return }
         requested = true; defaults.set(true, forKey: Self.enabledKey)
-        if #available(macOS 14.2, *), observeHardware, !observingInput, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
-        refresh(); failure = nil; starting = true; generation += 1
+        failure = nil; generation += 1
         let token = generation
+        guard let scanner else {
+            refresh(); starting = true
+            beginSession(token)
+            return
+        }
+        starting = true
+        scanSequence += 1
+        let sequence = scanSequence
+        let clean = observeHardware && !observingInput && !Snapshot.active
+        Task { [weak self] in
+            let result = await SoundMixerScanQueue.run { scanner(clean) }
+            guard let self, self.generation == token, self.starting else { return }
+            self.record(result, sequence: sequence)
+            if sequence > self.appliedRefresh {
+                self.appliedRefresh = sequence
+                self.apply(result, applyStreams: false)
+            }
+            self.beginSession(token)
+        }
+    }
+    private func beginSession(_ token: Int) {
         let session = makeSession { [weak self] failure in
             guard let self, self.generation == token else { return }
             self.suspend(); self.failure = failure
@@ -220,17 +255,52 @@ final class SoundMixerController: ObservableObject {
     }
     func agentApplicationInventory() -> [SoundMixerAppSnapshot] {
         guard enabled(), available else { return [] }
-        return discover().filter { SoundMixerDiscovery.allowsApplication($0.id) }
+        guard let scanner else { return discover().filter { SoundMixerDiscovery.allowsApplication($0.id) } }
+        if inventoryDate.map({ Date().timeIntervalSince($0) > 2 }) ?? true, !inventoryScanning {
+            inventoryScanning = true
+            scanSequence += 1
+            let sequence = scanSequence
+            Task { [weak self] in
+                let result = await SoundMixerScanQueue.run { scanner(false) }
+                self?.inventoryScanning = false
+                self?.record(result, sequence: sequence)
+            }
+        }
+        return inventory.filter { SoundMixerDiscovery.allowsApplication($0.id) }
+    }
+    private func record(_ result: SoundMixerScan, sequence: Int) {
+        guard sequence > appliedInventory else { return }
+        appliedInventory = sequence; inventory = result.apps; inventoryDate = Date()
     }
     // SPEC: product-spec/results/screens/sound-input.md — only confirmed mutations prepare live sources.
     func refreshForAgent() {
         guard enabled(), available else { return }
         refresh(applyStreams: false)
     }
-    private func refresh(applyStreams: Bool = true) {
-        outputDevices = outputs().filter { SoundAppOutput.allows($0.uid) }
+    private func refresh(applyStreams: Bool = true, cleanStale: Bool = false) {
+        guard let scanner else {
+            apply(SoundMixerScan(apps: discover(), outputs: outputs()), applyStreams: applyStreams)
+            return
+        }
+        pendingStreams = pendingStreams || applyStreams
+        scanSequence += 1
+        let sequence = scanSequence
+        latestRefresh = sequence
+        Task { [weak self] in
+            let result = await SoundMixerScanQueue.run { scanner(cleanStale) }
+            guard let self else { return }
+            self.record(result, sequence: sequence)
+            guard sequence == self.latestRefresh, sequence > self.appliedRefresh, self.enabled() else { return }
+            self.appliedRefresh = sequence
+            let streams = self.pendingStreams
+            self.pendingStreams = false
+            self.apply(result, applyStreams: streams)
+        }
+    }
+    private func apply(_ scan: SoundMixerScan, applyStreams: Bool) {
+        outputDevices = scan.outputs.filter { SoundAppOutput.allows($0.uid) }
         let old = Dictionary(uniqueKeysWithValues: apps.map { ($0.id, $0) })
-        var groups = Dictionary(uniqueKeysWithValues: discover().filter {
+        var groups = Dictionary(uniqueKeysWithValues: scan.apps.filter {
             SoundMixerDiscovery.allowsApplication($0.id)
                 && ($0.sourceRunning || old[$0.id] != nil || preferences[$0.id]?.pinned == true)
         }.map { ($0.id, $0) })
