@@ -24,6 +24,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
     @Published private(set) var switchingOff = false
     var shownOn: Bool { !switchingOff && state.wantsOn }
     private var configureToken = 0
+    private var configureTail: Task<Void, Never>?
     /// Test seam: replaces the NEFilterManager round trip.
     var applyConfiguration: ((Bool) async throws -> Void)?
     @Published private(set) var sightings: [NetworkSighting] = []
@@ -482,10 +483,21 @@ final class NetworkFilterController: NSObject, ObservableObject {
         Task { await configure(enabled: true) }
     }
 
+    // WORKAROUND: NEFilterManager.shared() is one object; overlapping load/save can persist a stale isEnabled.
     private func configure(enabled: Bool) async {
         configureToken += 1
         let token = configureToken
         if enabled { switchingOff = false }
+        let previous = configureTail
+        let current = Task { [weak self] in
+            await previous?.value
+            await self?.configureNow(enabled: enabled, token: token)
+        }
+        configureTail = current
+        await current.value
+    }
+
+    private func configureNow(enabled: Bool, token: Int) async {
         do {
             if let applyConfiguration {
                 try await applyConfiguration(enabled)

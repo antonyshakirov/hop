@@ -37,6 +37,7 @@ final class VPNController: ObservableObject {
     @Published private(set) var targets: [String: Bool] = [:]
     var pending: Set<String> { Set(targets.keys) }
     private var tokens: [String: Int] = [:]
+    private var commandChains: [String: Task<Void, Never>] = [:]
     private var commandDoneAt: [String: Date] = [:]
     private static let confirmTimeout: TimeInterval = 20
     typealias Runner = @Sendable ([String]) -> (output: String, ok: Bool)
@@ -357,7 +358,10 @@ final class VPNController: ObservableObject {
         let wasEnabled = configuration.isEnabled
         let holdOff = UserDefaults.standard.object(forKey: SettingsKey.vpnHoldOff) as? Bool ?? true
         let runner = runner
-        Task { [weak self] in
+        let previous = commandChains[id]
+        // WORKAROUND: scutil start/stop for one service are not ordered by the system; run them in click order.
+        commandChains[id] = Task { [weak self] in
+            await previous?.value
             let ok = await Task.detached { () -> Bool in
                 if turningOffNow {
                     let stopped = runner([Self.scutil, "--nc", "stop", id]).ok

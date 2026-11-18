@@ -96,8 +96,9 @@ final class SpeedTestController: ObservableObject {
 
         let onLive: @Sendable (Double?, Double?) -> Void = { [weak self] down, up in
             Task { @MainActor in
-                if let down { self?.liveDown = down }
-                if let up { self?.liveUp = up }
+                guard let self, self.runID == id else { return }
+                if let down { self.liveDown = down }
+                if let up { self.liveUp = up }
             }
         }
         Task.detached(priority: .userInitiated) { [weak self] in

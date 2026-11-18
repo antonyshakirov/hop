@@ -275,6 +275,7 @@ final class KeepAwakeController: ObservableObject {
     }
 
     func setLidEnabled(_ on: Bool) {
+        guard !removingLidRule else { return }
         guard (pendingLidTarget ?? lidApplied) != on || lidFailure != nil else { return }
         applyLidSleepDisabled(on)
     }
