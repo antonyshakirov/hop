@@ -7067,6 +7067,10 @@ its own database of known apps may do better on real software than it did here.
   (a plain `open` before terminate only activates the still-running old
   instance — nothing would start the new one, and two live instances
   racing NSWorkspace.setIcon corrupted the Finder icon into a folder).
+- Reading the downloaded build for the signature check, unpacking it, copying
+  the replacement, `codesign --verify` and the bundle validation run off the main
+  thread, in the same order, so the panel keeps responding and the installing
+  state shows (Anton, 2026-11-18). Nothing is skipped or reordered.
 - Auto-check cadence: 15 s after launch, every hour, and 30 s after
   wake from sleep (the quietest moment — the user is just coming back
   and doesn't rely on the app yet). Only the tiny latest.json is fetched
