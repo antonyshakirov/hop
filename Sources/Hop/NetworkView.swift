@@ -153,7 +153,7 @@ struct NetworkWindowView: View {
                 .font(Theme.mono(12))
                 .foregroundStyle(Theme.textPrimary)
             Theme.MiniSwitch(isOn: Binding(
-                get: { network.state.wantsOn },
+                get: { network.shownOn },
                 set: { on in
                     guard !staged else { return }
                     on ? network.switchOn() : network.switchOff()

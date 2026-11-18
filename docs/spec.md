@@ -2970,6 +2970,10 @@ drawn list of programs with their verdicts rather than the window itself.
   approval and a failure. Turning the switch on from off goes the usual way
   (`switchOn`, the system approval if it was never given). Hiding the module
   still switches the filter off as well.
+  The switch shows OFF the moment it is clicked (`switchingOff`), while the
+  system still saves the configuration; a failed save ends in the failure card, and
+  a reply of an older request cannot overwrite a newer one. Test:
+  `NetworkFilterSwitchIntentTests`.
 - **The window** (Anton, 2026-09-28: clear, not technical): its header sits
   as high as in the other module windows (18 pt under the title bar); a header like a
   settings page; search, a segmented all / blocked / last hour, a ⋯ menu for

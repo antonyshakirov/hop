@@ -19,6 +19,13 @@ final class NetworkFilterController: NSObject, ObservableObject {
 
     @Published private(set) var state: State = .off
     @Published private(set) var rules: [NetworkRule] = []
+    /// A switch-off the system has not yet confirmed; the switch already shows off.
+    /// SPEC: docs/spec.md — "Network access", the filter's own switch.
+    @Published private(set) var switchingOff = false
+    var shownOn: Bool { !switchingOff && state.wantsOn }
+    private var configureToken = 0
+    /// Test seam: replaces the NEFilterManager round trip.
+    var applyConfiguration: ((Bool) async throws -> Void)?
     @Published private(set) var sightings: [NetworkSighting] = []
     @Published private(set) var order: [String] = [] {
         didSet {
@@ -327,6 +334,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
             case .becameOff:
                 log.info("filter switched off outside Hop")
                 state = .off
+                switchingOff = false
                 stopped = false
                 syncAsking()
             case .becameOn:
@@ -450,6 +458,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
 
     func switchOn(guided: Bool = true) {
         guard !Snapshot.active, state != .installing else { return }
+        switchingOff = false
         UserDefaults.standard.set(true, forKey: SettingsKey.networkStarted)
         guidesApproval = guided
         state = .installing
@@ -459,7 +468,8 @@ final class NetworkFilterController: NSObject, ObservableObject {
     }
 
     func switchOff() {
-        UserDefaults.standard.set(true, forKey: SettingsKey.networkStarted)
+        if !Snapshot.active { UserDefaults.standard.set(true, forKey: SettingsKey.networkStarted) }
+        switchingOff = true
         Task { await configure(enabled: false) }
     }
 
@@ -468,13 +478,23 @@ final class NetworkFilterController: NSObject, ObservableObject {
         followOrder()
         guard !Snapshot.active else { return }
         UserDefaults.standard.set(NetworkRules.encode(next), forKey: Self.rulesKey)
-        guard state == .on else { return }
+        guard state == .on, !switchingOff else { return }
         Task { await configure(enabled: true) }
     }
 
     private func configure(enabled: Bool) async {
-        let manager = NEFilterManager.shared()
+        configureToken += 1
+        let token = configureToken
+        if enabled { switchingOff = false }
         do {
+            if let applyConfiguration {
+                try await applyConfiguration(enabled)
+                guard token == configureToken else { return }
+                state = enabled ? .on : .off
+                switchingOff = false
+                return
+            }
+            let manager = NEFilterManager.shared()
             try await manager.loadFromPreferences()
             let configuration = NEFilterProviderConfiguration()
             configuration.filterSockets = true
@@ -489,10 +509,15 @@ final class NetworkFilterController: NSObject, ObservableObject {
             manager.localizedDescription = Self.listedName
             manager.isEnabled = enabled
             try await manager.saveToPreferences()
+            // a newer request owns the state now; this reply is obsolete
+            guard token == configureToken else { return }
             state = enabled ? .on : .off
+            switchingOff = false
             syncAsking()
             log.info("filter \(enabled ? "on" : "off", privacy: .public), \(self.rules.count) rules")
         } catch {
+            guard token == configureToken else { return }
+            switchingOff = false
             state = .failed(error.localizedDescription)
             log.error("filter configuration failed: \(error.localizedDescription, privacy: .public)")
         }
