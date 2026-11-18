@@ -1,6 +1,7 @@
 """Exercise the build queue with real processes, without compiling Hop."""
 import os
 from pathlib import Path
+import select
 import signal
 import subprocess
 import sys
@@ -198,7 +199,9 @@ class BuildBudgetTests(unittest.TestCase):
         a = self.launch(f'from pathlib import Path;import time;Path({str(ready)!r}).touch();time.sleep(60)')
         self.wait_file(ready)
         b = self.launch(f'from pathlib import Path;Path({str(forbidden)!r}).touch()')
-        time.sleep(0.2)
+        ready_to_cancel, _, _ = select.select([b.stderr], [], [], 10)
+        self.assertTrue(ready_to_cancel, 'launcher never reported waiting')
+        self.assertIn('waiting for the shared build budget', b.stderr.readline())
         b.terminate()
         self.assertEqual(b.wait(timeout=5), 128 + signal.SIGTERM)
         self.assertIsNone(a.poll())
