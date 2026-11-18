@@ -6514,6 +6514,13 @@ drag-and-drop onto that window or through a "+" that opens Finder.
   agents are booted out (`launchctl bootout`) before their plists move — otherwise
   launchd writes them back a second later. An app that refuses to quit stops the
   run with that reason, rather than half-removing it.
+- **The window answers before the disk does.** Removing, clearing caches,
+  removing leftovers or installers and emptying the trash show their working state
+  (a spinner, the controls disabled; the trash button on its own spinner) at the
+  click, and every blocking step — waiting for the app to quit, `launchctl`, the
+  trash loop, the admin move, Finder's empty, the size walks — runs off the main
+  thread; the result lands back on the main actor. A second click while a run is
+  going starts nothing. Test: `UninstallWorkingStateTests`.
 - **Also scanned, found by checking a real disk** (2026-07-30):
   `Preferences/ByHost/<id>.<hardware uuid>.plist` — the reason a reinstalled app
   remembers a setting nobody expected; `Autosave Information`;

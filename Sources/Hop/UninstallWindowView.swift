@@ -64,6 +64,13 @@ struct UninstallWindowView: View {
         }
         .padding(.vertical, Self.inset)
         .frame(maxWidth: .infinity, alignment: .topLeading)
+        // SPEC: docs/spec.md — "Uninstaller", the window answers a click before the disk does.
+        .disabled(uninstall.state == .working)
+        .overlay(alignment: .topTrailing) {
+            if uninstall.state == .working {
+                ProgressView().controlSize(.small).padding(Self.inset)
+            }
+        }
         // The window follows its content: with only the drop plate on screen a
         // fixed height left a dark void under it, the same gap the converter
         // and the archives had before they learned to fit.
@@ -598,13 +605,16 @@ struct UninstallWindowView: View {
                     .foregroundStyle(Theme.textPrimary)
                     .monospacedDigit()
                 Spacer()
+                if uninstall.emptyingTrash {
+                    ProgressView().controlSize(.small).frame(width: 11, height: 11)
+                }
                 Button { uninstall.emptyTrash() } label: {
                     HoverLabel(text: t(.uninstallEmptyTrash), size: 10, color: Theme.accentRed)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .help(t(.uninstallEmptyTrash))
-                .disabled(uninstall.trashItems == 0)
+                .disabled(uninstall.trashItems == 0 || uninstall.emptyingTrash)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 6)

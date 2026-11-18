@@ -11,7 +11,7 @@ import os
 /// existence, sizes, quitting the app, `launchctl`, and the move to the trash.
 @MainActor
 final class UninstallController: ObservableObject {
-    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "Uninstall")
+    private nonisolated static let log = Logger(subsystem: "com.antonshakirov.hop", category: "Uninstall")
 
     /// One found trace, with the size it actually occupies and whether the user
     /// wants it gone.
@@ -203,6 +203,19 @@ final class UninstallController: ObservableObject {
     /// Set when the app refuses to quit — removing a running app leaves half of it
     /// behind and relaunches the rest.
     @Published private(set) var blockedByRunning = false
+    @Published private(set) var emptyingTrash = false
+
+    struct TrashOutcome: Sendable {
+        var trashed = 0
+        var bytes: Int64 = 0
+        var failed: [String] = []
+        var protected: [String] = []
+    }
+    /// SPEC: docs/spec.md — "Uninstaller", the window answers before the disk does. Test seams.
+    var trashWork: @Sendable ([String]) -> TrashOutcome = { UninstallController.trashPaths($0) }
+    var removeWork: @Sendable ([Trace]) -> TrashOutcome =
+        { UninstallController.removeFromDisk($0) }
+    var emptyTrashWork: @Sendable () -> (bytes: Int64, items: Int) = { UninstallController.emptyTrashNow() }
     /// True while the clean-up walk is still running, so the window can say so
     /// instead of looking empty.
     @Published private(set) var scanning = false
@@ -526,16 +539,22 @@ final class UninstallController: ObservableObject {
         return (bytes: size(of: trash), items: items)
     }
 
-    /// Measures the trash again after emptying it, without redoing the rest.
-    func measureTrash() {
-        let measured = Self.trashMeasurement()
-        trashBytes = measured.bytes
-        trashItems = measured.items
-    }
-
     /// Empties the trash through Finder, which is the only thing allowed to. The
     /// one irreversible action in the whole module, so the window asks first.
     func emptyTrash() {
+        guard !emptyingTrash else { return }
+        emptyingTrash = true
+        let work = emptyTrashWork
+        Task { [weak self] in
+            let measured = await Task.detached(priority: .userInitiated) { work() }.value
+            guard let self else { return }
+            trashBytes = measured.bytes
+            trashItems = measured.items
+            emptyingTrash = false
+        }
+    }
+
+    nonisolated static func emptyTrashNow() -> (bytes: Int64, items: Int) {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
         task.arguments = ["-e", "tell application \"Finder\" to empty trash"]
@@ -543,7 +562,7 @@ final class UninstallController: ObservableObject {
         task.standardError = FileHandle.nullDevice
         try? task.run()
         task.waitUntilExit()
-        measureTrash()
+        return trashMeasurement()
     }
 
     /// Every app that is holding a cache, biggest first. Built from the CACHE
@@ -622,46 +641,58 @@ final class UninstallController: ObservableObject {
         .sorted { $0.bytes > $1.bytes }
     }
 
-    /// Moves a list of paths to the trash and writes the report. The one place
-    /// that touches the disk for every list in the clean screen, so the promise —
-    /// trash, never rm — cannot differ between them.
-    private func trash(paths: [String]) {
-        var trashed = 0
-        var bytes: Int64 = 0
-        var failed: [String] = []
-        var protected: [String] = []
+    /// Trash, never rm, for every list of the clean screen.
+    nonisolated static func trashPaths(_ paths: [String],
+                                       size measure: (String) -> Int64 = { UninstallController.size(of: $0) })
+        -> TrashOutcome {
+        var outcome = TrashOutcome()
         for path in paths {
-            let size = Self.size(of: path)
+            let size = measure(path)
             do {
                 try FileManager.default.trashItem(at: URL(fileURLWithPath: path),
                                                  resultingItemURL: nil)
-                trashed += 1
-                bytes += size
+                outcome.trashed += 1
+                outcome.bytes += size
             } catch {
                 let code = (error as NSError).code
                 if code == NSFileWriteNoPermissionError || code == NSFileReadNoPermissionError {
-                    protected.append(path)
+                    outcome.protected.append(path)
                 } else {
-                    failed.append(path)
+                    outcome.failed.append(path)
                 }
             }
         }
-        report = Report(trashed: trashed, bytes: bytes, failed: failed, stayed: [],
-                        needsFullDisk: protected)
-        state = .done
+        return outcome
+    }
+
+    private func runTrash(_ paths: [String], then apply: @escaping (TrashOutcome) -> Void) {
+        guard state != .working else { return }
+        state = .working
+        let work = trashWork
+        Task { [weak self] in
+            let outcome = await Task.detached(priority: .userInitiated) { work(paths) }.value
+            guard let self else { return }
+            report = Report(trashed: outcome.trashed, bytes: outcome.bytes, failed: outcome.failed,
+                            stayed: [], needsFullDisk: outcome.protected)
+            apply(outcome)
+            state = .done
+        }
     }
 
     /// Moves the ticked leftovers to the trash — everything of an app that is gone.
     func removeTickedLeftovers() {
+        guard state != .working else { return }
         let chosen = leftovers.filter(\.ticked)
-        trash(paths: chosen.flatMap(\.chosenPaths))
-        leftovers = leftovers.compactMap { owner in
-            guard owner.ticked else { return owner }
-            let kept = owner.paths.filter { owner.skipped.contains($0) }
-            guard !kept.isEmpty else { return nil }
-            return CacheOwner(identifier: owner.identifier, name: owner.name, appPath: nil, paths: kept,
-                              bytes: kept.reduce(0) { $0 + (owner.sizes[$1] ?? 0) }, ticked: false,
-                              sizes: owner.sizes.filter { kept.contains($0.key) })
+        runTrash(chosen.flatMap(\.chosenPaths)) { [weak self] _ in
+            guard let self else { return }
+            leftovers = leftovers.compactMap { owner in
+                guard owner.ticked else { return owner }
+                let kept = owner.paths.filter { owner.skipped.contains($0) }
+                guard !kept.isEmpty else { return nil }
+                return CacheOwner(identifier: owner.identifier, name: owner.name, appPath: nil, paths: kept,
+                                  bytes: kept.reduce(0) { $0 + (owner.sizes[$1] ?? 0) }, ticked: false,
+                                  sizes: owner.sizes.filter { kept.contains($0.key) })
+            }
         }
     }
 
@@ -832,32 +863,11 @@ final class UninstallController: ObservableObject {
 
     /// Clears the caches of every ticked owner. Nothing else of theirs is touched.
     func clearTickedCaches() {
+        guard state != .working else { return }
         let chosen = cacheOwners.filter(\.ticked)
-        var trashed = 0
-        var bytes: Int64 = 0
-        var failed: [String] = []
-        var protected: [String] = []
-        for owner in chosen {
-            for path in owner.paths {
-                do {
-                    try FileManager.default.trashItem(at: URL(fileURLWithPath: path),
-                                                     resultingItemURL: nil)
-                    trashed += 1
-                    bytes += Self.size(of: path)
-                } catch {
-                    let code = (error as NSError).code
-                    if code == NSFileWriteNoPermissionError || code == NSFileReadNoPermissionError {
-                        protected.append(path)
-                    } else {
-                        failed.append(path)
-                    }
-                }
-            }
+        runTrash(chosen.flatMap(\.paths)) { [weak self] _ in
+            self?.cacheOwners.removeAll { owner in chosen.contains { $0.id == owner.id } }
         }
-        report = Report(trashed: trashed, bytes: bytes, failed: failed, stayed: [],
-                        needsFullDisk: protected)
-        cacheOwners.removeAll { owner in chosen.contains { $0.id == owner.id } }
-        state = .done
     }
 
     /// The apps on this Mac, so removing one is a click rather than a drag. Sizes
@@ -1055,23 +1065,11 @@ final class UninstallController: ObservableObject {
 
     /// Moves the ticked installers to the trash. Same promise as everywhere else.
     func removeTickedInstallers() {
+        guard state != .working else { return }
         let chosen = installers.filter(\.ticked)
-        var trashed = 0
-        var bytes: Int64 = 0
-        var failed: [String] = []
-        for file in chosen {
-            do {
-                try FileManager.default.trashItem(at: URL(fileURLWithPath: file.found.path),
-                                                 resultingItemURL: nil)
-                trashed += 1
-                bytes += file.found.bytes
-            } catch {
-                failed.append(file.found.path)
-            }
+        runTrash(chosen.map(\.found.path)) { [weak self] _ in
+            self?.installers.removeAll { file in chosen.contains { $0.id == file.id } }
         }
-        report = Report(trashed: trashed, bytes: bytes, failed: failed, stayed: [])
-        installers.removeAll { file in chosen.contains { $0.id == file.id } }
-        state = .done
     }
 
     /// Lists every known folder and keeps the entries that belong to this app.
@@ -1174,22 +1172,31 @@ final class UninstallController: ObservableObject {
         state = .working
         blockedByRunning = false
 
-        if !quitIfRunning(bundleIdentifier: target.bundleIdentifier) {
+        if await !quitIfRunning(bundleIdentifier: target.bundleIdentifier) {
+            guard state == .working else { return }
             blockedByRunning = true
             state = .found
             return
         }
 
         let chosen = traces.filter(\.ticked)
+        let work = removeWork
+        let result = await Task.detached(priority: .userInitiated) { work(chosen) }.value
+        guard state == .working else { return }
+        report = Report(trashed: result.trashed, bytes: result.bytes,
+                        failed: result.failed, stayed: AppUninstall.Remainder.allCases,
+                        needsFullDisk: result.protected)
+        traces = []
+        state = .done
+    }
+
+    nonisolated static func removeFromDisk(_ chosen: [Trace]) -> TrashOutcome {
         for trace in chosen where trace.kind == .launchAgent || trace.kind == .systemLaunchAgent
             || trace.kind == .launchDaemon {
             bootout(trace)
         }
 
-        var trashed = 0
-        var bytes: Int64 = 0
-        var failed: [String] = []
-        var protected: [String] = []
+        var outcome = TrashOutcome()
         var admin: [String] = []
 
         for trace in chosen {
@@ -1200,15 +1207,15 @@ final class UninstallController: ObservableObject {
             do {
                 try FileManager.default.trashItem(at: URL(fileURLWithPath: trace.path),
                                                  resultingItemURL: nil)
-                trashed += 1
-                bytes += trace.bytes
+                outcome.trashed += 1
+                outcome.bytes += trace.bytes
             } catch {
                 Self.log.error("trash failed: \(trace.path, privacy: .public)")
                 if (error as NSError).code == NSFileWriteNoPermissionError
                     || (error as NSError).code == NSFileReadNoPermissionError {
-                    protected.append(trace.path)
+                    outcome.protected.append(trace.path)
                 } else {
-                    failed.append(trace.path)
+                    outcome.failed.append(trace.path)
                 }
             }
         }
@@ -1216,43 +1223,37 @@ final class UninstallController: ObservableObject {
         // Everything that needs an administrator goes in ONE authorised step, and
         // still into the trash rather than to /dev/null.
         if !admin.isEmpty {
-            if Self.moveWithAdmin(admin) {
-                trashed += admin.count
-                bytes += chosen.filter { admin.contains($0.path) }.reduce(0) { $0 + $1.bytes }
+            if moveWithAdmin(admin) {
+                outcome.trashed += admin.count
+                outcome.bytes += chosen.filter { admin.contains($0.path) }.reduce(0) { $0 + $1.bytes }
             } else {
-                failed.append(contentsOf: admin)
+                outcome.failed.append(contentsOf: admin)
             }
         }
-
-        report = Report(trashed: trashed, bytes: bytes, failed: failed,
-                        stayed: AppUninstall.Remainder.allCases,
-                        needsFullDisk: protected)
-        traces = []
-        state = .done
+        return outcome
     }
 
     /// True when the app is not running any more. A refusal is reported rather
     /// than forced: an app killed mid-write can leave a corrupt file behind, and
     /// the user may simply have unsaved work open.
-    private func quitIfRunning(bundleIdentifier id: String) -> Bool {
+    private func quitIfRunning(bundleIdentifier id: String) async -> Bool {
         guard !id.isEmpty else { return true }
         let running = NSRunningApplication.runningApplications(withBundleIdentifier: id)
         guard !running.isEmpty else { return true }
         running.forEach { $0.terminate() }
-        // give it a moment; this is a UI action, and a second is imperceptible
         let deadline = Date().addingTimeInterval(2)
         while Date() < deadline {
             if NSRunningApplication.runningApplications(withBundleIdentifier: id).isEmpty {
                 return true
             }
-            usleep(100_000)
+            try? await Task.sleep(nanoseconds: 100_000_000)
         }
         return NSRunningApplication.runningApplications(withBundleIdentifier: id).isEmpty
     }
 
     /// `launchctl bootout` before the plist moves — otherwise launchd notices the
     /// file is gone, and a still-loaded job can write it straight back.
-    private func bootout(_ trace: Trace) {
+    private nonisolated static func bootout(_ trace: Trace) {
         let directory = (trace.path as NSString).deletingLastPathComponent
         let label = (trace.name as NSString).deletingPathExtension
         let domain = AppUninstall.launchdDomain(forDirectory: directory, uid: getuid())
