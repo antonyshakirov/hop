@@ -39,6 +39,8 @@ final class WindowSnapController {
     }
 
     private var lastExternalPID: pid_t?
+    /// The system default is six seconds per call, all of them on the main thread.
+    private static let messagingTimeout: Float = 1
 
     func startTracking() {
         if let front = NSWorkspace.shared.frontmostApplication,
@@ -69,6 +71,8 @@ final class WindowSnapController {
         }
         guard let pid = lastExternalPID else { return }
         let appElement = AXUIElementCreateApplication(pid)
+        // SPEC: docs/spec.md — Window manager, a hung target app costs at most one second.
+        AXUIElementSetMessagingTimeout(appElement, Self.messagingTimeout)
         var windowRef: CFTypeRef?
         guard AXUIElementCopyAttributeValue(
             appElement, kAXFocusedWindowAttribute as CFString, &windowRef
@@ -76,6 +80,7 @@ final class WindowSnapController {
             let windowRef, CFGetTypeID(windowRef) == AXUIElementGetTypeID()
         else { return }
         let window = windowRef as! AXUIElement
+        AXUIElementSetMessagingTimeout(window, Self.messagingTimeout)
 
         guard let screen = screenContaining(window) ?? NSScreen.main,
               let primary = NSScreen.screens.first?.frame

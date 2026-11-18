@@ -1972,6 +1972,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   VoiceOver enable it, and the frame lands wrong); after setting, the
   frame is re-read and corrected with retries (up to 3) — "click several
   times" must never be needed.
+- **A hung target app:** the zone calls run on the main thread, so each
+  Accessibility call to the target app and its window waits at most one second
+  instead of the system's six (Anton, 2026-11-18). A responsive app is unaffected.
 
 ### Tracker
 
