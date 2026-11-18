@@ -1450,7 +1450,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // force-create the lazy model in safe mode. A crash/SIGKILL still orphans
         // the engine — TorrentEngineProcess reaps those on the next start.
         model.soundCallMix.shutdown()
-        if statusController != nil { model.soundStatus.setEnabled(false); model.sound.close(); model.soundMixer.suspend(); model.torrent.stopEngine() }
+        if statusController != nil { model.tracker.flushWrites(); model.soundStatus.setEnabled(false); model.sound.close(); model.soundMixer.suspend(); model.torrent.stopEngine() }
     }
 
     // MARK: - Opening archives, .torrent files and magnet: links (Launch Services)

@@ -1982,7 +1982,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   brought back in 1.9.0 — Anton, 2026-08-28 — because the week figures below
   are only worth reading per project). All
   logic lives in HopCore (`TrackerEngine`, persisted to `tracker.json` via
-  `TrackerController`); the view is glue. Labels tick off `tracker.heartbeat`
+  `TrackerController`); the view is glue. Saves go through `TrackerWriter`, a
+  serial queue off the main thread (Anton, 2026-11-18): writes coalesce, the newest
+  snapshot is always the one written last, a failure is logged once per write,
+  and quitting waits for the queue to drain (`TrackerWriterTests`). Labels tick off `tracker.heartbeat`
   (1/s while a task is tracking). Active by default — unlike torrents it has no
   engine to download, so it isn't opt-in; hidden or shown like every other
   module by its power button in the "modules & tabs" table. The module title (`trackerLabel`) is "time tracker" — it
@@ -7200,7 +7203,9 @@ numbers on screen at that moment — the tool's current estimate, not an
 average of the ramp-up, which would drop the figure under the click — and a
 direction not measured yet, and the responsiveness, which the tool reports
 only at the very end, read "—". Then ↻ is back. Stopped before any number,
-the result from before stays (`SpeedSummary.stopped`, `SpeedStopTests`). No
+the result from before stays (`SpeedSummary.stopped`, `SpeedStopTests`). The row
+leaves "running" on the click itself, not when the tool exits; the tool's late
+reply is dropped (Anton, 2026-11-18, `SpeedTestStopTests`). No
 custom servers and no third-party services. A fresh result is drawn in the
 primary ink, like the module's own name: it is the answer the row exists for,
 and in secondary grey it read as a caption (Anton, 2026-09-05). A stale one
