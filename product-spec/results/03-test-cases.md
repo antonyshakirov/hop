@@ -271,3 +271,9 @@ delivery still requires the installed Dev check.
   and Reset returns to no global binding without disabling capture/history.
   Actual settings render the unassigned recorder and disabled clear action in
   English/Russian/German/French and both appearances. Picker Cmd1–9 stay local.
+
+- MON-BAT-01: a battery with charge 100% and no temperature renders `100%`,
+  without a temperature placeholder or trailing separator.
+- MON-BAT-02: missing temperature preserves the charging label beside charge.
+- MON-BAT-03: available battery temperature still renders in Celsius/Fahrenheit;
+  missing temperature never permanently disables a later available reading.

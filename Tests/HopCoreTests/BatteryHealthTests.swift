@@ -2,6 +2,15 @@ import XCTest
 @testable import HopCore
 
 final class BatteryHealthTests: XCTestCase {
+    func testEqualCycleCountsCanHaveDifferentHealth() {
+        XCTAssertEqual(BatteryHealth.percent(properties: [
+            "CycleCount": 163, "DesignCapacity": 5000, "NominalChargeCapacity": 5000
+        ]), 100)
+        XCTAssertEqual(BatteryHealth.percent(properties: [
+            "CycleCount": 163, "DesignCapacity": 5000, "NominalChargeCapacity": 4800
+        ]), 96)
+    }
+
     func testMacOS27NestedCapacitiesRestoreHealth() {
         let properties: [String: Any] = [
             "CurrentCapacity": 100, "MaxCapacity": 100, "CycleCount": 154,

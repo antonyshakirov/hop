@@ -1380,6 +1380,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Rows: cpu (load+temperature), gpu, memory (like Activity Monitor),
   network ↓↑, disk, battery (charge/temperature), health (health/cycles),
   power (watts), uptime. Colored SF Symbols icons.
+- Battery temperature is optional. When the current sample has no temperature,
+  omit that value and its separator; keep charge and charging status. Do not
+  permanently mark the Mac unsupported after a missing sample. An available
+  temperature uses the selected Celsius/Fahrenheit unit.
 - Units follow the system's own conventions (audited against Activity
   Monitor/Finder 2026-07-18): memory and swap in BINARY GB (Activity
   Monitor reports RAM that way — 24 GB of chips reads 24, not 25.8);

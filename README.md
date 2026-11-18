@@ -210,6 +210,9 @@ and update only while the tab is open. The memory row also speaks up when a
 lot of memory has gone to disk, and not only when macOS itself reports being
 short.
 
+Battery temperature appears only when macOS supplies a reading. Charge and
+charging status remain visible when temperature is unavailable.
+
 <div align="center">
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – System monitor">
 </div>

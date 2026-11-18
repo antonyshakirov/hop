@@ -326,12 +326,16 @@ struct StatsView: View {
         return colorful ? Theme.accentGreen : Theme.textSecondary
     }
 
-    private func batteryValue(_ b: BatteryInfo) -> Text {
+    func batteryValue(_ b: BatteryInfo) -> Text {
         let percent: Text = b.percent.map {
             Text("\($0)%").foregroundColor(batteryColor(b))
         } ?? Text("—").foregroundColor(Theme.textTertiary)
-        return percent + dot
-            + Text(tempText(b.tempC)).foregroundColor(tempColor(b.tempC))
+        var value = percent
+        if let temperature = b.tempC {
+            value = value + dot
+                + Text(tempText(temperature)).foregroundColor(tempColor(temperature))
+        }
+        return value
             + (b.isCharging
                 ? dot + Text(t(.statCharging)).foregroundColor(colorful ? Theme.accentGreen : Theme.textSecondary)
                 : Text(""))
