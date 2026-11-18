@@ -44,6 +44,8 @@ final class CoolingController: ObservableObject {
     private var popoverObserver: NSObjectProtocol?
     private var hardwareModules: Set<String>
     private var serviceState = CoolingServiceState.unavailable
+    private var stateTicket: UInt64 = 0
+    private var refreshing = false
     private var connectionFailed = false
     private let openSettings: () -> Void
     private let notificationCenter: NotificationCenter
@@ -154,18 +156,29 @@ final class CoolingController: ObservableObject {
         if requestOnEnable, !newlyEnabled.isEmpty { requestPermission() }
     }
 
+
     func checkPermissions() {
         guard !preview, !Snapshot.active, UserDefaults.standard.bool(forKey: "onboardingDone") else { return }
         reconcilePermissions(enabledModules: Self.enabledHardwareModules, requestOnEnable: false)
-        if !hardwareModules.isEmpty, serviceEnabled { Task { await refresh() } }
+        guard !hardwareModules.isEmpty else { return }
+        Task {
+            if await readServiceState() == .enabled { await refresh() }
+        }
     }
 
     func requestPermission() {
         guard !preview else { return }
-        refreshServiceState()
-        if approvalRequired { settings(); return }
+        Task { await askForPermission() }
+    }
+
+    private func askForPermission() async {
+        let state = await readServiceState()
+        if state == .approval { settings(); return }
         guard !busy, !updating, pendingTransaction == nil, !snapshot.maintenance else { return }
-        if serviceState == .missing { install() }
+        if state == .missing {
+            busy = true
+            await runInstall()
+        }
         if approvalRequired { settings() }
     }
 
@@ -214,22 +227,30 @@ final class CoolingController: ObservableObject {
 
     func close() { viewOpen = false; stopTimerIfIdle() }
 
+    // SPEC: docs/spec.md — registration runs off the main thread; the button disables on click.
     func install() {
         guard !preview, !busy else { return }
         if pendingTransaction != nil || snapshot.maintenance {
             Task { await resumeRegistration() }; return
         }
+        busy = true
+        Task { await runInstall() }
+    }
+
+    /// The caller has already taken `busy`; it is released before the status refresh.
+    private func runInstall() async {
         do {
             let lock = try lockFactory()
             defer { lock.release() }
-            try service.register(); failure = nil
+            try await service.register(); failure = nil
         }
         catch { failure = error as? HardwareReason ?? .serviceMissing }
-        refreshServiceState()
-        if approvalRequired { failure = .serviceApproval }
+        let state = await readServiceState()
+        if state == .approval { failure = .serviceApproval }
         updatePermissionIssue()
+        busy = false
         startTimer()
-        Task { await refresh() }
+        await refresh()
     }
 
 
@@ -319,25 +340,26 @@ final class CoolingController: ObservableObject {
         defer { busy = false; stopTimerIfIdle() }
         try await waitForRequest()
         guard revision == lidRevision else { throw HardwareReason.stopped }
-        refreshServiceState()
-        if on, serviceState == .missing {
+        var current = await readServiceState()
+        guard revision == lidRevision else { throw HardwareReason.stopped }
+        if on, current == .missing {
             do {
                 let lock = try lockFactory()
                 defer { lock.release() }
-                try service.register()
+                try await service.register()
             }
             catch {
-                refreshServiceState()
-                let reason = approvalRequired ? HardwareReason.serviceApproval : error as? HardwareReason ?? .serviceMissing
+                let state = await readServiceState()
+                let reason = state == .approval ? HardwareReason.serviceApproval : error as? HardwareReason ?? .serviceMissing
                 failure = reason
-                if approvalRequired { settings() }
+                if state == .approval { settings() }
                 throw reason
             }
-            refreshServiceState()
+            current = await readServiceState()
         }
-        guard serviceEnabled else {
-            if on, approvalRequired { settings() }
-            let error = approvalRequired ? HardwareReason.serviceApproval : .serviceMissing
+        guard current == .enabled else {
+            if on, current == .approval { settings() }
+            let error = current == .approval ? HardwareReason.serviceApproval : .serviceMissing
             failure = error; throw error
         }
         guard revision == lidRevision else { throw HardwareReason.stopped }
@@ -435,20 +457,38 @@ final class CoolingController: ObservableObject {
         }
     }
 
-    private func refreshServiceState() {
-        serviceState = service.state
-        serviceEnabled = serviceState == .enabled
-        approvalRequired = serviceState == .approval
+    private func applyServiceState(_ value: CoolingServiceState) {
+        serviceState = value
+        serviceEnabled = value == .enabled
+        approvalRequired = value == .approval
         updatePermissionIssue()
     }
 
+    /// Shows the last known state at once and re-reads it off the main thread.
+    func refreshServiceState() {
+        if service.stateKnown { applyServiceState(service.state) }
+        Task { await readServiceState() }
+    }
+
+    @discardableResult
+    private func readServiceState() async -> CoolingServiceState {
+        stateTicket &+= 1
+        let ticket = stateTicket
+        let value = await service.readState()
+        if ticket == stateTicket { applyServiceState(value) }
+        return value
+    }
+
     func refresh() async {
-        guard !preview, !busy, !inFlight, !updating else { return }
+        guard !preview, !busy, !inFlight, !updating, !refreshing else { return }
         if pendingTransaction != nil || snapshot.maintenanceID != nil { await resumeRegistration(); return }
         if !viewOpen, snapshot.active, ProcessInfo.processInfo.systemUptime - lastRenewal < 20 { return }
-        refreshServiceState()
+        refreshing = true
+        defer { refreshing = false }
+        let state = await readServiceState()
+        guard !busy, !inFlight, !updating else { return }
         do {
-            if serviceEnabled {
+            if state == .enabled {
                 let renew = snapshot.active && desired.needsLease
                     && ProcessInfo.processInfo.systemUptime - lastRenewal >= 20
                 _ = try await send(.init(renew ? .renew : .status))
@@ -499,8 +539,9 @@ final class CoolingController: ObservableObject {
         do {
             if updateLock == nil { updateLock = try lockFactory() }
             try await waitForRequest()
-            if service.state == .approval { throw HardwareReason.serviceApproval }
-            if service.state == .enabled {
+            let state = await readServiceState()
+            if state == .approval { throw HardwareReason.serviceApproval }
+            if state == .enabled {
                 let id = UUID()
                 try storeTransaction(id, unregistered: false)
                 let status = try await send(.init(.prepareUpdate, transaction: id))
@@ -511,7 +552,7 @@ final class CoolingController: ObservableObject {
                 }
                 try await service.unregister()
                 try storeTransaction(id, unregistered: true)
-                refreshServiceState()
+                await readServiceState()
             }
         } catch {
             updating = false; busy = false
@@ -533,8 +574,8 @@ final class CoolingController: ObservableObject {
             if updateLock == nil { updateLock = try lockFactory() }
             try await waitForRequest()
             try storeTransaction(id, unregistered: UserDefaults.standard.bool(forKey: Self.unregisteredKey))
-            if service.state == .missing { try service.register() }
-            guard service.state == .enabled else { throw HardwareReason.serviceApproval }
+            if await readServiceState() == .missing { try await service.register() }
+            guard await readServiceState() == .enabled else { throw HardwareReason.serviceApproval }
             if !UserDefaults.standard.bool(forKey: Self.unregisteredKey) {
                 let status = try await send(.init(.prepareUpdate, transaction: id))
                 guard status.reason == .stopped, !status.active, !status.restorationPending, status.maintenance
@@ -544,10 +585,9 @@ final class CoolingController: ObservableObject {
                 }
                 try await service.unregister()
                 try storeTransaction(id, unregistered: true)
-                try service.register()
+                try await service.register()
             }
-            refreshServiceState()
-            guard serviceEnabled else { throw HardwareReason.serviceApproval }
+            guard await readServiceState() == .enabled else { throw HardwareReason.serviceApproval }
             let status = try await send(.init(.finishUpdate, transaction: id))
             guard status.reason == .stopped, !status.active, !status.restorationPending, !status.maintenance
             else { throw status.reason ?? HardwareReason.commandFailed }
@@ -556,7 +596,7 @@ final class CoolingController: ObservableObject {
             updateLock?.release(); updateLock = nil
         } catch { failure = error as? HardwareReason ?? .serviceMissing }
         updating = false; busy = false
-        refreshServiceState()
+        await readServiceState()
         startTimer(); stopTimerIfIdle()
     }
 

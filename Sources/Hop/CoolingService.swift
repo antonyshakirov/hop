@@ -7,8 +7,13 @@ enum CoolingServiceState { case enabled, approval, missing, unavailable }
 
 @MainActor
 protocol CoolingService: AnyObject {
+    /// The last known state; never blocks.
     var state: CoolingServiceState { get }
-    func register() throws
+    /// False until the first read has finished.
+    var stateKnown: Bool { get }
+    /// Reads the system's current state off the main thread and refreshes `state`.
+    func readState() async -> CoolingServiceState
+    func register() async throws
     func unregister() async throws
     func request(_ request: HardwareRequest) async throws -> HardwareStatus
     func localStatus() async -> HardwareStatus
@@ -17,6 +22,8 @@ protocol CoolingService: AnyObject {
 }
 
 extension CoolingService {
+    var stateKnown: Bool { true }
+    func readState() async -> CoolingServiceState { state }
     func localDiagnostics() async -> [FanKeyReading] { [] }
 }
 
@@ -46,12 +53,20 @@ final class SystemCoolingService: CoolingService {
               HardwareIdentity.applications.contains(identifier) else { return nil }
         return identifier
     }
+    // SPEC: docs/spec.md — Cooling service state is read off the main thread.
+    private let statusQueue = DispatchQueue(label: "hop.hardware.service-state")
+    private var cachedState: CoolingServiceState?
+    private var readTicket: UInt64 = 0
+    private var appliedTicket: UInt64 = 0
+    private var team: String??
     private var service: SMAppService? {
         appID.map { SMAppService.daemon(plistName: $0 + ".hardware.plist") }
     }
-    var state: CoolingServiceState {
-        guard let service else { return .unavailable }
-        switch service.status {
+    var state: CoolingServiceState { cachedState ?? .unavailable }
+    var stateKnown: Bool { cachedState != nil || appID == nil }
+
+    private nonisolated static func status(plist: String) -> CoolingServiceState {
+        switch SMAppService.daemon(plistName: plist).status {
         case .enabled: return .enabled
         case .requiresApproval: return .approval
         case .notRegistered, .notFound: return .missing
@@ -59,16 +74,53 @@ final class SystemCoolingService: CoolingService {
         }
     }
 
-    func register() throws {
-        guard HardwareIdentity.ownTeam() != nil else { throw HardwareReason.unsignedBuild }
-        guard let service else { throw HardwareReason.serviceMissing }
-        try service.register()
+    func readState() async -> CoolingServiceState {
+        guard let appID else { cachedState = .unavailable; return .unavailable }
+        readTicket &+= 1
+        let ticket = readTicket
+        let plist = appID + ".hardware.plist"
+        let value = await withCheckedContinuation { continuation in
+            statusQueue.async { continuation.resume(returning: Self.status(plist: plist)) }
+        }
+        if ticket > appliedTicket { appliedTicket = ticket; cachedState = value }
+        return value
+    }
+
+    private func ownTeam() async -> String? {
+        if let team { return team }
+        let value = await withCheckedContinuation { continuation in
+            statusQueue.async { continuation.resume(returning: HardwareIdentity.ownTeam()) }
+        }
+        team = .some(value)
+        return value
+    }
+
+    func register() async throws {
+        let plist = appID.map { $0 + ".hardware.plist" }
+        do {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                statusQueue.async {
+                    guard HardwareIdentity.ownTeam() != nil else {
+                        continuation.resume(throwing: HardwareReason.unsignedBuild); return
+                    }
+                    guard let plist else { continuation.resume(throwing: HardwareReason.serviceMissing); return }
+                    do { try SMAppService.daemon(plistName: plist).register(); continuation.resume() }
+                    catch { continuation.resume(throwing: error) }
+                }
+            }
+        } catch {
+            _ = await readState()
+            throw error
+        }
+        _ = await readState()
     }
 
     func unregister() async throws {
         guard let service else { throw HardwareReason.serviceMissing }
-        try await service.unregister()
+        do { try await service.unregister() }
+        catch { _ = await readState(); throw error }
         invalidate()
+        _ = await readState()
     }
 
     func invalidate() {
@@ -77,10 +129,12 @@ final class SystemCoolingService: CoolingService {
         previous?.invalidate()
     }
 
-    private func connect() throws -> NSXPCConnection {
+    private func connect() async throws -> NSXPCConnection {
         if let connection { return connection }
-        guard state == .enabled, let appID else { throw HardwareReason.serviceApproval }
-        guard let team = HardwareIdentity.ownTeam(),
+        guard await readState() == .enabled, let appID else { throw HardwareReason.serviceApproval }
+        let signer = await ownTeam()
+        if let connection { return connection }
+        guard let team = signer,
               let requirement = HardwareIdentity.requirement(identifier: appID + HardwareIdentity.helperSuffix, team: team)
         else { throw HardwareReason.unsignedBuild }
         let connection = NSXPCConnection(machServiceName: appID + ".hardware", options: .privileged)
@@ -98,7 +152,7 @@ final class SystemCoolingService: CoolingService {
     }
 
     func request(_ request: HardwareRequest) async throws -> HardwareStatus {
-        let connection = try connect()
+        let connection = try await connect()
         return try await exchange(request, over: connection)
     }
 

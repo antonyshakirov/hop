@@ -16,8 +16,9 @@ enum HardwareDiagnostics {
                     print(String(decoding: try await HardwareLidCheck.run(service: service), as: UTF8.self))
                 } else if flags.contains("--hardware-update-check") {
                     let controller = CoolingController(service: service)
+                    let serviceState = await service.readState()
                     var result: [String: Any] = ["controller": controller.updateDiagnosticState,
-                                                "service": String(describing: service.state)]
+                                                "service": String(describing: serviceState)]
                     result["lockDirectory"] = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
                         .appendingPathComponent("com.antonshakirov.minimo.dev/update-locks").path
                     var lockError: Int32?
@@ -35,9 +36,10 @@ enum HardwareDiagnostics {
                     try await controller.prepareUpdate()
                     print("hardware: maintenance ready")
                 } else {
-                    if flags.contains("--hardware-register") { try service.register() }
-                    print("hardware: \(service.state)")
-                    if service.state == .enabled {
+                    if flags.contains("--hardware-register") { try await service.register() }
+                    let serviceState = await service.readState()
+                    print("hardware: \(serviceState)")
+                    if serviceState == .enabled {
                         let status = try await service.request(.init(.status))
                         print(String(decoding: try JSONEncoder().encode(status), as: UTF8.self))
                         guard status.reason == nil || status.reason == .stopped else { exit(1) }

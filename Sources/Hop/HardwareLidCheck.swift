@@ -17,7 +17,7 @@ enum HardwareLidCheck {
     }
 
     static func run(service: SystemCoolingService) async throws -> Data {
-        guard service.state == .enabled else { throw HardwareReason.serviceApproval }
+        guard await service.readState() == .enabled else { throw HardwareReason.serviceApproval }
         let backend = SystemHardwareBackend()
         guard backend.observe().lidClosed == false, try !backend.sleepDisabled() else { throw HardwareReason.busy }
         let status = try await service.request(.init(.status))

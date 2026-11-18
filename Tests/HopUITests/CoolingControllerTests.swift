@@ -57,6 +57,16 @@ private final class ClientService: CoolingService {
     var revision: Int? = FanControlSupport.revision
     var localKeys: [FanKeyReading] = []
     var holdNextConfigure = false
+    var known = true
+    var holdNextRead = false
+    var readGate: CheckedContinuation<Void, Never>?
+    var stateKnown: Bool { known }
+    func readState() async -> CoolingServiceState {
+        let value = state
+        if holdNextRead { holdNextRead = false; await withCheckedContinuation { readGate = $0 } }
+        known = true
+        return value
+    }
     var configureGate: CheckedContinuation<Void, Never>?
     func releaseConfigure() { let gate = configureGate; configureGate = nil; gate?.resume() }
     init() { root = HardwareCoordinator(backend: hardware, journal: journal, now: { 1 }) }
@@ -305,6 +315,8 @@ final class CoolingControllerTests: XCTestCase {
         service.state = .missing
         service.approvalOnRegister = true
         controller.install()
+        XCTAssertTrue(controller.busy)
+        await settle()
         XCTAssertTrue(controller.approvalRequired)
         XCTAssertEqual(controller.failure, .serviceApproval)
         XCTAssertTrue(service.calls.isEmpty)
@@ -324,14 +336,36 @@ final class CoolingControllerTests: XCTestCase {
         service.approvalOnRegister = true
         controller.reconcilePermissions(enabledModules: [], requestOnEnable: false)
         controller.reconcilePermissions(enabledModules: ["system"], requestOnEnable: true)
+        XCTAssertEqual(service.registrationAttempts, 0)
+        await settle()
         XCTAssertEqual(service.registrationAttempts, 1)
         XCTAssertEqual(controller.permissionIssue, .approval)
         controller.reconcilePermissions(enabledModules: ["system"], requestOnEnable: true)
         controller.reconcilePermissions(enabledModules: ["system", "clipboard"], requestOnEnable: true)
+        await settle()
         XCTAssertEqual(service.registrationAttempts, 1)
         XCTAssertTrue(service.calls.isEmpty)
         XCTAssertFalse(service.hardware.sleep)
         XCTAssertTrue(service.hardware.targets.isEmpty)
+    }
+
+    func testAnUnknownServiceStateIsNotShownAndALateReadCannotOverwriteANewerOne() async throws {
+        let (controller, service) = try fixture()
+        service.known = false
+        service.state = .approval
+        service.holdNextRead = true
+        controller.refreshServiceState()
+        XCTAssertFalse(controller.approvalRequired)
+        for _ in 0..<50 where service.readGate == nil { await Task.yield() }
+        XCTAssertNotNil(service.readGate)
+        service.state = .enabled
+        controller.refreshServiceState()
+        await settle()
+        XCTAssertTrue(controller.serviceEnabled)
+        let gate = service.readGate; service.readGate = nil; gate?.resume()
+        await settle()
+        XCTAssertTrue(controller.serviceEnabled)
+        XCTAssertFalse(controller.approvalRequired)
     }
 
     func testPermissionBannerTracksGrantRevocationAndModuleDisableWithoutRearming() async throws {
@@ -412,7 +446,7 @@ final class CoolingControllerTests: XCTestCase {
         XCTAssertFalse(service.calls.contains(.configure))
     }
 
-    func testPendingApprovalOpensSettingsOnlyForANewEnableRequest() throws {
+    func testPendingApprovalOpensSettingsOnlyForANewEnableRequest() async throws {
         var settingsOpened = 0
         let (controller, service) = try fixture(openSettings: { settingsOpened += 1 })
         service.state = .approval
@@ -421,8 +455,10 @@ final class CoolingControllerTests: XCTestCase {
         XCTAssertEqual(settingsOpened, 0)
         controller.reconcilePermissions(enabledModules: [], requestOnEnable: true)
         controller.reconcilePermissions(enabledModules: ["awake"], requestOnEnable: true)
+        await settle()
         XCTAssertEqual(settingsOpened, 1)
         controller.reconcilePermissions(enabledModules: ["awake", "clipboard"], requestOnEnable: true)
+        await settle()
         XCTAssertEqual(settingsOpened, 1)
         XCTAssertEqual(service.registrationAttempts, 0)
         XCTAssertTrue(service.calls.isEmpty)
@@ -505,6 +541,7 @@ final class CoolingControllerTests: XCTestCase {
         try await controller.prepareUpdate()
         service.state = .approval
         controller.reconcilePermissions(enabledModules: ["system"], requestOnEnable: true)
+        await settle()
         XCTAssertEqual(controller.permissionIssue, .approval)
         XCTAssertEqual(settingsOpened, 1)
         XCTAssertEqual(service.registrationAttempts, 0)
@@ -525,6 +562,9 @@ final class CoolingControllerTests: XCTestCase {
         XCTAssertNil(controller.failure)
         XCTAssertTrue(controller.hasReadings)
     }
+
+    /// Lets the controller's background-style tasks (install, permission request) finish.
+    private func settle() async { for _ in 0..<50 { await Task.yield() } }
 
     private func fixture(persistenceSucceeds: Bool = true, openSettings: @escaping () -> Void = {},
                          observing: NotificationCenter? = nil) throws -> (CoolingController, ClientService) {
