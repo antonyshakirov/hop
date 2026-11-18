@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- I comandi rispondono al clic: pulsante del coperchio chiuso, modalità di raffreddamento, VPN, filtro di rete, blocco della tastiera, avvio all’accesso e arresto del test di velocità. Una modifica rifiutata torna indietro con il motivo.
+- Rimuovere app, svuotare il cestino, installare un aggiornamento e disporre le finestre non bloccano più Hop.
+
 **2.5.3**
 
 - Plugin personali: importa i tuoi file nelle impostazioni. Ogni plugin parte disattivato e chiede l’accesso prima di eseguire.

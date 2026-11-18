@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Kontrol langsung merespons saat diklik: tombol tutup layar, mode pendinginan, VPN, filter jaringan, kunci keyboard, buka saat masuk, dan menghentikan uji kecepatan. Perubahan yang ditolak kembali dengan alasannya.
+- Menghapus aplikasi, mengosongkan Tong Sampah, memasang pembaruan, dan menata jendela tidak lagi menahan Hop.
+
 **2.5.3**
 
 - Plugin pribadi: impor berkas sendiri di pengaturan. Setiap plugin awalnya nonaktif dan meminta akses sebelum berjalan.

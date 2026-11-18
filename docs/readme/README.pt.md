@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Os controlos respondem ao clique: o botão de tampa fechada, os modos de arrefecimento, a VPN, o filtro de rede, o bloqueio do teclado, o arranque ao iniciar sessão e a paragem do teste de velocidade. Uma alteração recusada volta atrás com o motivo.
+- Remover apps, esvaziar o lixo, instalar uma atualização e organizar janelas já não param o Hop.
+
 **2.5.3**
 
 - Plugins pessoais: importa os teus ficheiros nas definições. Cada plugin começa desligado e pede acesso antes de executar.

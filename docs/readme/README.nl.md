@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Bediening reageert bij de klik: de knop voor gesloten deksel, koelmodi, VPN, het netwerkfilter, toetsenbordvergrendeling, starten bij inloggen en het stoppen van de snelheidstest. Een geweigerde wijziging springt terug met de reden.
+- Apps verwijderen, de prullenmand legen, een update installeren en vensters schikken houden Hop niet meer op.
+
 **2.5.3**
 
 - Persoonlijke plugins: importeer je bestanden in de instellingen. Elke plugin begint uitgeschakeld en vraagt vóór uitvoering om toegang.

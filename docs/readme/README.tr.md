@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Denetimler tıklar tıklamaz yanıt verir: kapak kapalı düğmesi, soğutma modları, VPN, ağ filtresi, klavye kilidi, oturum açılışında başlatma ve hız testini durdurma. Reddedilen değişiklik nedeniyle birlikte geri döner.
+- Uygulama kaldırma, Çöp Sepeti’ni boşaltma, güncelleme kurma ve pencere yerleştirme artık Hop’u durdurmaz.
+
 **2.5.3**
 
 - Kişisel eklentiler: ayarlardan kendi dosyalarını içe aktar. Her eklenti başlangıçta kapalıdır ve çalışmadan önce erişim ister.

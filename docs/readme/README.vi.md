@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Các nút phản hồi ngay khi bấm: nút gập máy, chế độ làm mát, VPN, bộ lọc mạng, khóa bàn phím, mở khi đăng nhập và dừng đo tốc độ. Thay đổi bị từ chối sẽ trở lại kèm lý do.
+- Gỡ ứng dụng, dọn Thùng rác, cài bản cập nhật và xếp cửa sổ không còn làm Hop bị đứng.
+
 **2.5.3**
 
 - Plugin cá nhân: nhập tệp của bạn trong cài đặt. Mỗi plugin ban đầu đều tắt và xin quyền truy cập trước khi chạy.

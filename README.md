@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Controls respond on click: the closed-lid button, cooling modes, VPN, the network filter, keyboard lock, launch at login and stopping the speed test. A refused change turns back with its reason.
+- Removing apps, emptying the Trash, installing an update and snapping windows no longer pause Hop.
+
 **2.5.4**
 
 - Battery temperature is hidden when unavailable. Charge and charging status stay visible.

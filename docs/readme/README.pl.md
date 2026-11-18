@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Przyciski reagują od razu po kliknięciu: tryb zamkniętej pokrywy, tryby chłodzenia, VPN, filtr sieci, blokada klawiatury, uruchamianie przy logowaniu i zatrzymanie testu prędkości. Odrzucona zmiana wraca z podaniem przyczyny.
+- Usuwanie aplikacji, opróżnianie kosza, instalowanie aktualizacji i układanie okien nie wstrzymują już Hop.
+
 **2.5.3**
 
 - Własne wtyczki: importuj pliki w ustawieniach. Każda wtyczka jest początkowo wyłączona i przed uruchomieniem prosi o dostęp.

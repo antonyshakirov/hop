@@ -1,5 +1,11 @@
 # Hop - version history
 
+## 2.5.5 - 2026-11-18
+
+- Controls respond on click: the closed-lid button, cooling modes, VPN, the network filter, keyboard lock, launch at login and stopping the speed test. A refused change turns back with its reason.
+- Removing apps, emptying the Trash, installing an update and snapping windows no longer pause Hop.
+- Closed-lid help, README and site describe when the service gives sleep back: 10% battery on battery power, overheating, right after Hop quits or crashes, and after 90 seconds if Hop stops responding.
+
 ## 2.5.4 - 2026-11-18
 
 - System monitor: hide unavailable battery temperature without hiding charge or charging status.

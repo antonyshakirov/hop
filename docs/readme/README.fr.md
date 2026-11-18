@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Les commandes réagissent au clic : bouton capot fermé, refroidissement, VPN, filtre réseau, verrouillage du clavier, ouverture à la connexion et arrêt du test de débit. Un changement refusé revient en arrière avec sa raison.
+- Supprimer des apps, vider la corbeille, installer une mise à jour et disposer les fenêtres ne figent plus Hop.
+
 **2.5.3**
 
 - Plugins personnels : importez vos fichiers dans les réglages. Chaque plugin est désactivé au départ et demande un accès avant de s’exécuter.

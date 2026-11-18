@@ -588,6 +588,35 @@ enum L10n {
         return patchNewsText(text, lang: lang)
     }
 
+    static func patch255Text(_ lang: AppLanguage) -> [String] {
+        let text: [String]
+        switch lang {
+        case .en: text = ["Controls respond on click: the closed-lid button, cooling modes, VPN, the network filter, keyboard lock, launch at login and stopping the speed test. A refused change turns back with its reason.", "Removing apps, emptying the Trash, installing an update and snapping windows no longer pause Hop."]
+        case .ru: text = ["Кнопки отзываются сразу по клику: закрытая крышка, режимы охлаждения, VPN, сетевой фильтр, блокировка клавиатуры, запуск при входе и остановка теста скорости. Если система отказала, кнопка возвращается и показывает причину.", "Удаление программ, очистка корзины, установка обновления и раскладка окон больше не подвешивают Hop."]
+        case .de: text = ["Bedienelemente reagieren beim Klick: Deckeltaste, Kühlmodi, VPN, Netzwerkfilter, Tastatursperre, Start bei Anmeldung und das Stoppen des Speedtests. Eine abgelehnte Änderung springt mit ihrem Grund zurück.", "Apps entfernen, den Papierkorb leeren, ein Update installieren und Fenster anordnen halten Hop nicht mehr an."]
+        case .es: text = ["Los controles responden al hacer clic: el botón de tapa cerrada, los modos de refrigeración, la VPN, el filtro de red, el bloqueo del teclado, el inicio al iniciar sesión y la parada del test de velocidad. Un cambio rechazado vuelve atrás con su motivo.", "Desinstalar apps, vaciar la papelera, instalar una actualización y colocar ventanas ya no detienen Hop."]
+        case .pt: text = ["Os controlos respondem ao clique: o botão de tampa fechada, os modos de arrefecimento, a VPN, o filtro de rede, o bloqueio do teclado, o arranque ao iniciar sessão e a paragem do teste de velocidade. Uma alteração recusada volta atrás com o motivo.", "Remover apps, esvaziar o lixo, instalar uma atualização e organizar janelas já não param o Hop."]
+        case .fr: text = ["Les commandes réagissent au clic : bouton capot fermé, refroidissement, VPN, filtre réseau, verrouillage du clavier, ouverture à la connexion et arrêt du test de débit. Un changement refusé revient en arrière avec sa raison.", "Supprimer des apps, vider la corbeille, installer une mise à jour et disposer les fenêtres ne figent plus Hop."]
+        case .it: text = ["I comandi rispondono al clic: pulsante del coperchio chiuso, modalità di raffreddamento, VPN, filtro di rete, blocco della tastiera, avvio all’accesso e arresto del test di velocità. Una modifica rifiutata torna indietro con il motivo.", "Rimuovere app, svuotare il cestino, installare un aggiornamento e disporre le finestre non bloccano più Hop."]
+        case .zh: text = ["控件点击即响应：合盖按钮、散热模式、VPN、网络过滤、键盘锁定、登录时启动以及停止网速测试。被拒绝的更改会恢复原状并显示原因。", "卸载应用、清倒废纸篓、安装更新和排列窗口不再让 Hop 卡住。"]
+        case .ja: text = ["操作がクリックですぐ反映されます：ふたを閉じたモードのボタン、冷却モード、VPN、ネットワークフィルタ、キーボードロック、ログイン時の起動、速度テストの停止。拒否された変更は理由とともに元に戻ります。", "アプリの削除、ゴミ箱を空にする操作、アップデートのインストール、ウインドウの配置で Hop が止まらなくなりました。"]
+        case .nl: text = ["Bediening reageert bij de klik: de knop voor gesloten deksel, koelmodi, VPN, het netwerkfilter, toetsenbordvergrendeling, starten bij inloggen en het stoppen van de snelheidstest. Een geweigerde wijziging springt terug met de reden.", "Apps verwijderen, de prullenmand legen, een update installeren en vensters schikken houden Hop niet meer op."]
+        case .ko: text = ["컨트롤이 클릭하는 즉시 반응합니다: 덮개 닫힘 버튼, 냉각 모드, VPN, 네트워크 필터, 키보드 잠금, 로그인 시 실행, 속도 테스트 중지. 거부된 변경은 이유와 함께 되돌아갑니다.", "앱 제거, 휴지통 비우기, 업데이트 설치, 창 배치 중에도 Hop이 멈추지 않습니다."]
+        case .th: text = ["ปุ่มตอบสนองทันทีที่คลิก: ปุ่มโหมดพับฝา โหมดระบายความร้อน VPN ตัวกรองเครือข่าย การล็อกแป้นพิมพ์ การเปิดเมื่อเข้าสู่ระบบ และการหยุดทดสอบความเร็ว หากระบบปฏิเสธ ปุ่มจะกลับคืนพร้อมแสดงเหตุผล", "การลบแอป การล้างถังขยะ การติดตั้งอัปเดต และการจัดหน้าต่างไม่ทำให้ Hop ค้างอีกต่อไป"]
+        case .vi: text = ["Các nút phản hồi ngay khi bấm: nút gập máy, chế độ làm mát, VPN, bộ lọc mạng, khóa bàn phím, mở khi đăng nhập và dừng đo tốc độ. Thay đổi bị từ chối sẽ trở lại kèm lý do.", "Gỡ ứng dụng, dọn Thùng rác, cài bản cập nhật và xếp cửa sổ không còn làm Hop bị đứng."]
+        case .hi: text = ["बटन क्लिक करते ही जवाब देते हैं: ढक्कन बंद मोड का बटन, कूलिंग मोड, VPN, नेटवर्क फ़िल्टर, कीबोर्ड लॉक, लॉगिन पर शुरू होना और स्पीड टेस्ट रोकना। अस्वीकार हुआ बदलाव कारण के साथ लौट आता है।", "ऐप हटाने, ट्रैश खाली करने, अपडेट इंस्टॉल करने और विंडो सजाने के दौरान Hop अब नहीं रुकता।"]
+        case .id: text = ["Kontrol langsung merespons saat diklik: tombol tutup layar, mode pendinginan, VPN, filter jaringan, kunci keyboard, buka saat masuk, dan menghentikan uji kecepatan. Perubahan yang ditolak kembali dengan alasannya.", "Menghapus aplikasi, mengosongkan Tong Sampah, memasang pembaruan, dan menata jendela tidak lagi menahan Hop."]
+        case .tr: text = ["Denetimler tıklar tıklamaz yanıt verir: kapak kapalı düğmesi, soğutma modları, VPN, ağ filtresi, klavye kilidi, oturum açılışında başlatma ve hız testini durdurma. Reddedilen değişiklik nedeniyle birlikte geri döner.", "Uygulama kaldırma, Çöp Sepeti’ni boşaltma, güncelleme kurma ve pencere yerleştirme artık Hop’u durdurmaz."]
+        case .pl: text = ["Przyciski reagują od razu po kliknięciu: tryb zamkniętej pokrywy, tryby chłodzenia, VPN, filtr sieci, blokada klawiatury, uruchamianie przy logowaniu i zatrzymanie testu prędkości. Odrzucona zmiana wraca z podaniem przyczyny.", "Usuwanie aplikacji, opróżnianie kosza, instalowanie aktualizacji i układanie okien nie wstrzymują już Hop."]
+        case .ar: text = ["تستجيب عناصر التحكم عند النقر: زر وضع الغطاء المغلق، وأوضاع التبريد، وVPN، ومرشح الشبكة، وقفل لوحة المفاتيح، والتشغيل عند تسجيل الدخول، وإيقاف اختبار السرعة. ويعود التغيير المرفوض مع سببه.", "لم تعد إزالة التطبيقات وإفراغ سلة المهملات وتثبيت التحديث وترتيب النوافذ توقف Hop."]
+        case .he: text = ["הפקדים מגיבים מיד בלחיצה: כפתור מצב המכסה הסגור, מצבי הקירור, VPN, מסנן הרשת, נעילת המקלדת, פתיחה בכניסה ועצירת בדיקת המהירות. שינוי שנדחה חוזר עם הסיבה.", "הסרת אפליקציות, ריקון הפח, התקנת עדכון וסידור חלונות כבר לא עוצרים את Hop."]
+        case .fa: text = ["کنترل‌ها با کلیک فوراً پاسخ می‌دهند: دکمهٔ حالت درِ بسته، حالت‌های خنک‌سازی، VPN، فیلتر شبکه، قفل صفحه‌کلید، اجرا هنگام ورود و توقف آزمون سرعت. تغییرِ ردشده با دلیلش برمی‌گردد.", "حذف برنامه‌ها، خالی کردن سطل زباله، نصب به‌روزرسانی و چیدن پنجره‌ها دیگر Hop را متوقف نمی‌کنند."]
+        case .ur: text = ["کنٹرول کلک کرتے ہی جواب دیتے ہیں: بند ڈھکن کا بٹن، کولنگ موڈ، VPN، نیٹ ورک فلٹر، کی بورڈ لاک، لاگ ان پر کھلنا اور اسپیڈ ٹیسٹ روکنا۔ مسترد ہونے والی تبدیلی وجہ کے ساتھ واپس آ جاتی ہے۔", "ایپس ہٹانا، ردی کی ٹوکری خالی کرنا، اپ ڈیٹ انسٹال کرنا اور ونڈوز ترتیب دینا اب Hop کو نہیں روکتے۔"]
+        case .sr: text = ["Контроле реагују на клик: дугме за затворен поклопац, режими хлађења, VPN, мрежни филтер, закључавање тастатуре, покретање при пријави и заустављање теста брзине. Одбијена промена се враћа уз разлог.", "Уклањање апликација, пражњење отпада, инсталирање ажурирања и распоређивање прозора више не заустављају Hop."]
+        }
+        return text.map { patchNewsText($0, lang: lang) }
+    }
+
     static func patch253Text(_ lang: AppLanguage) -> [String] {
         let text: [String]
         switch lang {
@@ -618,7 +647,8 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.4 – 2026-11-18\n\n• " + patch254Text(lang) + "\n\n"
+        "2.5.5 – 2026-11-18\n\n" + patch255Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+            + "2.5.4 – 2026-11-18\n\n• " + patch254Text(lang) + "\n\n"
             + "2.5.3 – 2026-11-18\n\n" + patch253Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.2 – 2026-11-16\n\n" + (0..<3).map { "• " + news252Text(lang, $0) }.joined(separator: "\n\n")
             + "\n\n2.5.1 – 2026-11-16\n\n• " + news251Text(lang) + "\n\n2.5.0 – 2026-11-16\n\n"

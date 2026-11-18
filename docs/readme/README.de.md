@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Bedienelemente reagieren beim Klick: Deckeltaste, Kühlmodi, VPN, Netzwerkfilter, Tastatursperre, Start bei Anmeldung und das Stoppen des Speedtests. Eine abgelehnte Änderung springt mit ihrem Grund zurück.
+- Apps entfernen, den Papierkorb leeren, ein Update installieren und Fenster anordnen halten Hop nicht mehr an.
+
 **2.5.3**
 
 - Eigene Plugins: Pakete in den Einstellungen importieren. Jedes Plugin startet deaktiviert und fragt vor dem Ausführen nach Zugriff.

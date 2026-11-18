@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.5**
+
+- Los controles responden al hacer clic: el botón de tapa cerrada, los modos de refrigeración, la VPN, el filtro de red, el bloqueo del teclado, el inicio al iniciar sesión y la parada del test de velocidad. Un cambio rechazado vuelve atrás con su motivo.
+- Desinstalar apps, vaciar la papelera, instalar una actualización y colocar ventanas ya no detienen Hop.
+
 **2.5.3**
 
 - Plugins personales: importa tus archivos en los ajustes. Cada plugin empieza desactivado y pide acceso antes de ejecutarse.
