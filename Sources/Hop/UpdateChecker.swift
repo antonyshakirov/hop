@@ -325,9 +325,9 @@ final class UpdateChecker: ObservableObject {
 
             // cryptographic verification of the release with our key is
             // the only path to installation; a foreign build won't pass
+            // SPEC: docs/spec.md — Updates, verification and unpacking run off the main thread.
             guard let key = releaseKey,
-                  let zipData = try? Data(contentsOf: tempZip),
-                  key.isValidSignature(signature, for: zipData)
+                  (try? await Self.offMain({ key.isValidSignature(signature, for: try Data(contentsOf: tempZip)) })) == true
             else {
                 status = .failed
                 scheduleStatusExpiry()
@@ -339,7 +339,7 @@ final class UpdateChecker: ObservableObject {
                 .appendingPathComponent("hop-staging-\(Bundle.main.bundleIdentifier ?? "unknown")-\(UUID().uuidString)")
             try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
 
-            try run("/usr/bin/ditto", ["-xk", tempZip.path, staging.path])
+            _ = try await Self.offMain { try Self.run("/usr/bin/ditto", ["-xk", tempZip.path, staging.path]) }
             guard let appName = try FileManager.default.contentsOfDirectory(atPath: staging.path)
                 .first(where: { $0.hasSuffix(".app") })
             else { throw URLError(.cannotParseResponse) }
@@ -357,11 +357,13 @@ final class UpdateChecker: ObservableObject {
             // quarantine is removed ONLY after the Ed25519 signature check above:
             // release authenticity is already proven by our key, and Gatekeeper
             // would simply block the ad-hoc build otherwise
-            _ = try? run("/usr/bin/xattr", ["-dr", "com.apple.quarantine", newApp.path])
-            try run("/usr/bin/ditto", [newApp.path, replacement.path])
-            try run("/usr/bin/codesign", ["--verify", "--deep", "--strict", replacement.path])
-            guard let team = HardwareIdentity.ownTeam() else { throw HardwareReason.unsignedBuild }
-            try HardwareBundleValidation.validate(replacement, identifier: identifier, team: team)
+            try await Self.offMain {
+                _ = try? Self.run("/usr/bin/xattr", ["-dr", "com.apple.quarantine", newApp.path])
+                try Self.run("/usr/bin/ditto", [newApp.path, replacement.path])
+                try Self.run("/usr/bin/codesign", ["--verify", "--deep", "--strict", replacement.path])
+                guard let team = HardwareIdentity.ownTeam() else { throw HardwareReason.unsignedBuild }
+                try HardwareBundleValidation.validate(replacement, identifier: identifier, team: team)
+            }
 
             guard !deferIfBusy(info, manual: manual) else {
                 try? FileManager.default.removeItem(at: replacement)
@@ -410,8 +412,16 @@ final class UpdateChecker: ObservableObject {
         }
     }
 
+    private nonisolated static func offMain<T>(_ work: @escaping () throws -> T) async throws -> T {
+        try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                continuation.resume(with: Result { try work() })
+            }
+        }
+    }
+
     @discardableResult
-    private func run(_ tool: String, _ arguments: [String]) throws -> Int32 {
+    private nonisolated static func run(_ tool: String, _ arguments: [String]) throws -> Int32 {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: tool)
         process.arguments = arguments

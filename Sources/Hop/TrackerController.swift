@@ -8,7 +8,7 @@ import os
 /// labels in the UI can redraw without polling.
 @MainActor
 final class TrackerController: ObservableObject {
-    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "TrackerController")
+    private nonisolated static let log = Logger(subsystem: "com.antonshakirov.hop", category: "TrackerController")
     /// "visible rows" cap: always active, 3…15, default 10 — the task list caps
     /// to a fixed height with inner scroll (the 8h warning stays pinned outside
     /// the scroll). A stored 0 (legacy "all") reads as the default on load.
@@ -26,6 +26,7 @@ final class TrackerController: ObservableObject {
     /// Same Application Support/bundle-id folder the torrent module persists
     /// into; TrackerStore appends tracker.json itself.
     private let storeDir: URL
+    private let writer: TrackerWriter
     private var ticker: Timer?
 
     /// The engine is a nested ObservableObject. Forward its changes so views
@@ -40,7 +41,13 @@ final class TrackerController: ObservableObject {
         self.demo = demo
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let id = Bundle.storageIdentifier
-        self.storeDir = storeDir ?? base.appendingPathComponent(id, isDirectory: true)
+        let directory = storeDir ?? base.appendingPathComponent(id, isDirectory: true)
+        self.storeDir = directory
+        writer = TrackerWriter(directory: directory, failed: { error in
+            // One line per failure — enough to diagnose a lost write without
+            // spamming the log on every mutation while, say, the disk is full.
+            Self.log.error("tracker save failed: \(error.localizedDescription, privacy: .public)")
+        })
 
         // A snapshot/demo render must never load real user data — start from
         // empty and let the --tasks seed stage its own deterministic content.
@@ -54,14 +61,7 @@ final class TrackerController: ObservableObject {
 
         engine.onChange = { [weak self] in
             guard let self, !self.demo else { return }
-            try? FileManager.default.createDirectory(at: self.storeDir, withIntermediateDirectories: true)
-            do {
-                try TrackerStore.save(self.engine.data, to: self.storeDir)
-            } catch {
-                // One line per failure — enough to diagnose a lost write without
-                // spamming the log on every mutation while, say, the disk is full.
-                Self.log.error("tracker save failed: \(error.localizedDescription, privacy: .public)")
-            }
+            self.writer.write(self.engine.data)
             self.reconcileTicker()
         }
 
@@ -69,6 +69,9 @@ final class TrackerController: ObservableObject {
         // from its persisted start date, the ticker just drives the UI
         reconcileTicker()
     }
+
+    /// Waits for queued history writes; called when the app quits.
+    func flushWrites() { writer.flush() }
 
     /// The calendar the week figures are cut by: the system's, with the first
     /// day the user actually thinks in (the same setting the reminder weekday

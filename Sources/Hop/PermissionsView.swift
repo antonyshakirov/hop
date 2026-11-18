@@ -30,6 +30,9 @@ struct PermissionsView: View {
     @State private var notificationsGranted: Bool?
     /// SPEC: docs/spec.md — "Permissions (settings window)", the 2s re-read.
     @State private var poll = 0
+    /// SPEC: docs/spec.md — "Permissions (settings window)", system reads stay off the main thread.
+    @ObservedObject private var cooling = CoolingController.shared
+    @ObservedObject private var login = LaunchAtLogin.shared
 
     private struct Item: Identifiable {
         let id: String
@@ -101,13 +104,18 @@ struct PermissionsView: View {
             // UNUserNotificationCenter throws outright in a process with no
             // bundle (a snapshot render, a raw `swift run`), so it is only asked
             // in the real app.
-            guard !Snapshot.active, Bundle.main.bundleIdentifier != nil else { return }
+            guard !Snapshot.active else { return }
+            cooling.refreshServiceState()
+            await login.read()
+            guard Bundle.main.bundleIdentifier != nil else { return }
             let settings = await UNUserNotificationCenter.current().notificationSettings()
             notificationsGranted = settings.authorizationStatus == .authorized
         }
         .onReceive(Timer.publish(every: 2, on: .main, in: .common).autoconnect()) { _ in
             guard !Snapshot.active else { return }
             poll &+= 1
+            cooling.refreshServiceState()
+            Task { await login.read() }
             guard Bundle.main.bundleIdentifier != nil else { return }
             Task {
                 let settings = await UNUserNotificationCenter.current().notificationSettings()
@@ -152,17 +160,16 @@ struct PermissionsView: View {
                  settingsURL: "x-apple.systempreferences:com.apple.preference.notifications",
                  grant: { requestNotifications() }),
             Item(id: "admin", symbol: "lock", title: .hardwareInstall, body: .hardwareInstallHint,
-                 granted: Snapshot.active ? false : SystemCoolingService().state == .enabled, settingsURL: nil,
+                 granted: Snapshot.active ? false : cooling.serviceEnabled, settingsURL: nil,
                  grant: {
-                     let controller = CoolingController.shared
-                     if SystemCoolingService().state == .approval { controller.settings() }
-                     else { controller.install() }
+                     if cooling.approvalRequired { cooling.settings() }
+                     else { cooling.install() }
                  },
                  revoke: KeepAwakeController.lidRuleInstalled ? removeLidRule : nil),
             Item(id: "login", symbol: "power", title: .permLoginTitle, body: .permLoginBody,
-                 granted: Snapshot.active ? true : SMAppService.mainApp.status == .enabled,
+                 granted: Snapshot.active ? true : login.known,
                  settingsURL: nil,
-                 grant: { try? SMAppService.mainApp.register() }),
+                 grant: { Task { await login.set(true) } }),
         ]
     }
 

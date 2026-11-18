@@ -1348,8 +1348,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   request in flight and only the latest pending intent retained. Automatic
   supersedes queued manual settings. Pending requests block service updates.
   Current measured speed, requested fixed target and allowed range have distinct
-  labels; RPM is explained as revolutions per minute. A pending caption is separate
-  from the confirmed selection. Manual selection and the monitor label require
+  labels; RPM is explained as revolutions per minute. The selected
+  mode follows the click at once (Anton, 2026-11-18): the pending caption
+  stays, and a failed request drops the failed selection with its reason inline. The monitor badge stays confirmed. Manual selection and the monitor label require
   current manual readback from every owned fan and full control capability.
   Native buttons have no blue focus ring. Open Settings appears only while
   approval is required; an approved service does not retain that action.
@@ -1971,6 +1972,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   VoiceOver enable it, and the frame lands wrong); after setting, the
   frame is re-read and corrected with retries (up to 3) — "click several
   times" must never be needed.
+- **A hung target app:** the zone calls run on the main thread, so each
+  Accessibility call to the target app and its window waits at most one second
+  instead of the system's six (Anton, 2026-11-18). A responsive app is unaffected.
 
 ### Tracker
 
@@ -1978,7 +1982,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   brought back in 1.9.0 — Anton, 2026-08-28 — because the week figures below
   are only worth reading per project). All
   logic lives in HopCore (`TrackerEngine`, persisted to `tracker.json` via
-  `TrackerController`); the view is glue. Labels tick off `tracker.heartbeat`
+  `TrackerController`); the view is glue. Saves go through `TrackerWriter`, a
+  serial queue off the main thread (Anton, 2026-11-18): writes coalesce, the newest
+  snapshot is always the one written last, a failure is logged once per write,
+  and quitting waits for the queue to drain (`TrackerWriterTests`). Labels tick off `tracker.heartbeat`
   (1/s while a task is tracking). Active by default — unlike torrents it has no
   engine to download, so it isn't opt-in; hidden or shown like every other
   module by its power button in the "modules & tabs" table. The module title (`trackerLabel`) is "time tracker" — it
@@ -5291,7 +5298,13 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
 
 - Protected lid mode and fan writes use a bundled root LaunchDaemon registered
   through SMAppService. The administrator permission row reflects its actual
-  registration/approval state. Its XPC channel accepts only the exact parent
+  registration/approval state. Registration, unregistration and every status
+  read run off the main thread (Anton, 2026-11-18): the app shows the last known
+  state at once, publishes a fresh read when it arrives, and a read that has been
+  superseded by a newer one is dropped. Enabling a hardware module, opening the
+  panel or the permissions page, and pressing Install never wait for
+  SMAppService; Install disables its button on the click. An unknown first state
+  is not shown as missing. Its XPC channel accepts only the exact parent
   app signing identifier and Developer ID team; the app verifies the helper's
   exact identifier and team. Each operation requires the active console user.
 - GUI copies cannot steal a live connection's lease. Dev and production share
@@ -5358,6 +5371,8 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   marker retains the existing quiet launch recovery; failure leaves the marker.
   The existing revoke action restores sleep before removing the old rule, and
   cannot run during a new hardware lid operation. Other apps' rules are untouched.
+  The password prompt runs on its own serial queue, so the rest of the app stays
+  responsive while it is open; a second press waits for the first (Anton, 2026-11-18).
 - Live status where it can be checked: `AXIsProcessTrusted()`,
   `CGPreflightScreenCaptureAccess()`, `UNUserNotificationCenter` settings,
   `SMAppService.mainApp.status`. The notification query is skipped in a
@@ -5441,7 +5456,8 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   stands has `KeyboardLockController.remeasure()` take the measurement again,
   tap and probe and all, without locking anything.
 - **The repair is `tccutil reset <service> <bundle id>` followed by the app's
-  own request** (`PermissionRepair`). Opening System Settings is useless when
+  own request** (`PermissionRepair`); a press never waits for `tccutil`: the reset
+  and the request share one serial queue, so the request still follows the reset. Opening System Settings is useless when
   the row is already there with its switch on: there is nothing to press.
   Dropping Hop's own row puts the decision back to "not made", and the request
   that follows shows the real system dialog.
@@ -6083,7 +6099,10 @@ converter (Anton, 2026-07-28).
   settings change; the system items beside them are not translated at all). In
   safe mode no model exists, so About and Settings
   do nothing and Quit quits.
-- Launch at login — SMAppService.mainApp.
+- Launch at login — SMAppService.mainApp. The switch flips on the click; the
+  registration and every status read run off the main thread, a refusal flips
+  the switch back to the actual state, and a reply superseded by a newer click
+  is dropped (Anton, 2026-11-18). The permissions row reads the same cached state.
 
 ## Window zones
 
@@ -7078,6 +7097,10 @@ its own database of known apps may do better on real software than it did here.
   (a plain `open` before terminate only activates the still-running old
   instance — nothing would start the new one, and two live instances
   racing NSWorkspace.setIcon corrupted the Finder icon into a folder).
+- Reading the downloaded build for the signature check, unpacking it, copying
+  the replacement, `codesign --verify` and the bundle validation run off the main
+  thread, in the same order, so the panel keeps responding and the installing
+  state shows (Anton, 2026-11-18). Nothing is skipped or reordered.
 - Auto-check cadence: 15 s after launch, every hour, and 30 s after
   wake from sleep (the quietest moment — the user is just coming back
   and doesn't rely on the app yet). Only the tiny latest.json is fetched
@@ -7204,7 +7227,9 @@ numbers on screen at that moment — the tool's current estimate, not an
 average of the ramp-up, which would drop the figure under the click — and a
 direction not measured yet, and the responsiveness, which the tool reports
 only at the very end, read "—". Then ↻ is back. Stopped before any number,
-the result from before stays (`SpeedSummary.stopped`, `SpeedStopTests`). No
+the result from before stays (`SpeedSummary.stopped`, `SpeedStopTests`). The row
+leaves "running" on the click itself, not when the tool exits; the tool's late
+reply is dropped (Anton, 2026-11-18, `SpeedTestStopTests`). No
 custom servers and no third-party services. A fresh result is drawn in the
 primary ink, like the module's own name: it is the answer the row exists for,
 and in secondary grey it read as a caption (Anton, 2026-09-05). A stale one

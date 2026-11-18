@@ -59,7 +59,8 @@ enum PermissionRepair {
         askedThisRun.insert(service)
         if plan.dropsTheRow {
             droppedThisRun.insert(service)
-            reset(service, bundleID: bundleID)
+            // SPEC: docs/spec.md — a click never waits for tccutil; the request queues behind the reset.
+            resetQueue.async { reset(service.rawValue, bundleID: bundleID) }
         }
         switch plan.opens {
         case .permissionsPage:
@@ -71,7 +72,9 @@ enum PermissionRepair {
         }
         guard plan.requests else { return }
         // tccd needs a moment to write the reset before the request reads it.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { request(service) }
+        resetQueue.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { request(service) }
+        }
     }
 
     /// SPEC: docs/spec.md — "A permission that goes missing says so", the 1.10.0 reset.
@@ -88,11 +91,9 @@ enum PermissionRepair {
     /// Bumped by hand when a release must clear permissions again.
     private static let resetKey = "permissionsReset.1.10.0"
 
-    private static func reset(_ service: Service, bundleID: String) {
-        reset(service.rawValue, bundleID: bundleID)
-    }
+    private static let resetQueue = DispatchQueue(label: "hop.permission-reset")
 
-    private static func reset(_ service: String, bundleID: String) {
+    private nonisolated static func reset(_ service: String, bundleID: String) {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
         task.arguments = ["reset", service, bundleID]

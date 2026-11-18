@@ -4259,7 +4259,10 @@ struct PanelView: View {
                     }
             }
             .onAppear {
-                launchAtLogin = SMAppService.mainApp.status == .enabled
+                if let known = LaunchAtLogin.shared.known { launchAtLogin = known }
+                Task {
+                    if let actual = await LaunchAtLogin.shared.read(), actual != launchAtLogin { launchAtLogin = actual }
+                }
             }
 
             SettingsRule()
@@ -6114,14 +6117,9 @@ struct PanelView: View {
     }
 
     private func setLaunchAtLogin(_ on: Bool) {
-        guard Bundle.main.bundleIdentifier != nil else { return }
-        let service = SMAppService.mainApp
-        do {
-            if on, service.status != .enabled { try service.register() }
-            if !on, service.status == .enabled { try service.unregister() }
-        } catch {
+        Task {
             // failed — show the actual state
-            launchAtLogin = service.status == .enabled
+            if let actual = await LaunchAtLogin.shared.set(on), actual != on { launchAtLogin = actual }
         }
     }
 

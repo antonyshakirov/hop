@@ -16,7 +16,7 @@ final class SpeedTestController: ObservableObject {
         let rpm: Int?
     }
 
-    private enum Outcome {
+    enum Outcome {
         case done(Result)
         case stopped(down: Double?, up: Double?)
         case failed
@@ -31,6 +31,8 @@ final class SpeedTestController: ObservableObject {
 
     private var ticker: Timer?
     private var stopFlag: StopFlag?
+    private var runID = 0
+    private let measureRun: @Sendable (@escaping @Sendable (Double?, Double?) -> Void, StopFlag) -> Outcome
     private static let downKey = "speedLastDown"
     private static let upKey = "speedLastUp"
     private static let rpmKey = "speedLastRpm"
@@ -39,12 +41,14 @@ final class SpeedTestController: ObservableObject {
 
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
     init(demo: Bool) {
+        measureRun = { live, stop in SpeedTestController.measure(live: live, stop: stop) }
         last = Result(down: 834, up: 112, rpm: 1450)
         lastAt = Date()
         lastNetwork = Self.currentNetwork
     }
 
-    init() {
+    init(measure: (@Sendable (@escaping @Sendable (Double?, Double?) -> Void, StopFlag) -> Outcome)? = nil) {
+        measureRun = measure ?? { live, stop in SpeedTestController.measure(live: live, stop: stop) }
         let defaults = UserDefaults.standard
         let down = defaults.object(forKey: Self.downKey) as? Double
         let up = defaults.object(forKey: Self.upKey) as? Double
@@ -86,6 +90,9 @@ final class SpeedTestController: ObservableObject {
         ticker = timer
         let flag = StopFlag()
         stopFlag = flag
+        runID += 1
+        let id = runID
+        let measureRun = measureRun
 
         let onLive: @Sendable (Double?, Double?) -> Void = { [weak self] down, up in
             Task { @MainActor in
@@ -94,30 +101,37 @@ final class SpeedTestController: ObservableObject {
             }
         }
         Task.detached(priority: .userInitiated) { [weak self] in
-            let outcome = SpeedTestController.measure(live: onLive, stop: flag)
+            let outcome = measureRun(onLive, flag)
             await MainActor.run { [weak self] in
-                guard let self else { return }
-                self.ticker?.invalidate()
-                self.ticker = nil
-                self.stopFlag = nil
-                self.isRunning = false
-                switch outcome {
-                case .done(let result):
-                    self.keep(result)
-                case .stopped(let down, let up):
-                    if let partial = SpeedSummary.stopped(down: down, up: up) {
-                        self.keep(Result(down: partial.down, up: partial.up, rpm: nil))
-                    }
-                case .failed:
-                    self.failed = true
-                }
+                // a stopped run was already settled by stop()
+                guard let self, self.runID == id, self.isRunning else { return }
+                self.settle(outcome)
             }
+        }
+    }
+
+    private func settle(_ outcome: Outcome) {
+        ticker?.invalidate()
+        ticker = nil
+        stopFlag = nil
+        isRunning = false
+        switch outcome {
+        case .done(let result):
+            keep(result)
+        case .stopped(let down, let up):
+            if let partial = SpeedSummary.stopped(down: down, up: up) {
+                keep(Result(down: partial.down, up: partial.up, rpm: nil))
+            }
+        case .failed:
+            failed = true
         }
     }
 
     /// SPEC: docs/spec.md — "Speed test", stopping early: the run ends as if done.
     func stop() {
-        stopFlag?.raise()
+        guard isRunning, let flag = stopFlag else { return }
+        flag.raise()
+        settle(.stopped(down: flag.down, up: flag.up))
     }
 
     private func keep(_ result: Result) {
