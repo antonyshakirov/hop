@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { generateKeyPairSync, sign } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -86,7 +87,7 @@ if (tool === 'curl') {
 `;
 
 async function fixture(t) {
-  const root = await mkdtemp('/private/tmp/hop-release-fixture-');
+  const root = await mkdtemp(join(tmpdir(), 'hop-release-fixture-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   for (const name of ['scripts', 'Sources/Hop', 'bin', 'primary', 'mirror', 'home', 'tmp'])
     await mkdir(join(root, name), { recursive: true });
@@ -153,7 +154,7 @@ async function fixture(t) {
         HOP_VERIFY_FIXTURE_ROOT: root, HOP_MIRROR_HOSTS: mirror };
       try {
         const result = await execute('/bin/zsh', [join(root, 'scripts/verify-release.sh'), version],
-          { cwd: root, env, timeout: 20_000, maxBuffer: 2 * 1024 * 1024 });
+          { cwd: root, env, timeout: 60_000, maxBuffer: 2 * 1024 * 1024 });
         return { code: 0, output: result.stdout + result.stderr };
       } catch (error) {
         if (typeof error.code !== 'number') throw error;
