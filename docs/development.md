@@ -1,5 +1,7 @@
 # Hop
 
+Follow the mandatory [local build cleanup rules](local-verification/README.md#local-build-cleanup) for verification, packaging and screenshot builds.
+
 A macOS menu bar timer with a dot-matrix display in the spirit of
 [interval](https://supercommon.systems) — dark, minimal, glowing dots.
 

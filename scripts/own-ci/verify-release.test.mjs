@@ -438,3 +438,31 @@ test('all developer installer launch routes use the clean GUI boundary', async (
   assert.equal((source.match(/hop_gui_run \/usr\/bin\/open "\$TARGET"/g) || []).length, 3);
   assert.doesNotMatch(source, /^\s*open "\$TARGET"/m);
 });
+
+test('local Swift scratch is removed on success, failure and handled termination', async t => {
+  const root = await mkdtemp(join(process.env.TMPDIR || '/private/tmp', 'hop-scratch-test-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const helper = join(repository, 'scripts/build-scratch.sh');
+  const marker = join(root, 'selected-scratch');
+  for (const shell of ['/bin/bash', '/bin/zsh']) {
+    for (const [end, code] of [['exit 0', 0], ['exit 7', 7], ['kill -TERM $$', 143]]) {
+      await rm(marker, { force: true });
+      const command = 'source "$1" || exit 99; printf "%s" "$HOP_BUILD_SCRATCH" > "$2"; touch "$HOP_BUILD_SCRATCH/module"; ' + end;
+      const shellOptions = shell === '/bin/zsh' ? ['-f'] : [];
+      const execution = execute(shell, [...shellOptions, '-c', command, 'fixture', helper, marker]);
+      if (code === 0) await execution;
+      else await assert.rejects(execution, { code });
+      const scratch = await readFile(marker, 'utf8');
+      assert.match(scratch, /^\/private\/tmp\/hop-build\.[a-zA-Z0-9]+$/);
+      await assert.rejects(readFile(join(scratch, 'module')), { code: 'ENOENT' });
+    }
+  }
+});
+
+test('both local Swift build entry points use the same private scratch for the build and bin lookup', async () => {
+  for (const file of ['scripts/build-app.sh', 'scripts/make-screens.sh']) {
+    const source = await readFile(join(repository, file), 'utf8');
+    assert.match(source, /source scripts\/build-scratch\.sh/);
+    assert.equal((source.match(/swift build --scratch-path "\$HOP_BUILD_SCRATCH\/swift"/g) || []).length, 2);
+  }
+});

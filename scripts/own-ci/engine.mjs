@@ -2,8 +2,8 @@ import { createHash, randomBytes } from 'node:crypto';
 import { createConnection, createServer } from 'node:net';
 import { execFileSync, spawn } from 'node:child_process';
 import { createWriteStream } from 'node:fs';
-import { access, lstat, mkdir, mkdtemp, open, readFile, readlink, realpath, rename, rm, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { access, lstat, mkdir, mkdtemp, open, readdir, readFile, readlink, realpath, rename, rm, writeFile } from 'node:fs/promises';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { finished } from 'node:stream/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -120,9 +120,18 @@ export async function execute(step, { cwd, env, logFile, signal }) {
     if (signal?.aborted) terminate();
     child.once('close', (exitCode, exitSignal) => { clearTimeout(timer); clearTimeout(killer); signal?.removeEventListener('abort', terminate); done({ exitCode, signal: exitSignal, timedOut, aborted: Boolean(signal?.aborted), ...(error ? { error } : {}) }); });
   });
-  if (child.pid) stopGroup(child.pid, 'SIGTERM');
+  let processCleanupError;
+  if (child.pid) {
+    try {
+      stopGroup(child.pid, 'SIGTERM');
+      if (!confirmGroupExit(child.pid)) {
+        stopGroup(child.pid, 'SIGKILL');
+        if (!confirmGroupExit(child.pid)) throw new Error('Owned process group did not exit');
+      }
+    } catch (error) { processCleanupError = error.message; }
+  }
   output.end(); await finished(output);
-  return { ...result, logHash: hash(await readFile(logFile)) };
+  return { ...result, ...(processCleanupError ? { processCleanupError } : {}), logHash: hash(await readFile(logFile)) };
 }
 
 function validateOutput(step, bytes) {
@@ -196,6 +205,50 @@ async function artifactResults(plan, workspace, directory) {
   return result;
 }
 
+const retainedRunEntries = new Set([
+  'proof.json', 'logs', 'artifacts', 'codeql-logs', 'codeql-diagnostics',
+  'live', 'canvas-selftest.png', 'markup-selftest.png',
+]);
+
+async function removeRunPayload(directory, plan, proof) {
+  const workspace = join(directory, 'workspace');
+  const artifacts = join(directory, 'artifacts');
+  for (const [index, item] of (plan.artifacts ?? []).entries()) {
+    if (proof.artifacts?.some(artifact => artifact.path === item.path)) continue;
+    const file = join(workspace, item.path);
+    let bytes;
+    try {
+      if (!file.startsWith(workspace + '/')) throw new Error('Diagnostic report escaped workspace');
+      bytes = await regular(file);
+    } catch (error) {
+      if (error.code === 'ENOENT') continue;
+      throw error;
+    }
+    await secureDirectory(artifacts);
+    await writeFile(join(artifacts, `diagnostic-${index}-${basename(file)}`), bytes, { mode: 0o600, flag: 'wx' });
+  }
+  for (const [path, name] of [
+    ['codeql-database/log/build-tracer.log', 'build-tracer.log'],
+    ['codeql-database/log/swift/extractor', 'extractor-logs'],
+    ['extractor-metadata/log', 'metadata-logs'],
+    ['extractor-metadata/diagnostic', 'metadata-diagnostics'],
+  ]) {
+    const source = join(directory, path);
+    try {
+      if (await realpath(source) !== source) throw new Error('Linked CodeQL diagnostic');
+    } catch (error) {
+      if (error.code === 'ENOENT') continue;
+      throw error;
+    }
+    const diagnostics = join(directory, 'codeql-diagnostics');
+    await secureDirectory(diagnostics);
+    await rename(source, join(diagnostics, name));
+  }
+  for (const name of await readdir(directory)) {
+    if (!retainedRunEntries.has(name)) await rm(join(directory, name), { recursive: true, force: true, maxRetries: 3 });
+  }
+}
+
 export async function runGate({ root, state, plan }) {
   validatePlan(plan); root = await realpath(root); await secureDirectory(state);
   const lockPath = join(state, 'running.json');
@@ -208,7 +261,8 @@ export async function runGate({ root, state, plan }) {
   const variables = { run: directory, workspace, node: process.execPath, npm: await realpath(join(dirname(process.execPath), 'npm')) };
   const configured = commands(plan, variables), env = environment(plan, variables, state);
   const controller = new AbortController(), interrupt = () => controller.abort();
-  process.once('SIGINT', interrupt); process.once('SIGTERM', interrupt);
+  process.once('SIGINT', interrupt); process.once('SIGTERM', interrupt); process.once('SIGHUP', interrupt);
+  let unconfirmedProcesses = 0;
   async function perform(step, index, cleanup = false) {
     const cwd = await realpath(join(workspace, step.cwd));
     if (cwd !== workspace && !cwd.startsWith(workspace + '/')) throw new Error('Command escaped isolated workspace');
@@ -217,10 +271,12 @@ export async function runGate({ root, state, plan }) {
     const networkFile = join(workspace, 'scripts/own-ci/network.mjs');
     if (!step.network) { await access(networkFile); childEnv.NODE_OPTIONS = '--import ' + pathToFileURL(networkFile).href; }
     const startedAt = new Date().toISOString();
+    unconfirmedProcesses++;
     const result = await execute(step, { cwd, env: childEnv, logFile: join(directory, log), signal: cleanup ? undefined : controller.signal });
+    if (!result.processCleanupError) unconfirmedProcesses--;
     const item = { id: step.id, command: step.command, args: step.args, cwd: step.cwd, log, startedAt, finishedAt: new Date().toISOString(), ...result };
     (cleanup ? proof.cleanupSteps : proof.steps).push(item); await atomic(join(directory, 'proof.json'), proof);
-    if (item.exitCode !== 0 || item.signal || item.timedOut || item.aborted || item.error) throw new Error('Required step failed: ' + step.id);
+    if (item.exitCode !== 0 || item.signal || item.timedOut || item.aborted || item.error || item.processCleanupError) throw new Error('Required step failed: ' + step.id);
     validateOutput(step, await readFile(join(directory, log)));
   }
   try {
@@ -253,9 +309,16 @@ export async function runGate({ root, state, plan }) {
   finally {
     for (const [i, step] of configured.cleanup.entries()) try { await perform(step, i, true); } catch (e) { proof.errors.push('Cleanup: ' + e.message); }
     try { for (const port of plan.ports ?? []) await assertPortFree(port); proof.cleanup = { passed: true, portsFree: plan.ports ?? [] }; } catch (e) { proof.cleanup = { passed: false }; proof.errors.push(e.message); }
+    if (proof.cleanup.passed && unconfirmedProcesses === 0 && !proof.errors.some(error => error.startsWith('Cleanup:'))) {
+      try {
+        await removeRunPayload(directory, plan, proof);
+        for (const name of ['npm-cache', 'cache']) await rm(join(state, name), { recursive: true, force: true, maxRetries: 3 });
+        proof.cleanup.payloadRemoved = true;
+      } catch (error) { proof.errors.push('Temporary payload cleanup: ' + error.message); }
+    }
     try { proof.sourceAfter = await captureSource(root); if (!same(proof.source, proof.sourceAfter)) proof.errors.push('Source changed during checks'); } catch (e) { proof.errors.push(e.message); }
     proof.status = proof.errors.length || proof.steps.length !== plan.steps.length ? 'failed' : 'passed'; proof.finishedAt = new Date().toISOString();
-    await atomic(join(directory, 'proof.json'), proof); await rm(lockPath); process.removeListener('SIGINT', interrupt); process.removeListener('SIGTERM', interrupt);
+    await atomic(join(directory, 'proof.json'), proof); await rm(lockPath); process.removeListener('SIGINT', interrupt); process.removeListener('SIGTERM', interrupt); process.removeListener('SIGHUP', interrupt);
   }
   return proof;
 }
@@ -267,7 +330,7 @@ export async function verifyGate({ root, state, plan, now = Date.now() }) {
   if (!/^run-[a-zA-Z0-9]+$/.test(pointer.run)) throw new Error('Invalid latest pointer');
   const directory = join(state, pointer.run); await secureDirectory(directory);
   const proof = JSON.parse(await regular(join(directory, 'proof.json'))), current = await captureSource(root);
-  if (proof.schema !== 1 || proof.project !== plan.project || proof.repository !== root || proof.status !== 'passed' || !Array.isArray(proof.errors) || proof.errors.length || !proof.cleanup?.passed || !same(proof.source, current) || !same(proof.sourceAfter, current) || proof.planHash !== hash(json(plan))) throw new Error('Proof failed or source/plan changed');
+  if (proof.schema !== 1 || proof.project !== plan.project || proof.repository !== root || proof.status !== 'passed' || !Array.isArray(proof.errors) || proof.errors.length || !proof.cleanup?.passed || !proof.cleanup.payloadRemoved || !same(proof.source, current) || !same(proof.sourceAfter, current) || proof.planHash !== hash(json(plan))) throw new Error('Proof failed or source/plan changed');
   const start = Date.parse(proof.startedAt), end = Date.parse(proof.finishedAt);
   if (!Number.isFinite(start) || !Number.isFinite(end) || start > end || now - end > age) throw new Error('Proof expired or invalid timestamps');
   if (end > now + 30000 || start > now + 30000) throw new Error('Proof is from the future');
@@ -277,7 +340,7 @@ export async function verifyGate({ root, state, plan, now = Date.now() }) {
     if (!Array.isArray(actual) || actual.length !== list.length) throw new Error('Incomplete steps');
     for (const [i, expected] of list.entries()) {
       const step = actual[i];
-      if (step.id !== expected.id || step.command !== expected.command || !same(step.args, expected.args) || step.cwd !== expected.cwd || step.exitCode !== 0 || step.signal || step.timedOut || step.aborted || step.error || !/^logs\/(cleanup-)?\d+-[a-z0-9-]+\.log$/.test(step.log)) throw new Error('Required steps differ or failed');
+      if (step.id !== expected.id || step.command !== expected.command || !same(step.args, expected.args) || step.cwd !== expected.cwd || step.exitCode !== 0 || step.signal || step.timedOut || step.aborted || step.error || step.processCleanupError || !/^logs\/(cleanup-)?\d+-[a-z0-9-]+\.log$/.test(step.log)) throw new Error('Required steps differ or failed');
       const bytes = await regular(join(directory, step.log));
       if (hash(bytes) !== step.logHash) throw new Error('Log hash mismatch');
       validateOutput(expected, bytes);

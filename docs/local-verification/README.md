@@ -12,6 +12,12 @@ python3 scripts/own-ci/codeql-setup.py --archive /absolute/path/codeql-bundle-sw
 
 Preparation requires Python's `zstandard` module for this archive and makes no network request. It verifies the official archive, all 7,761 original SDK tree records, the reviewed source-built extractor and all 7,761 derived tree records. Only the extractor executable changes. The exact source patches, input identities, build recipe and differential controls are documented in [CodeQL compatibility](codeql-compatibility.md). A different rebuild requires a new review and explicit pin; setup never trusts an arbitrary executable or silently falls back to the broken official extractor. Put the resulting `codeql` directory on PATH. Each analysis authenticates the complete SDK tree again before execution. Missing, extra or modified content fails; no SDK file is excluded from hashing.
 
+### Local build cleanup
+
+Every Hop verification run must permanently delete its disposable working copy, Swift builds, modules, temporary SDK and CodeQL database as soon as its processes have stopped. This applies after success, failure, and handled cancellation. A successful proof requires completed cleanup. Preserve the proof, logs, final check artifacts and diagnostic reports. Remove temporary data directly from the filesystem. Keep the installed app and explicitly requested packages or screenshots.
+
+Use `scripts/check-release`, `scripts/build-app.sh` and `scripts/make-screens.sh` for local verification, packaging and screenshots. The latter two use a private Swift scratch directory and remove it on exit. Use `--install --dev` only when deliberately installing a development copy. Without an explicit output directory this leaves only the installed bundle. The standalone packaging command keeps its requested bundle in `dist/`. If a process is killed with SIGKILL or the machine loses power, inspect the interrupted run, stop any surviving processes and remove its owned temporary payload before starting another run. Keep the evidence.
+
 ### Local build budget
 
 The build, test and CodeQL steps, app packaging and screenshot builds

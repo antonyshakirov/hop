@@ -23,14 +23,15 @@ if [ ${#LANGS[@]} -eq 0 ]; then
     LANGS=(en ru de es pt fr it zh ja nl ko th vi hi id tr pl sr ar he fa ur)
 fi
 
+source scripts/build-scratch.sh
 echo "building…"
-/usr/bin/python3 -B scripts/build-budget.py swift build >/dev/null
-BIN="$(/usr/bin/python3 -B scripts/build-budget.py swift build --show-bin-path)/Hop"
+/usr/bin/python3 -B scripts/build-budget.py swift build --scratch-path "$HOP_BUILD_SCRATCH/swift" >/dev/null
+BIN="$(/usr/bin/python3 -B scripts/build-budget.py swift build --scratch-path "$HOP_BUILD_SCRATCH/swift" --show-bin-path)/Hop"
 
 # Sample files for the converter window: real images and a real PDF, so the
 # rows carry genuine thumbnails and size estimates rather than placeholders.
-SAMPLES=$(mktemp -d)
-trap 'rm -rf "$SAMPLES"' EXIT
+SAMPLES="$HOP_BUILD_SCRATCH/samples"
+mkdir "$SAMPLES"
 swift - "$SAMPLES" <<'SWIFT' >/dev/null
 import AppKit
 import CoreGraphics

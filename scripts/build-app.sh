@@ -59,9 +59,10 @@ if [[ $DEV == 1 ]]; then
 else
     BUILD_ARGS=(-c "$CONFIGURATION" --arch arm64 --arch x86_64)
 fi
-/usr/bin/python3 -B scripts/build-budget.py swift build --jobs 2 "${BUILD_ARGS[@]}"
+source scripts/build-scratch.sh
+/usr/bin/python3 -B scripts/build-budget.py swift build --scratch-path "$HOP_BUILD_SCRATCH/swift" --jobs 2 "${BUILD_ARGS[@]}"
 # WORKAROUND: the bin path is asked of SwiftPM, never spelled out — Swift 6.4 moved it and 2.1.1 shipped a stale binary.
-BINARY="$(/usr/bin/python3 -B scripts/build-budget.py swift build --jobs 2 "${BUILD_ARGS[@]}" --show-bin-path)/Hop"
+BINARY="$(/usr/bin/python3 -B scripts/build-budget.py swift build --scratch-path "$HOP_BUILD_SCRATCH/swift" --jobs 2 "${BUILD_ARGS[@]}" --show-bin-path)/Hop"
 WORKER_BINARY="${BINARY%/Hop}/HopAudioWorker"
 HARDWARE_BINARY="${BINARY%/Hop}/HopHardwareHelper"
 PLUGIN_BINARY="${BINARY%/Hop}/HopPluginRuntime"
@@ -116,8 +117,7 @@ else
     APP_NAME="Hop"
 fi
 OUTPUT_DIRECTORY="${HOP_BUILD_OUTPUT:-dist}"
-APP="$OUTPUT_DIRECTORY/$APP_NAME.app"
-rm -rf "$APP"
+APP="$HOP_BUILD_SCRATCH/$APP_NAME.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BINARY" "$APP/Contents/MacOS/Hop"
 cp scripts/Info.plist "$APP/Contents/Info.plist"
@@ -218,7 +218,7 @@ for line in open(".env"):
         print(f"export {match.group(1)}={shlex.quote(match.group(2))}")
 PYENV
 )"
-    ZIP="$OUTPUT_DIRECTORY/$APP_NAME-notarize.zip"
+    ZIP="$HOP_BUILD_SCRATCH/$APP_NAME-notarize.zip"
     rm -f "$ZIP"
     ditto -c -k --keepParent "$APP" "$ZIP"
     RESULT=$(xcrun notarytool submit "$ZIP" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
@@ -234,6 +234,12 @@ PYENV
     echo "notarised and stapled"
 fi
 
+if [[ $INSTALL == 0 || -n "${HOP_BUILD_OUTPUT:-}" ]]; then
+    mkdir -p "$OUTPUT_DIRECTORY"
+    rm -rf "$OUTPUT_DIRECTORY/$APP_NAME.app"
+    mv "$APP" "$OUTPUT_DIRECTORY/$APP_NAME.app"
+    APP="$OUTPUT_DIRECTORY/$APP_NAME.app"
+fi
 echo "done: $APP ($CONFIGURATION)"
 
 if [[ $INSTALL == 1 ]]; then

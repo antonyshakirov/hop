@@ -59,3 +59,32 @@ test('guarded fetch preserves Promise rejection semantics for best-effort side e
  const script="const assert=require('node:assert/strict');let pending;assert.doesNotThrow(()=>{pending=fetch('https://example.invalid/never-send')});assert(pending instanceof Promise);pending.then(()=>{throw Error('External request escaped')},error=>{assert.match(error.message,/EXTERNAL_NETWORK_BLOCKED/);console.log('Promise rejection preserved; no request sent')});";
  const result=await runGate({root,state,plan:{...plan,steps:[{...plan.steps[0],args:['-e',script]}]}});assert.equal(result.status,'passed');
 });
+
+test('owned run payload is removed while completed and failed evidence stays readable', async t => {
+  const root = await fixture();
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const state = await realpath(await mkdtemp(join(tmpdir(), 'own-ci-proof-')));
+  t.after(() => rm(state, { recursive: true, force: true }));
+  const make = exitCode => ({
+    ...plan,
+    steps: [{
+      ...plan.steps[0],
+      args: ['-e', `require('fs').writeFileSync('result.json','{"result":1}'); process.exit(${exitCode});`],
+    }],
+    artifacts: [{ path: 'result.json', type: 'json' }],
+  });
+  const latest = async () => join(state, JSON.parse(await readFile(join(state, 'latest.json'), 'utf8')).run);
+  const passed = await runGate({ root, state, plan: make(0) });
+  const success = await latest();
+  assert.equal(passed.status, 'passed');
+  await assert.rejects(readFile(join(success, 'workspace', 'source.txt')), { code: 'ENOENT' });
+  assert.equal((await verifyGate({ root, state, plan: make(0) })).status, 'passed');
+  const failed = await runGate({ root, state, plan: make(7) });
+  const failure = await latest();
+  assert.equal(failed.status, 'failed');
+  await assert.rejects(readFile(join(failure, 'workspace', 'result.json')), { code: 'ENOENT' });
+  assert.equal(await readFile(join(failure, 'artifacts', 'diagnostic-0-result.json'), 'utf8'), '{"result":1}');
+  assert.equal(await readFile(join(failure, failed.steps[0].log), 'utf8'), '');
+  assert.equal(await readFile(join(success, passed.artifacts[0].stored), 'utf8'), '{"result":1}');
+  assert.equal(await readFile(join(root, 'source.txt'), 'utf8'), 'original\n');
+});
