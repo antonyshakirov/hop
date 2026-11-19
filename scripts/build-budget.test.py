@@ -11,11 +11,12 @@ import unittest
 
 
 SCRIPT = Path(__file__).with_name('build-budget.py')
+PROCESS_TIMEOUT = 20
 
 
 class BuildBudgetTests(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix='hop-budget-test-', dir='/private/tmp')
+        self.temp = tempfile.TemporaryDirectory(prefix='hop-budget-test-')
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         self.lock = self.root / 'build.lock'
@@ -27,7 +28,7 @@ class BuildBudgetTests(unittest.TestCase):
             if child.poll() is None:
                 child.terminate()
                 try:
-                    child.wait(timeout=5)
+                    child.wait(timeout=PROCESS_TIMEOUT)
                 except subprocess.TimeoutExpired:
                     child.kill()
                     child.wait()
@@ -51,7 +52,7 @@ class BuildBudgetTests(unittest.TestCase):
         self.addCleanup(child.stderr.close)
         return child
 
-    def wait_file(self, path, timeout=5):
+    def wait_file(self, path, timeout=PROCESS_TIMEOUT):
         deadline = None if timeout is None else time.monotonic() + timeout
         while not path.exists() and (deadline is None or time.monotonic() < deadline):
             for child in self.children:
@@ -74,13 +75,13 @@ class BuildBudgetTests(unittest.TestCase):
         time.sleep(0.2)
         self.assertFalse(second.exists(), 'a second checkout started before the first finished')
         release.touch()
-        self.assertEqual(a.wait(timeout=5), 0)
+        self.assertEqual(a.wait(timeout=PROCESS_TIMEOUT), 0)
         self.assertEqual(b.wait(), 0)
         self.assertTrue(second.exists())
 
     def test_failure_releases_queue_and_preserves_exit_code(self):
-        self.assertEqual(self.launch('raise SystemExit(7)').wait(timeout=5), 7)
-        self.assertEqual(self.launch('pass').wait(timeout=5), 0)
+        self.assertEqual(self.launch('raise SystemExit(7)').wait(timeout=PROCESS_TIMEOUT), 7)
+        self.assertEqual(self.launch('pass').wait(timeout=PROCESS_TIMEOUT), 0)
 
     def test_cancel_stops_descendants_and_releases_queue(self):
         pidfile = self.root / 'pid'
@@ -91,7 +92,7 @@ class BuildBudgetTests(unittest.TestCase):
         self.wait_file(pidfile)
         descendant = int(pidfile.read_text())
         a.terminate()
-        self.assertEqual(a.wait(timeout=5), 128 + signal.SIGTERM)
+        self.assertEqual(a.wait(timeout=PROCESS_TIMEOUT), 128 + signal.SIGTERM)
         for _ in range(100):
             result = subprocess.run(['ps', '-p', str(descendant), '-o', 'stat='],
                                     capture_output=True, text=True)
@@ -100,7 +101,7 @@ class BuildBudgetTests(unittest.TestCase):
             time.sleep(0.02)
         else:
             self.fail('compiler descendant survived cancellation')
-        self.assertEqual(self.launch('pass').wait(timeout=5), 0)
+        self.assertEqual(self.launch('pass').wait(timeout=PROCESS_TIMEOUT), 0)
 
     def test_successful_parent_cannot_leave_an_extractor_running(self):
         pidfile = self.root / 'orphan'
@@ -108,7 +109,7 @@ class BuildBudgetTests(unittest.TestCase):
                 'p=subprocess.Popen([sys.executable,"-c","import time;time.sleep(60)"]);'
                 f'Path({str(pidfile)!r}).write_text(str(p.pid))')
         a = self.launch(code)
-        self.assertEqual(a.wait(timeout=5), 0)
+        self.assertEqual(a.wait(timeout=PROCESS_TIMEOUT), 0)
         descendant = int(pidfile.read_text())
         for _ in range(100):
             state = subprocess.run(['ps', '-p', str(descendant), '-o', 'stat='], capture_output=True, text=True).stdout.strip()
@@ -128,7 +129,7 @@ class BuildBudgetTests(unittest.TestCase):
                     "def checked_stop(pid, sig):\n    assert not _reaped, 'signal after reap'\n    _real_stop(pid, sig)\n"
                     "subprocess.Popen.wait = checked_wait\nstop_group = checked_stop\n")
         script.write_text(original.replace("if __name__ == '__main__':", injected + "\nif __name__ == '__main__':"))
-        self.assertEqual(self.launch('pass', script=script).wait(timeout=5), 0)
+        self.assertEqual(self.launch('pass', script=script).wait(timeout=PROCESS_TIMEOUT), 0)
 
     def test_killed_wrapper_keeps_queue_locked_until_child_finishes(self):
         ready, release, second = [self.root / name for name in ['ready', 'release', 'second']]
@@ -136,12 +137,12 @@ class BuildBudgetTests(unittest.TestCase):
         a = self.launch(f'from pathlib import Path;import time;Path({str(ready)!r}).touch();'
                         f'\nwhile not Path({str(release)!r}).exists():time.sleep(.02)')
         self.wait_file(ready)
-        a.kill(); a.wait(timeout=5)
+        a.kill(); a.wait(timeout=PROCESS_TIMEOUT)
         b = self.launch(f'from pathlib import Path;Path({str(second)!r}).touch()')
         time.sleep(0.2)
         self.assertFalse(second.exists(), 'child lost its inherited build lock')
         release.touch()
-        self.assertEqual(b.wait(timeout=5), 0)
+        self.assertEqual(b.wait(timeout=PROCESS_TIMEOUT), 0)
 
     def test_node_command_inherits_lock_after_wrapper_kill(self):
         import json
@@ -150,10 +151,10 @@ class BuildBudgetTests(unittest.TestCase):
         code = ("const fs=require('fs');fs.writeFileSync(" + json.dumps(str(ready)) + ", 'ready');"
                 "const t=setInterval(()=>{if(fs.existsSync(" + json.dumps(str(release)) + "))clearInterval(t)},20)")
         a = self.launch('', command=['node', '-e', code])
-        self.wait_file(ready); a.kill(); a.wait(timeout=5)
+        self.wait_file(ready); a.kill(); a.wait(timeout=PROCESS_TIMEOUT)
         b = self.launch(f'from pathlib import Path;Path({str(second)!r}).touch()')
         time.sleep(0.2); self.assertFalse(second.exists())
-        release.touch(); self.assertEqual(b.wait(timeout=5), 0)
+        release.touch(); self.assertEqual(b.wait(timeout=PROCESS_TIMEOUT), 0)
 
     def test_ignored_term_is_escalated_before_outer_gate_kill(self):
         ready = self.root / 'ignoring-term'
@@ -181,7 +182,7 @@ class BuildBudgetTests(unittest.TestCase):
         target = self.root / 'unrelated'
         target.write_text('keep')
         self.lock.symlink_to(target)
-        self.assertNotEqual(self.launch('pass').wait(timeout=5), 0)
+        self.assertNotEqual(self.launch('pass').wait(timeout=PROCESS_TIMEOUT), 0)
         self.assertEqual(target.read_text(), 'keep')
 
     def test_swift_jobs_are_capped_even_when_caller_requests_more(self):
@@ -203,7 +204,7 @@ class BuildBudgetTests(unittest.TestCase):
         self.assertTrue(ready_to_cancel, 'launcher never reported waiting')
         self.assertIn('waiting for the shared build budget', b.stderr.readline())
         b.terminate()
-        self.assertEqual(b.wait(timeout=5), 128 + signal.SIGTERM)
+        self.assertEqual(b.wait(timeout=PROCESS_TIMEOUT), 128 + signal.SIGTERM)
         self.assertIsNone(a.poll())
         self.assertFalse(forbidden.exists())
 

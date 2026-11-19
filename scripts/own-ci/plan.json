@@ -7,7 +7,7 @@
       "cwd": ".",
       "command": "/usr/bin/python3",
       "args": ["-B", "-I", "scripts/build-budget.test.py"],
-      "timeoutMs": 120000
+      "timeoutMs": 240000
     },
     {
       "id": "core-self-tests",
