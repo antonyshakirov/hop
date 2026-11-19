@@ -4,7 +4,7 @@ import { mkdtemp, writeFile, mkdir, readFile, rm, realpath, copyFile } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { captureSource, execute, runGate, verifyGate, validatePlan, assertPortFree } from './engine.mjs';
+import { captureSource, confirmGroupExit, execute, runGate, verifyGate, validatePlan, assertPortFree } from './engine.mjs';
 import { createServer } from 'node:net';
 const git=(root,args)=>execFileSync('git',args,{cwd:root,encoding:'utf8',env:{...process.env,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_NOSYSTEM:'1'}}).trim();
 async function fixture(){const root=await mkdtemp(join(tmpdir(),'own-ci-test-'));git(root,['init','-q']);git(root,['config','user.name','Fixture']);git(root,['config','user.email','fixture@example.invalid']);git(root,['config','core.hooksPath','/dev/null']);await writeFile(join(root,'source.txt'),'original\n');await mkdir(join(root,'scripts/own-ci'),{recursive:true});await copyFile(new URL('./network.mjs',import.meta.url),join(root,'scripts/own-ci/network.mjs'));git(root,['add','source.txt','scripts/own-ci/network.mjs']);git(root,['commit','-qm','fixture']);return root;}
@@ -87,4 +87,53 @@ test('owned run payload is removed while completed and failed evidence stays rea
   assert.equal(await readFile(join(failure, failed.steps[0].log), 'utf8'), '');
   assert.equal(await readFile(join(success, passed.artifacts[0].stored), 'utf8'), '{"result":1}');
   assert.equal(await readFile(join(root, 'source.txt'), 'utf8'), 'original\n');
+});
+
+test('failed runs preserve the workspace while a detached build can still write', async t => {
+  const root = await fixture();
+  const state = await realpath(await mkdtemp(join(tmpdir(), 'own-ci-build-groups-')));
+  let pgid;
+  t.after(async () => {
+    if (pgid) {
+      try { process.kill(-pgid, 'SIGKILL'); }
+      catch (error) { if (error.code !== 'ESRCH') throw error; }
+      assert.ok(confirmGroupExit(pgid));
+    }
+    await rm(state, { recursive: true, force: true });
+    await rm(root, { recursive: true, force: true });
+  });
+  const code = `
+    const { spawn } = require('node:child_process');
+    const { writeFileSync } = require('node:fs');
+    const { join } = require('node:path');
+    const groups = process.env.HOP_BUILD_GROUP_DIRECTORY;
+    const build = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 60000)'], { detached: true, stdio: 'ignore' });
+    build.unref();
+    writeFileSync(join(groups, 'group-fixture'), String(build.pid) + '\\n');
+    console.log(build.pid);
+    process.exitCode = 1;
+  `;
+  const runPlan = { ...plan, steps: [{ ...plan.steps[0], args: ['-e', code] }] };
+  const proof = await runGate({ root, state, plan: runPlan });
+  const pointer = JSON.parse(await readFile(join(state, 'latest.json'), 'utf8'));
+  const directory = join(state, pointer.run);
+  pgid = Number(await readFile(join(directory, proof.steps[0].log), 'utf8'));
+  assert.ok(pgid > 0);
+  assert.equal(proof.status, 'failed');
+  assert.equal(proof.cleanup.payloadRemoved, undefined);
+  assert.match(proof.errors.join(' '), /Detached build process cleanup/);
+  assert.equal(await readFile(join(directory, 'workspace', 'source.txt'), 'utf8'), 'original\n');
+});
+
+test('an incomplete detached build receipt blocks workspace deletion', async t => {
+  const root = await fixture();
+  const state = await realpath(await mkdtemp(join(tmpdir(), 'own-ci-build-receipt-')));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  t.after(() => rm(state, { recursive: true, force: true }));
+  const code = `require('fs').writeFileSync(require('path').join(process.env.HOP_BUILD_GROUP_DIRECTORY, 'group-fixture'), '');`;
+  const runPlan = { ...plan, steps: [{ ...plan.steps[0], args: ['-e', code] }] };
+  const proof = await runGate({ root, state, plan: runPlan });
+  assert.equal(proof.status, 'failed');
+  assert.equal(proof.cleanup.payloadRemoved, undefined);
+  assert.match(proof.errors.join(' '), /Incomplete build group receipt/);
 });

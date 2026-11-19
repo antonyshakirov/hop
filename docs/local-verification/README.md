@@ -26,9 +26,10 @@ the native sandbox and works across checkouts and isolated HOME/TMPDIR values.
 Only one protected build or check step runs at a time, with two Swift compiler jobs and
 lower scheduling priority. CodeQL finalization and analysis retain their existing
 two-thread limit. Waiting commands remain subject to the check step's timeout.
-Cancellation stops the protected process group before releasing the lock.
-The leader is reaped only after group cleanup, preventing PID reuse during
-signalling. The command inherits the lock too: abrupt launcher death cannot
+Cancellation requests termination of the protected process group before releasing the lock.
+The leader is reaped only after signalling, preventing PID reuse during that operation.
+The checks record the protected groups separately from the outer runner. They
+require confirmation that those groups have exited before deleting the workspace. The command inherits the lock too: abrupt launcher death cannot
 start a concurrent build while that command is still alive.
 Workers that deliberately create their own session are outside group cleanup.
 
@@ -56,7 +57,7 @@ The gate includes:
 XCTest discovery builds all test products first. Each UI suite then runs in a fresh
 process to bound AppKit animation and dispatch state; other targets run once per
 target. Execution stays sequential under the same build budget and sandbox.
-The test step has a bounded 20-minute budget for compilation, sequential process
+The test step has a bounded 45-minute budget for compilation, sequential process
 startup and execution. Individual test deadlines remain unchanged.
 Every discovered case must pass exactly once in its assigned batch, and each batch
 must report successful completion. Unknown discovery entries, missing or repeated

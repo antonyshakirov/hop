@@ -95,6 +95,15 @@ export function confirmGroupExit(pgid, {
   }
   return false;
 }
+async function assertBuildGroupsExited(directory) {
+  if (await realpath(directory) !== directory) throw new Error('Invalid build group directory');
+  for (const name of await readdir(directory)) {
+    if (!/^group-[a-z0-9_]+$/.test(name)) throw new Error('Invalid build group receipt');
+    const record = (await regular(join(directory, name))).toString();
+    if (!/^[1-9]\d*\n$/.test(record)) throw new Error('Incomplete build group receipt');
+    if (!confirmGroupExit(Number(record))) throw new Error('Build process group still active: ' + Number(record));
+  }
+}
 function stopGroup(pid, signal) {
   try { process.kill(-pid, signal); }
   catch (error) {
@@ -151,9 +160,9 @@ function commands(plan, variables) {
   return { steps: plan.steps.map(expandStep), cleanup: (plan.cleanup ?? []).map(expandStep) };
 }
 function environment(plan, variables, state) {
-  const env = { PATH: process.env.PATH, HOME: join(variables.run, 'home'), TMPDIR: join(variables.run, 'tmp'), LANG: 'en_US.UTF-8', TZ: 'UTC', CI: '1', NEXT_TELEMETRY_DISABLED: '1', DO_NOT_TRACK: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', npm_config_userconfig: join(variables.run, 'npmrc'), npm_config_globalconfig: '/dev/null', npm_config_cache: join(state, 'npm-cache'), npm_config_registry: 'https://registry.npmjs.org/', XDG_CACHE_HOME: join(state, 'cache'), XDG_CONFIG_HOME: join(variables.run, 'config') };
+  const env = { PATH: process.env.PATH, HOME: join(variables.run, 'home'), TMPDIR: join(variables.run, 'tmp'), LANG: 'en_US.UTF-8', TZ: 'UTC', CI: '1', NEXT_TELEMETRY_DISABLED: '1', DO_NOT_TRACK: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', npm_config_userconfig: join(variables.run, 'npmrc'), npm_config_globalconfig: '/dev/null', npm_config_cache: join(state, 'npm-cache'), npm_config_registry: 'https://registry.npmjs.org/', XDG_CACHE_HOME: join(state, 'cache'), XDG_CONFIG_HOME: join(variables.run, 'config'), HOP_BUILD_GROUP_DIRECTORY: join(variables.run, 'build-groups') };
   for (const [key, value] of Object.entries(plan.env ?? {})) {
-    if (['PATH', 'HOME', 'TMPDIR', 'NODE_OPTIONS', 'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM', 'npm_config_userconfig', 'npm_config_registry'].includes(key)) throw new Error('Protected environment override: ' + key);
+    if (['PATH', 'HOME', 'TMPDIR', 'NODE_OPTIONS', 'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM', 'npm_config_userconfig', 'npm_config_registry', 'HOP_BUILD_GROUP_DIRECTORY'].includes(key)) throw new Error('Protected environment override: ' + key);
     env[key] = expand(value, variables);
   }
   return env;
@@ -280,6 +289,7 @@ export async function runGate({ root, state, plan }) {
     validateOutput(step, await readFile(join(directory, log)));
   }
   try {
+    await mkdir(env.HOP_BUILD_GROUP_DIRECTORY, { mode: 0o700 });
     proof.source = await captureSource(root);
     for (const port of plan.ports ?? []) await assertPortFree(port);
     await mkdir(join(directory, 'logs'), { mode: 0o700 });
@@ -311,6 +321,12 @@ export async function runGate({ root, state, plan }) {
     try { for (const port of plan.ports ?? []) await assertPortFree(port); proof.cleanup = { passed: true, portsFree: plan.ports ?? [] }; } catch (e) { proof.cleanup = { passed: false }; proof.errors.push(e.message); }
     if (proof.cleanup.passed && unconfirmedProcesses === 0 && !proof.errors.some(error => error.startsWith('Cleanup:'))) {
       try {
+        await assertBuildGroupsExited(env.HOP_BUILD_GROUP_DIRECTORY);
+        proof.cleanup.buildGroupsExited = true;
+      } catch (error) { proof.errors.push('Detached build process cleanup: ' + error.message); }
+    }
+    if (proof.cleanup.buildGroupsExited) {
+      try {
         await removeRunPayload(directory, plan, proof);
         for (const name of ['npm-cache', 'cache']) await rm(join(state, name), { recursive: true, force: true, maxRetries: 3 });
         proof.cleanup.payloadRemoved = true;
@@ -330,7 +346,7 @@ export async function verifyGate({ root, state, plan, now = Date.now() }) {
   if (!/^run-[a-zA-Z0-9]+$/.test(pointer.run)) throw new Error('Invalid latest pointer');
   const directory = join(state, pointer.run); await secureDirectory(directory);
   const proof = JSON.parse(await regular(join(directory, 'proof.json'))), current = await captureSource(root);
-  if (proof.schema !== 1 || proof.project !== plan.project || proof.repository !== root || proof.status !== 'passed' || !Array.isArray(proof.errors) || proof.errors.length || !proof.cleanup?.passed || !proof.cleanup.payloadRemoved || !same(proof.source, current) || !same(proof.sourceAfter, current) || proof.planHash !== hash(json(plan))) throw new Error('Proof failed or source/plan changed');
+  if (proof.schema !== 1 || proof.project !== plan.project || proof.repository !== root || proof.status !== 'passed' || !Array.isArray(proof.errors) || proof.errors.length || !proof.cleanup?.passed || proof.cleanup.buildGroupsExited !== true || !proof.cleanup.payloadRemoved || !same(proof.source, current) || !same(proof.sourceAfter, current) || proof.planHash !== hash(json(plan))) throw new Error('Proof failed or source/plan changed');
   const start = Date.parse(proof.startedAt), end = Date.parse(proof.finishedAt);
   if (!Number.isFinite(start) || !Number.isFinite(end) || start > end || now - end > age) throw new Error('Proof expired or invalid timestamps');
   if (end > now + 30000 || start > now + 30000) throw new Error('Proof is from the future');

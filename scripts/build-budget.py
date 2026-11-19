@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Run one Hop build at a time across checkouts and isolated HOME directories."""
+from contextlib import nullcontext
 import ctypes
 import errno
 import fcntl
@@ -8,6 +9,7 @@ import signal
 import stat
 import subprocess
 import sys
+import tempfile
 import time
 
 
@@ -106,9 +108,15 @@ def main(argv):
         signals = {signal.SIGTERM, signal.SIGINT, signal.SIGHUP}
         previous = signal.pthread_sigmask(signal.SIG_BLOCK, signals)
         try:
-            child = subprocess.Popen(limited_arguments(argv), start_new_session=True, pass_fds=(fd,),
-                                     env={**os.environ, 'HOP_BUILD_BUDGET_OWNER': str(os.getpid())},
-                                     preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, previous))
+            groups = os.environ.get('HOP_BUILD_GROUP_DIRECTORY')
+            # An empty receipt means launch was interrupted before the group was known.
+            receipt = tempfile.NamedTemporaryFile(mode='w', dir=groups, prefix='group-', delete=False) if groups else nullcontext()
+            with receipt as record:
+                child = subprocess.Popen(limited_arguments(argv), start_new_session=True, pass_fds=(fd,),
+                                         env={**os.environ, 'HOP_BUILD_BUDGET_OWNER': str(os.getpid())},
+                                         preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, previous))
+                if record:
+                    print(child.pid, file=record, flush=True)
         finally:
             signal.pthread_sigmask(signal.SIG_SETMASK, previous)
         while not exited_without_reaping(child.pid):
