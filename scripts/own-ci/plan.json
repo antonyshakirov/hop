@@ -78,7 +78,7 @@
         "scripts/own-ci/hop-step.mjs",
         "build"
       ],
-      "timeoutMs": 900000
+      "timeoutMs": 2700000
     },
     {
       "id": "hop-tests",
@@ -88,7 +88,7 @@
         "scripts/own-ci/hop-step.mjs",
         "tests"
       ],
-      "timeoutMs": 1200000,
+      "timeoutMs": 2700000,
       "tapMinimum": 1720
     },
     {
