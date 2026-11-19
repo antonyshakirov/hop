@@ -54,7 +54,6 @@ final class AgentAudioBridgeTests: XCTestCase {
     @MainActor
     private final class Fixture {
         let hardware = Hardware(), session = Session(), access = Access()
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let suite = "HopTests.AgentAudio." + UUID().uuidString
         let defaults: UserDefaults
         let sound: SoundController, mixer: SoundMixerController, call: SoundCallMixController
@@ -68,9 +67,15 @@ final class AgentAudioBridgeTests: XCTestCase {
             let access = access
             call = SoundCallMixController(enabled: true, session: session, access: { access.asked += 1; access.answer = $0 })
             model = AppModel(preview: true, soundController: sound, mixerController: mixer, callController: call, soundEnabled: { true })
-            bridge = AgentBridge(directory: root)
+            let unusedDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            bridge = AgentBridge(directory: unusedDirectory)
         }
-        func cleanup() { call.stop(); mixer.stop(); sound.close(); defaults.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: root) }
+        func cleanup() {
+            call.stop()
+            mixer.stop()
+            sound.close()
+            defaults.removePersistentDomain(forName: suite)
+        }
         func command(_ value: [String: Any]) throws -> AgentAudioCommand {
             let now = Date(), iso = ISO8601DateFormatter()
             let data = try JSONSerialization.data(withJSONObject: ["schemaVersion": 2, "id": UUID().uuidString.lowercased(),
