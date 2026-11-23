@@ -8,8 +8,9 @@ merged. The same rules apply to every commit in the repository.
 - Branch from `dev` and open the pull request against `dev`. `main` holds
   released versions only.
 - Run `./scripts/checks.sh`. It builds with warnings treated as errors, runs
-  the tests and the self-tests, and checks the translations. CI runs the same
-  script.
+  the tests and the self-tests, and checks the translations. A change inside
+  one feature runs that feature's tests plus the launch, update and signing
+  baseline; shared code runs everything ([scoped checks](docs/local-verification/README.md#scoped-checks)).
 - Try the change in the dev build: `./scripts/build-app.sh --install --dev`
   installs `Hop Dev.app` next to the released app.
 - Keep one topic per pull request. An unrelated fix goes into its own.

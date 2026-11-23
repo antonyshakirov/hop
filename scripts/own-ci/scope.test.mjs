@@ -1,0 +1,89 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { scopedPlan, selectScope, validateScope } from './scope.mjs';
+
+const config = JSON.parse(readFileSync(new URL('./scope.json', import.meta.url), 'utf8'));
+const plan = JSON.parse(readFileSync(new URL('./plan.json', import.meta.url), 'utf8'));
+const plist = version => `<dict>\n<key>CFBundleShortVersionString</key>\n<string>${version}</string>\n<key>CFBundleVersion</key>\n<string>${version}</string>\n</dict>`;
+const testFile = (path, body = `final class ${path.split('/').at(-1).replace('.swift', '')}: XCTestCase {}`) => [path, body];
+const sources = new Map([
+  ...config.baseline.map(path => testFile(path)),
+  testFile('Tests/HopUITests/CoolingControllerTests.swift'),
+  testFile('Tests/HopCoreTests/AwakeCountdownTests.swift'),
+  testFile('Tests/HopUITests/SoundMixerPresetsTests.swift'),
+  testFile('Tests/HopCoreTests/TimerEngineTests.swift', 'final class TimerEngineTests: XCTestCase {}\nfinal class TimeFormattingTests: XCTestCase {}'),
+  testFile('Tests/HopUITests/ReleaseCopyLayoutTests.swift'),
+  testFile('Tests/HopUITests/TestSupport.swift', 'extension XCTestCase {}'),
+  testFile('Tests/HopUITests/SettingsModuleGroupsTests.swift'),
+  testFile('Tests/HopHardwareTests/HardwareFanCurveTests.swift'),
+  testFile('Tests/HopUITests/MenuOrderTests.swift', 'final class MenuOrderTests: MenuTestCase {}'),
+  ['Sources/Hop/KeepAwakeController.swift', ''], ['Sources/Hop/Alerts.swift', ''], ['Sources/Hop/App.swift', ''],
+]);
+const select = (changed, { base = '2.5.6', head = '2.5.7', basePlist = plist(base), headPlist = plist(head), extra = [] } = {}) =>
+  selectScope({ config, changed, files: [...sources.keys(), ...extra], read: path => sources.get(path) ?? '', basePlist, headPlist });
+const names = selection => selection.tests.map(path => path.split('/').at(-1));
+
+test('the checked-in map and plan are valid', () => {
+  validateScope(config);
+  assert.equal(scopedPlan(plan, select([]), 'a'.repeat(40), config).steps.length, config.scopedSteps.length);
+});
+test('documentation alone runs only the launch, update and signing baseline', () => {
+  const selection = select(['docs/spec.md', 'CHANGELOG.md', 'product-spec/awake.md']);
+  assert.equal(selection.mode, 'scoped');
+  assert.deepEqual(selection.tests, [...config.baseline].sort());
+});
+test('a feature file selects its group tests and nothing unrelated', () => {
+  const selection = select(['Sources/Hop/KeepAwakeController.swift']);
+  assert.equal(selection.mode, 'scoped');
+  assert.ok(names(selection).includes('CoolingControllerTests.swift'));
+  assert.ok(names(selection).includes('AwakeCountdownTests.swift'));
+  assert.ok(!names(selection).includes('SoundMixerPresetsTests.swift'));
+  assert.ok(!names(selection).includes('TimerEngineTests.swift'));
+});
+test('every class in a selected file runs', () => {
+  const selection = select(['Sources/HopCore/TimeFormatting.swift']);
+  assert.ok(selection.classes.includes('HopCoreTests.TimeFormattingTests'));
+  assert.ok(selection.classes.includes('HopCoreTests.TimerEngineTests'));
+});
+test('shared, unmapped and untested files make the check full', () => {
+  for (const changed of ['Sources/Hop/App.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/own-ci/scope.json', 'engine/rqbit/x', 'Tests/HopCoreTests/Fixtures/a.json', 'Sources/Hop/Unknown.swift', 'notes/plan.txt', 'Sources/Hop/Sub/Thing.swift'])
+    assert.equal(select([changed]).mode, 'full', changed);
+});
+test('a prefix outside every group runs full even when a test file shares it', () => {
+  assert.equal(select(['Sources/Hop/SettingsWindowView.swift']).mode, 'full');
+});
+test('a prefix in several groups selects the tests of all of them', () => {
+  const selection = select(['Sources/HopCore/IdleWatch.swift']);
+  assert.ok(names(selection).includes('CoolingControllerTests.swift'));
+  assert.ok(names(selection).includes('HardwareFanCurveTests.swift'));
+});
+test('a selected test file with a class on another base runs full', () => {
+  assert.equal(select(['Tests/HopUITests/MenuOrderTests.swift']).mode, 'full');
+});
+test('a feature on the build-only list runs the baseline without tests of its own', () => {
+  assert.deepEqual(select(['Sources/Hop/Alerts.swift']).tests, [...config.baseline].sort());
+});
+test('a patch bump stays scoped; a minor or major release and other plist edits run in full', () => {
+  assert.equal(select(['scripts/Info.plist']).mode, 'scoped');
+  assert.ok(names(select(['scripts/Info.plist'])).includes('ReleaseCopyLayoutTests.swift'));
+  assert.equal(select(['scripts/Info.plist'], { head: '2.6.0' }).mode, 'full');
+  assert.equal(select(['scripts/Info.plist'], { head: '3.0.0' }).mode, 'full');
+  assert.equal(select(['scripts/Info.plist'], { headPlist: plist('2.5.7').replace('</dict>', '<key>LSUIElement</key><true/></dict>') }).mode, 'full');
+  assert.equal(select([], { headPlist: '' }).mode, 'full');
+});
+test('a changed test file runs itself; a deleted one is ignored; a helper without tests runs full', () => {
+  assert.ok(names(select(['Tests/HopUITests/SoundMixerPresetsTests.swift'])).includes('SoundMixerPresetsTests.swift'));
+  assert.equal(select(['Tests/HopUITests/GoneTests.swift']).mode, 'scoped');
+  assert.equal(select(['Tests/HopUITests/TestSupport.swift']).mode, 'full');
+});
+test('the scoped plan keeps the base steps, passes the classes and drops CodeQL', () => {
+  const selection = select(['Sources/Hop/KeepAwakeController.swift']);
+  const scoped = scopedPlan(plan, selection, 'b'.repeat(40), config);
+  assert.deepEqual(scoped.steps.map(step => step.id), config.scopedSteps);
+  const tests = scoped.steps.find(step => step.id === 'hop-tests');
+  assert.equal(tests.args.at(-1), '--classes=' + selection.classes.join(','));
+  assert.ok(!scoped.artifacts.some(item => item.path.startsWith('hop-codeql')));
+  assert.deepEqual(scoped.scope, { base: 'b'.repeat(40), tests: selection.tests });
+  assert.throws(() => scopedPlan(plan, { mode: 'full' }, 'b'.repeat(40), config));
+});

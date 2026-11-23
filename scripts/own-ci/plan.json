@@ -19,7 +19,7 @@
         "scripts/own-ci/engine.test.mjs"
       ],
       "timeoutMs": 120000,
-      "tapMinimum": 26
+      "tapMinimum": 28
     },
     {
       "id": "adapter-self-tests",
@@ -31,13 +31,14 @@
         "scripts/own-ci/native.test.mjs",
         "scripts/own-ci/hop-report.test.mjs",
         "scripts/own-ci/swift-test-batches.test.mjs",
+        "scripts/own-ci/scope.test.mjs",
         "scripts/own-ci/codeql.test.mjs",
         "scripts/own-ci/codeql-coverage.test.mjs",
         "scripts/own-ci/codeql-sdk-tree.test.mjs",
         "scripts/own-ci/verify-release.test.mjs"
       ],
       "timeoutMs": 900000,
-      "tapMinimum": 110
+      "tapMinimum": 120
     },
     {
       "id": "sdk-setup-self-tests",

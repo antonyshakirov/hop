@@ -7,6 +7,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:pat
 import { tmpdir } from 'node:os';
 import { finished } from 'node:stream/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { scopedPlan, selectScope, validateScope } from './scope.mjs';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
 const json = value => JSON.stringify(value);
@@ -15,6 +16,8 @@ const gitEnv = { PATH: process.env.PATH, LANG: 'C', TZ: 'UTC', GIT_CONFIG_GLOBAL
 const git = (root, args) => execFileSync('git', ['-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false', ...args], { cwd: root, env: gitEnv, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).trim();
 const safeRelative = value => typeof value === 'string' && !isAbsolute(value) && !value.split(/[\\/]/).includes('..') && !value.includes('\0');
 const same = (a, b) => json(a) === json(b);
+// A merge or empty commit with the proven tree reuses the proof; the pre-push hook checks its message.
+const sameContent = (a, b) => a?.tree === b?.tree && a?.sourceHash === b?.sourceHash;
 const readJson = async file => JSON.parse(await readFile(file, 'utf8'));
 async function atomic(file, value) { const tmp = file + '.' + randomBytes(8).toString('hex'); await writeFile(tmp, json(value) + '\n', { mode: 0o600, flag: 'wx' }); await rename(tmp, file); }
 async function secureDirectory(directory) {
@@ -265,7 +268,7 @@ export async function runGate({ root, state, plan }) {
   const lock = await open(lockPath, 'wx', 0o600); await lock.writeFile(json({ pid: process.pid })); await lock.close();
   const directory = await mkdtemp(join(state, 'run-'));
   await atomic(join(state, 'latest.json'), { run: directory.split('/').at(-1) });
-  const proof = { schema: 1, project: plan.project, repository: root, status: 'running', planHash: hash(json(plan)), startedAt: new Date().toISOString(), steps: [], cleanupSteps: [], errors: [] };
+  const proof = { schema: 1, project: plan.project, repository: root, status: 'running', planHash: hash(json(plan)), ...(plan.scope ? { scope: plan.scope } : {}), startedAt: new Date().toISOString(), steps: [], cleanupSteps: [], errors: [] };
   const workspace = join(directory, 'workspace');
   const variables = { run: directory, workspace, node: process.execPath, npm: await realpath(join(dirname(process.execPath), 'npm')) };
   const configured = commands(plan, variables), env = environment(plan, variables, state);
@@ -346,7 +349,7 @@ export async function verifyGate({ root, state, plan, now = Date.now() }) {
   if (!/^run-[a-zA-Z0-9]+$/.test(pointer.run)) throw new Error('Invalid latest pointer');
   const directory = join(state, pointer.run); await secureDirectory(directory);
   const proof = JSON.parse(await regular(join(directory, 'proof.json'))), current = await captureSource(root);
-  if (proof.schema !== 1 || proof.project !== plan.project || proof.repository !== root || proof.status !== 'passed' || !Array.isArray(proof.errors) || proof.errors.length || !proof.cleanup?.passed || proof.cleanup.buildGroupsExited !== true || !proof.cleanup.payloadRemoved || !same(proof.source, current) || !same(proof.sourceAfter, current) || proof.planHash !== hash(json(plan))) throw new Error('Proof failed or source/plan changed');
+  if (proof.schema !== 1 || proof.project !== plan.project || proof.repository !== root || proof.status !== 'passed' || !Array.isArray(proof.errors) || proof.errors.length || !proof.cleanup?.passed || proof.cleanup.buildGroupsExited !== true || !proof.cleanup.payloadRemoved || !sameContent(proof.source, current) || !sameContent(proof.sourceAfter, current) || proof.planHash !== hash(json(plan))) throw new Error('Proof failed or source/plan changed');
   const start = Date.parse(proof.startedAt), end = Date.parse(proof.finishedAt);
   if (!Number.isFinite(start) || !Number.isFinite(end) || start > end || now - end > age) throw new Error('Proof expired or invalid timestamps');
   if (end > now + 30000 || start > now + 30000) throw new Error('Proof is from the future');
@@ -371,14 +374,57 @@ export async function verifyGate({ root, state, plan, now = Date.now() }) {
   return proof;
 }
 
+const trustedBase = 'refs/remotes/origin/main';
+async function scopeFor(root, base) {
+  const config = validateScope(await readJson(join(root, 'scripts/own-ci/scope.json')));
+  const list = args => git(root, args).split('\0').filter(Boolean);
+  const show = spec => { try { return git(root, ['show', spec]); } catch { return undefined; } };
+  const selection = selectScope({
+    config,
+    changed: list(['diff', '--name-only', '--no-renames', '-z', base, 'HEAD']),
+    files: list(['ls-files', '-z']),
+    read: path => show('HEAD:' + path) ?? '',
+    basePlist: show(base + ':scripts/Info.plist'),
+    headPlist: show('HEAD:scripts/Info.plist'),
+  });
+  return { config, selection };
+}
+async function autoPlan(root, plan) {
+  let base;
+  try { base = git(root, ['merge-base', 'HEAD', trustedBase]); } catch { return { plan, reason: 'no merge base with origin/main' }; }
+  const { config, selection } = await scopeFor(root, base);
+  return selection.mode === 'scoped' ? { plan: scopedPlan(plan, selection, base, config), selection } : { plan, reason: selection.reason };
+}
+// The latest proof names the base it was scoped against; the base must sit on origin/main and under HEAD.
+export async function verifyPlan(root, state, plan) {
+  let recorded;
+  try {
+    const pointer = JSON.parse(await regular(join(state, 'latest.json')));
+    if (/^run-[a-zA-Z0-9]+$/.test(pointer.run)) recorded = JSON.parse(await regular(join(state, pointer.run, 'proof.json'))).scope?.base;
+  } catch { return plan; }
+  if (typeof recorded !== 'string' || !/^[0-9a-f]{40}$/.test(recorded)) return plan;
+  try { git(root, ['merge-base', '--is-ancestor', recorded, trustedBase]); git(root, ['merge-base', '--is-ancestor', recorded, 'HEAD']); } catch { throw new Error('Scoped proof base is not on origin/main and HEAD'); }
+  const { config, selection } = await scopeFor(root, recorded);
+  if (selection.mode !== 'scoped') throw new Error('Changes now need the full check: ' + selection.reason);
+  return scopedPlan(plan, selection, recorded, config);
+}
+
 async function cli() {
   if (Number(process.versions.node.split('.')[0]) !== 22 || !process.getuid) throw new Error('Own checks require Node22 on POSIX');
   const root = await realpath(join(dirname(fileURLToPath(import.meta.url)), '../..'));
   const state = join(await realpath(tmpdir()), 'own-checks-' + process.getuid() + '-' + hash(root).slice(0, 20));
-  const plan = await readJson(join(root, 'scripts/own-ci/plan.json'));
-  if (process.argv.length > 3 || process.argv[2] && process.argv[2] !== '--verify') throw new Error('Usage: scripts/check-release [--verify]');
-  const proof = process.argv[2] ? await verifyGate({ root, state, plan }) : await runGate({ root, state, plan });
-  console.log(json({ status: proof.status, source: proof.source, state, finishedAt: proof.finishedAt, errors: proof.errors }));
+  const full = await readJson(join(root, 'scripts/own-ci/plan.json'));
+  const flag = process.argv[2];
+  if (process.argv.length > 3 || flag && !['--verify', '--verify-full', '--auto'].includes(flag)) throw new Error('Usage: scripts/check-release [--verify|--verify-full|--auto]');
+  let proof;
+  if (flag === '--verify') proof = await verifyGate({ root, state, plan: await verifyPlan(root, state, full) });
+  else if (flag === '--verify-full') proof = await verifyGate({ root, state, plan: full });
+  else {
+    const chosen = flag === '--auto' ? await autoPlan(root, full) : { plan: full, reason: 'requested' };
+    console.log('[own-checks] ' + (chosen.selection ? 'scoped: ' + chosen.selection.tests.length + ' test files' : 'full: ' + chosen.reason));
+    proof = await runGate({ root, state, plan: chosen.plan });
+  }
+  console.log(json({ status: proof.status, scope: proof.scope ? 'scoped' : 'full', source: proof.source, state, finishedAt: proof.finishedAt, errors: proof.errors }));
   if (proof.status !== 'passed') process.exitCode = 1;
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) cli().catch(e => { console.error('[own-checks] ' + e.message); process.exitCode = 1; });
