@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.7**
+
+- Saat tutup ditutup dan layar mati, Awake dan sakelar tutup tidak lagi mati setelah sekitar satu setengah menit. Jika pengaman mematikan sakelar tutup, Awake tetap berjalan.
+
 **2.5.6**
 
 - Memulai mixer audio dan menghentikan Hop Mix tidak lagi menahan Hop. Mixer menunjukkan proses mulai sejak diklik.

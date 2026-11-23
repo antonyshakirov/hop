@@ -30,7 +30,7 @@ final class KeepAwakeController: ObservableObject {
     private var updateLease: AwakeUpdateHandoff.Lease?
     private var inheritedHandoffID: UUID?
 
-    @Published private(set) var isActive = false
+    @Published private(set) var isActive = false { didSet { syncAppNap() } }
     @Published private(set) var selected: Option?
     @Published private(set) var until: Date?
     @Published private(set) var heartbeat = Date()
@@ -41,8 +41,8 @@ final class KeepAwakeController: ObservableObject {
     private var assertionID: IOPMAssertionID = 0
     private var hasAssertion = false
     /// Lid mode — visible to the UI: laptop icon in the module row.
-    @Published private(set) var lidApplied = false
-    @Published private(set) var lidChanging = false
+    @Published private(set) var lidApplied = false { didSet { syncAppNap() } }
+    @Published private(set) var lidChanging = false { didSet { syncAppNap() } }
     @Published private(set) var pendingLidTarget: Bool?
     @Published private(set) var lidFailure: HardwareReason?
     private var lidOperation = UUID()
@@ -54,18 +54,24 @@ final class KeepAwakeController: ObservableObject {
     private let lidDimmer = LidDisplayController()
     private var ticker: Timer?
     private var terminateObserver: NSObjectProtocol?
+    /// Nil in the onboarding preview, which must not change how macOS treats Hop.
+    private var napGuard: AppNapGuard?
 
     /// Preview: the row shows the module ON, without holding a real power
     /// assertion or making a sound.
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
-    init(demo: Bool, protectedLid: ((Bool, Date?) async throws -> Bool)? = nil) {
+    init(demo: Bool, protectedLid: ((Bool, Date?) async throws -> Bool)? = nil,
+         napGuard: AppNapGuard? = nil) {
         if let protectedLid { self.protectedLid = protectedLid }
+        self.napGuard = napGuard
         isActive = true
         selected = Self.options.first { $0.label == "4h" }
         until = Date().addingTimeInterval(4 * 3600)
+        syncAppNap()
     }
 
     init() {
+        napGuard = AppNapGuard(reason: "Hop — keep awake")
         LidDimmer.restorePendingAtLaunch()
         let resume = Self.takeResume()
         let now = Date()
@@ -98,12 +104,7 @@ final class KeepAwakeController: ObservableObject {
         if lidApplied && !isActive {
             revertLidIfPending()
         }
-        CoolingController.shared.lidDidStop = { [weak self] reason in
-            guard let self else { return }
-            self.lidApplied = false
-            self.updateLidDimmer()
-            if let reason, reason != .stopped, self.isActive { self.deactivate() }
-        }
+        observeLidStops(CoolingController.shared)
         // safety net: on app exit, release the assertion and restore lid sleep
         terminateObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.willTerminateNotification,
@@ -119,9 +120,24 @@ final class KeepAwakeController: ObservableObject {
                 }
             }
         }
+        syncAppNap()
     }
 
     var hasModuleWork: Bool { isActive || lidApplied || lidChanging }
+
+    private func syncAppNap() { napGuard?.hold(hasModuleWork) }
+
+    /// The service ended the lid override on its own: expiry, idle release or a
+    /// safety cutoff. Awake is an independent control and keeps running.
+    // SPEC: docs/spec.md — Lid and Awake are independent.
+    func observeLidStops(_ cooling: CoolingController) {
+        cooling.lidDidStop = { [weak self] _ in self?.lidServiceStopped() }
+    }
+
+    func lidServiceStopped() {
+        lidApplied = false
+        updateLidDimmer()
+    }
 
     // SPEC: docs/spec.md — Protected lid sessions, the indicator follows the click.
     var lidShown: Bool { pendingLidTarget ?? lidApplied }

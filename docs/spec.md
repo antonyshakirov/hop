@@ -1207,6 +1207,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   service. The service independently ends Hop's lid override on battery at
   10% or less, serious/critical macOS thermal pressure, session expiry, or
   90 seconds without a heartbeat. AC power is not a low-battery condition.
+  While a lease, fan takeover or Awake is active, the app holds a
+  user-initiated activity that allows idle system sleep, so App Nap cannot
+  delay the 20-second renewal with the lid closed and the display off
+  (`AwakeBackgroundTests`, `CoolingControllerTests`).
   A cutoff restores only Hop-owned changes and does not automatically rearm.
   Failure to restore remains visible and is retried; a pending recovery record
   survives helper restart. Ordinary keep-awake needs no helper. Screen locking
@@ -1261,7 +1265,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   expiring its timer, or changing its duration does not release or retime the lid
   lease. The lid indicator shows the requested state immediately and returns to
   the confirmed state if the service refuses. Explicit lid-off and quitting release its override.
-  Safety cutoffs remain independent of both UI controls.
+  Safety cutoffs remain independent of both UI controls: a cutoff, expiry or idle
+  release of the lid lease leaves Awake and its deadline unchanged.
   Disabling the whole Awake module confirms active or pending lid work and
   explicitly releases both controls, including a pending enable reply.
 - **Ordinary idle release — Anton, 2026-11-17.** While the lid is closed,

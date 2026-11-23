@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.7**
+
+- Con il coperchio chiuso e lo schermo spento, Awake e il pulsante del coperchio non si spengono più dopo circa un minuto e mezzo. Se una protezione spegne il pulsante del coperchio, Awake continua a funzionare.
+
 **2.5.6**
 
 - Avviare il mixer audio e fermare Hop Mix non bloccano più Hop. Il mixer mostra l’avvio dal clic.

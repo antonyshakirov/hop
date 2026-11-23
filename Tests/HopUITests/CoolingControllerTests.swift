@@ -567,7 +567,8 @@ final class CoolingControllerTests: XCTestCase {
     private func settle() async { for _ in 0..<50 { await Task.yield() } }
 
     private func fixture(persistenceSucceeds: Bool = true, openSettings: @escaping () -> Void = {},
-                         observing: NotificationCenter? = nil) throws -> (CoolingController, ClientService) {
+                         observing: NotificationCenter? = nil,
+                         napGuard: AppNapGuard? = nil) throws -> (CoolingController, ClientService) {
         let defaults = UserDefaults.standard
         let keys = ["hardwareUpdateTransaction", "hardwareUpdateUnregistered"]
         let saved = keys.map { defaults.object(forKey: $0) }
@@ -579,7 +580,7 @@ final class CoolingControllerTests: XCTestCase {
         let controller = CoolingController(service: service,
             lockFactory: { try AppProcessLock(directory: directory, name: "hardware") },
             persistPreferences: { persistenceSucceeds }, openSettings: openSettings,
-            notificationCenter: observing ?? .default)
+            notificationCenter: observing ?? .default, napGuard: napGuard)
         addTeardownBlock { @MainActor in
             controller.close(); service.invalidate()
             for (key, value) in zip(keys, saved) {
@@ -609,6 +610,36 @@ final class CoolingControllerTests: XCTestCase {
         XCTAssertEqual(controller.lastStopReason, .battery)
         await controller.refresh()
         XCTAssertEqual(service.calls.filter { $0 == .configure }.count, 1)
+    }
+
+    func testALiveLeaseKeepsHopOutOfAppNapUntilTheServiceEndsIt() async throws {
+        var begun = 0, ended = 0
+        let napGuard = AppNapGuard(reason: "test", begin: { begun += 1; return NSObject() }, end: { _ in ended += 1 })
+        let (controller, service) = try fixture(napGuard: napGuard)
+        try await controller.setLid(true, until: nil)
+        XCTAssertTrue(napGuard.isHeld)
+        service.hardware.reading.onBattery = true; service.hardware.reading.batteryPercent = 10
+        service.root.tick()
+        controller.open()
+        await controller.refresh()
+        XCTAssertFalse(controller.snapshot.active)
+        XCTAssertFalse(napGuard.isHeld)
+        XCTAssertEqual(begun, 1); XCTAssertEqual(ended, 1)
+    }
+
+    func testABatteryCutoffOfTheLidLeaseLeavesAwakeRunning() async throws {
+        let (controller, service) = try fixture()
+        let awake = KeepAwakeController(demo: true)
+        let deadline = awake.until
+        awake.observeLidStops(controller)
+        try await controller.setLid(true, until: nil)
+        service.hardware.reading.onBattery = true; service.hardware.reading.batteryPercent = 10
+        service.root.tick()
+        controller.open()
+        await controller.refresh()
+        XCTAssertFalse(controller.snapshot.lid)
+        XCTAssertTrue(awake.isActive)
+        XCTAssertEqual(awake.until, deadline)
     }
 
     func testApprovalFailureNeverClaimsLidOrTouchesHardware() async throws {

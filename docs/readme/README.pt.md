@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.7**
+
+- Com a tampa fechada e o ecrã apagado, o Awake e o botão da tampa já não se desligam ao fim de um minuto e meio. Se uma proteção desligar o botão da tampa, o Awake continua a funcionar.
+
 **2.5.6**
 
 - Iniciar o misturador de áudio e parar o Hop Mix já não param o Hop. O misturador mostra o arranque desde o clique.

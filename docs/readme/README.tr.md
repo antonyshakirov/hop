@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.7**
+
+- Kapak kapalı ve ekran kararmışken Awake ve kapak düğmesi artık yaklaşık bir buçuk dakika sonra kapanmaz. Bir güvenlik önlemi kapak düğmesini kapatırsa Awake çalışmaya devam eder.
+
 **2.5.6**
 
 - Ses mikserini başlatmak ve Hop Mix’i durdurmak artık Hop’u durdurmaz. Mikser tıklar tıklamaz başladığını gösterir.

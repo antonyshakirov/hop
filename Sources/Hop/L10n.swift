@@ -588,6 +588,35 @@ enum L10n {
         return patchNewsText(text, lang: lang)
     }
 
+    static func patch257Text(_ lang: AppLanguage) -> [String] {
+        let text: [String]
+        switch lang {
+        case .en: text = ["With the lid closed and the screen off, Awake and the lid switch no longer turn off after 90 seconds. If a safeguard turns the lid switch off, Awake keeps running."]
+        case .ru: text = ["При закрытой крышке и погасшем экране Awake и кнопка крышки больше не выключаются через полторы минуты. Если защита выключает кнопку крышки, Awake продолжает работать."]
+        case .de: text = ["Bei zugeklapptem Deckel und dunklem Bildschirm gehen Awake und Deckelmodus nicht mehr nach etwa anderthalb Minuten aus. Schaltet ein Schutz den Deckelmodus ab, läuft Awake weiter."]
+        case .es: text = ["Con la tapa cerrada y la pantalla apagada, Awake y el botón de la tapa ya no se apagan al cabo de un minuto y medio. Si una protección apaga el botón de la tapa, Awake sigue funcionando."]
+        case .pt: text = ["Com a tampa fechada e o ecrã apagado, o Awake e o botão da tampa já não se desligam ao fim de um minuto e meio. Se uma proteção desligar o botão da tampa, o Awake continua a funcionar."]
+        case .fr: text = ["Capot fermé et écran éteint, Awake et le bouton du capot ne s’arrêtent plus au bout d’une minute et demie. Si une protection désactive le bouton du capot, Awake continue."]
+        case .it: text = ["Con il coperchio chiuso e lo schermo spento, Awake e il pulsante del coperchio non si spengono più dopo circa un minuto e mezzo. Se una protezione spegne il pulsante del coperchio, Awake continua a funzionare."]
+        case .zh: text = ["合上盖子、屏幕熄灭后，Awake 和合盖开关不再在约一分半钟后自动关闭。安全保护关闭合盖开关时，Awake 继续运行。"]
+        case .ja: text = ["ふたを閉じて画面が消えても、Awake とふたのスイッチが約1分半でオフになることはなくなりました。保護機能がふたのスイッチをオフにしても、Awake は動き続けます。"]
+        case .nl: text = ["Met het deksel dicht en het scherm uit gaan Awake en de dekselschakelaar niet meer na ongeveer anderhalve minuut uit. Zet een beveiliging de dekselschakelaar uit, dan blijft Awake draaien."]
+        case .ko: text = ["덮개를 닫고 화면이 꺼져도 Awake와 덮개 스위치가 약 1분 30초 뒤에 꺼지지 않습니다. 보호 기능이 덮개 스위치를 꺼도 Awake는 계속 작동합니다."]
+        case .th: text = ["เมื่อปิดฝาและหน้าจอดับ Awake และสวิตช์ฝาเครื่องจะไม่ปิดเองหลังผ่านไปราวหนึ่งนาทีครึ่งอีกต่อไป เมื่อระบบป้องกันปิดสวิตช์ฝาเครื่อง Awake ยังทำงานต่อ"]
+        case .vi: text = ["Khi gập nắp và màn hình tắt, Awake và nút nắp máy không còn tự tắt sau khoảng một phút rưỡi. Khi cơ chế bảo vệ tắt nút nắp máy, Awake vẫn tiếp tục chạy."]
+        case .hi: text = ["ढक्कन बंद और स्क्रीन बंद होने पर Awake और ढक्कन का स्विच अब लगभग डेढ़ मिनट बाद बंद नहीं होते। सुरक्षा व्यवस्था ढक्कन का स्विच बंद करे, तब भी Awake चलता रहता है।"]
+        case .id: text = ["Saat tutup ditutup dan layar mati, Awake dan sakelar tutup tidak lagi mati setelah sekitar satu setengah menit. Jika pengaman mematikan sakelar tutup, Awake tetap berjalan."]
+        case .tr: text = ["Kapak kapalı ve ekran kararmışken Awake ve kapak düğmesi artık yaklaşık bir buçuk dakika sonra kapanmaz. Bir güvenlik önlemi kapak düğmesini kapatırsa Awake çalışmaya devam eder."]
+        case .pl: text = ["Przy zamkniętej pokrywie i wygaszonym ekranie Awake i przełącznik pokrywy nie wyłączają się już po około półtorej minuty. Gdy zabezpieczenie wyłączy przełącznik pokrywy, Awake działa dalej."]
+        case .ar: text = ["مع إغلاق الغطاء وإطفاء الشاشة، لم يعد Awake ومفتاح الغطاء يتوقفان بعد نحو دقيقة ونصف. وإذا أوقفت الحماية مفتاح الغطاء، يواصل Awake العمل."]
+        case .he: text = ["כשהמכסה סגור והמסך כבוי, Awake ומתג המכסה כבר לא נכבים אחרי כדקה וחצי. כשהגנה מכבה את מתג המכסה, Awake ממשיך לפעול."]
+        case .fa: text = ["با درِ بسته و صفحهٔ خاموش، Awake و کلید درِ دستگاه دیگر پس از حدود یک دقیقه و نیم خاموش نمی‌شوند. اگر محافظ، کلید در را خاموش کند، Awake به کار ادامه می‌دهد."]
+        case .ur: text = ["ڈھکن بند اور اسکرین بند ہونے پر Awake اور ڈھکن کا سوئچ اب تقریباً ڈیڑھ منٹ بعد بند نہیں ہوتے۔ حفاظتی نظام ڈھکن کا سوئچ بند کرے تو بھی Awake چلتا رہتا ہے۔"]
+        case .sr: text = ["Са затвореним поклопцем и угашеним екраном, Awake и прекидач поклопца се више не искључују после око минут и по. Када заштита искључи прекидач поклопца, Awake наставља да ради."]
+        }
+        return text.map { patchNewsText($0, lang: lang) }
+    }
+
     static func patch256Text(_ lang: AppLanguage) -> [String] {
         let text: [String]
         switch lang {
@@ -676,7 +705,8 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.6 – 2026-11-18\n\n" + patch256Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+        "2.5.7 – 2026-11-23\n\n" + patch257Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+            + "2.5.6 – 2026-11-18\n\n" + patch256Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.5 – 2026-11-18\n\n" + patch255Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.4 – 2026-11-18\n\n• " + patch254Text(lang) + "\n\n"
             + "2.5.3 – 2026-11-18\n\n" + patch253Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"

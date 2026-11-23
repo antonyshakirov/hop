@@ -1,5 +1,9 @@
 # Hop - version history
 
+## 2.5.7 - 2026-11-23
+
+- With the lid closed and the screen off, Awake and the lid switch no longer turn off after 90 seconds. If a safeguard turns the lid switch off, Awake keeps running.
+
 ## 2.5.6 - 2026-11-18
 
 - Starting the audio mixer and stopping Hop Mix no longer pause Hop. The mixer shows that it is starting from the click.
