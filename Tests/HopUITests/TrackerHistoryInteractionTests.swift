@@ -251,7 +251,9 @@ final class TrackerHistoryInteractionTests: XCTestCase {
             directory = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
             tracker = TrackerController(storeDir: directory)
             task = tracker.engine.addTask(name: "Recorded session")
-            start = Calendar.current.date(bySettingHour: 9, minute: 17, second: 37, of: Date())!.addingTimeInterval(0.375)
+            // Yesterday: a 9:17 session dated today lies in the future before 9:17.
+            let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+            start = Calendar.current.date(bySettingHour: 9, minute: 17, second: 37, of: yesterday)!.addingTimeInterval(0.375)
             if running { tracker.engine.start(taskID: task) }
             else { tracker.engine.addSession(taskID: task, seconds: 600, startingAt: start) }
             UserDefaults.standard.set(dark ? "dark" : "light", forKey: Theme.themeKey)
