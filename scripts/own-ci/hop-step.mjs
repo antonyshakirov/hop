@@ -10,10 +10,12 @@ import { runCodeql } from './codeql.mjs';
 import { swiftTestBatches, summarizeTestBatches, validateMessages, parsePreparingVersion } from './hop-report.mjs';
 
 const mode = process.argv[2];
-if (process.platform !== 'darwin' || process.argv.length !== 3 || !['toolchain', 'messages', 'build', 'tests', 'canvas', 'export', 'live', 'translations', 'version', 'codeql'].includes(mode)) throw new Error('Usage on macOS: hop-step.mjs toolchain|messages|build|tests|canvas|export|live|translations|version|codeql');
+// Scoped checks pass the selected suites; a full run passes none.
+const scopedClasses = mode === 'tests' && process.argv[3]?.startsWith('--classes=') ? process.argv[3].slice(10).split(',') : undefined;
+if (process.platform !== 'darwin' || process.argv.length !== (scopedClasses ? 4 : 3) || !['toolchain', 'messages', 'build', 'tests', 'canvas', 'export', 'live', 'translations', 'version', 'codeql'].includes(mode)) throw new Error('Usage on macOS: hop-step.mjs toolchain|messages|build|tests [--classes=A,B]|canvas|export|live|translations|version|codeql');
 // Keep the budget for the entire step, including CodeQL tracing and finalization.
 if (['build', 'tests', 'codeql'].includes(mode) && process.env.HOP_BUILD_BUDGET_OWNER !== String(process.ppid)) {
-  const child = spawn('/usr/bin/python3', ['-B', fileURLToPath(new URL('../build-budget.py', import.meta.url)), process.execPath, fileURLToPath(import.meta.url), mode], { stdio: 'inherit' });
+  const child = spawn('/usr/bin/python3', ['-B', fileURLToPath(new URL('../build-budget.py', import.meta.url)), process.execPath, fileURLToPath(import.meta.url), ...process.argv.slice(2)], { stdio: 'inherit' });
   for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP']) process.on(signal, () => child.kill(signal));
   child.once('error', error => { console.error(error.message); process.exitCode = 1; });
   const result = await new Promise(resolve => child.once('close', (code, signal) => resolve({ code, signal })));
@@ -85,13 +87,13 @@ if (mode === 'messages') {
   const list = await command(swiftExecutable, ['test', ...swiftArguments, 'list']);
   await writeFile('hop-test-discovery.txt', list.stdout, { flag: 'wx', mode: 0o600 });
   const reports = [];
-  for (const batch of swiftTestBatches(list.stdout)) {
+  for (const batch of swiftTestBatches(list.stdout, undefined, scopedClasses)) {
     console.log('Swift test batch: ' + batch.id);
     const result = await command(swiftExecutable, ['test', ...swiftArguments, '--skip-build', '--filter', batch.filter]);
     reports.push({ id: batch.id, output: result.stdout + result.stderr });
   }
   await writeFile('hop-test-output.txt', reports.map(report => report.output).join('\n'), { flag: 'wx', mode: 0o600 });
-  const summary = summarizeTestBatches(list.stdout, reports);
+  const summary = summarizeTestBatches(list.stdout, reports, undefined, scopedClasses);
   await writeFile('hop-test-summary.json', JSON.stringify(summary) + '\n', { flag: 'wx', mode: 0o600 });
   console.log(`1..${summary.passed}\n# tests ${summary.passed}\n# fail 0\n# skipped 0`);
 } else if (mode === 'codeql') {

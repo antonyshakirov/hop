@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "note": "Maps changed files to the Swift test files a scoped check runs. Rules apply in order: docs, paths, full, then the feature prefix of the file name, which must belong to a group or to buildOnly. A file no rule covers makes the check full. See docs/local-verification/README.md#scoped-checks.",
+  "docs": [
+    "docs/**", "product-spec/**", "*.md", "LICENSE", ".github/FUNDING.yml"
+  ],
+  "paths": [
+    { "match": "scripts/Info.plist", "group": "release" },
+    { "match": "Sources/Hop/AppNapGuard.swift", "group": "awake" },
+    { "match": "Sources/HopAudioDSP/**", "group": "sound" },
+    { "match": "Sources/HopAudioEngine/**", "group": "sound" },
+    { "match": "Sources/HopAudioWorker/**", "group": "sound" },
+    { "match": "Sources/HopHardwareKit/**", "group": "hardware", "also": ["Tests/HopHardwareTests/*", "Tests/HopUITests/Cooling*", "Tests/HopUITests/LidDisplay*", "Tests/HopUITests/ProtectedLid*"] },
+    { "match": "Sources/HopPluginAPI/**", "group": "plugin" },
+    { "match": "Sources/HopPluginProcess/**", "group": "plugin" },
+    { "match": "Sources/HopPluginRuntime/**", "group": "plugin" },
+    { "match": "Sources/Hop/ScreenAnnotateController.swift", "group": "markup" },
+    { "match": "Sources/HopCore/AppUninstall.swift", "group": "uninstall", "also": ["Tests/*/AppUninstall*"] }
+  ],
+  "full": [
+    "Package.swift", "Package.resolved", "scripts/**", "engine/**", "assets/**",
+    "Sources/HopHardwareHelper/**", "Sources/HopNetFilter/**",
+    "Sources/Hop/App.swift", "Sources/Hop/AppModel.swift", "Sources/Hop/AppRelaunch.swift",
+    "Sources/Hop/Controls.swift", "Sources/Hop/Theme.swift", "Sources/Hop/StatusItemController.swift",
+    "Sources/Hop/SoleInstance.swift", "Sources/Hop/URLSessionTransport.swift",
+    "Sources/Hop/ModuleActivation.swift", "Sources/Hop/ModulePresentation.swift",
+    "Sources/HopCore/ModuleCatalog.swift", "Sources/Hop/HotkeyManager.swift",
+    "Tests/*/Fixtures/**", "Tests/HopUITests/PluginFixtures/**"
+  ],
+  "groups": {
+    "awake": ["Keep", "Awake", "Cooling", "Lid", "Protected", "Idle"],
+    "hardware": ["Hardware", "Fan", "SMC", "Idle", "Battery", "Low", "Thermal", "Power"],
+    "sound": ["Sound", "Sounds", "Noise", "Media", "Onboarding"],
+    "timer": ["Time", "Timer", "Leftover", "Remind", "Reminder", "Clock", "Steady", "Duration"],
+    "release": ["L10n", "Language", "Layout", "Release", "Patch", "Hotfix"],
+    "permission": ["Permission", "Permissions", "Accessibility"],
+    "torrent": ["Torrent", "Rqbit", "Seed"],
+    "markup": ["Markup", "Shot", "Crop", "Hold", "Fading", "Frame", "Watermark", "Capture", "Screenshot", "Live", "Backdrop", "Hand"],
+    "clipboard": ["Clipboard", "Paste"],
+    "convert": ["Convert", "Converter", "File", "Document", "HTML", "Markdown", "I", "PDF", "Page", "Remux", "Video", "Image", "Archive", "Finder"],
+    "panel": ["Panel", "Space"],
+    "network": ["Network", "VPN", "Tunnel", "Speed"],
+    "update": ["Update", "Mirror", "Download", "Installer", "Package", "Tool"],
+    "todos": ["Todos", "Todo", "Task"],
+    "menu": ["Menu", "System", "Dot"],
+    "plugin": ["Plugin"],
+    "tracker": ["Tracker"],
+    "agent": ["Agent"],
+    "color": ["Color"],
+    "hotkey": ["Hotkey", "Key"],
+    "keyboard": ["Keyboard"],
+    "screentext": ["Screen"],
+    "uninstall": ["Uninstall"]
+  },
+  "buildOnly": ["Alerts", "Help", "Interface", "Quit", "Snapshot", "Stats", "Tools", "Window"],
+  "baseline": [
+    "Tests/HopUITests/UpdateSafetyTests.swift",
+    "Tests/HopUITests/UpdateBundleSwapTests.swift",
+    "Tests/HopUITests/AppProcessLockTests.swift",
+    "Tests/HopCoreTests/SigningTests.swift",
+    "Tests/HopCoreTests/UpdatePolicyTests.swift",
+    "Tests/HopCoreTests/LaunchGuardTests.swift"
+  ],
+  "scopedSteps": ["hop-toolchain", "hop-messages", "hop-build", "hop-tests", "hop-canvas", "hop-export", "hop-live", "hop-translations", "hop-version"]
+}

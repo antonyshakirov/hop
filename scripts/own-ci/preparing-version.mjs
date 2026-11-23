@@ -4,7 +4,7 @@ import { open, readFile, realpath } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { captureSource, verifyGate } from './engine.mjs';
+import { captureSource, verifyGate, verifyPlan } from './engine.mjs';
 import { parsePreparingVersion } from './hop-report.mjs';
 
 // Release packaging consumes the version checked inside the isolated build.
@@ -14,7 +14,7 @@ const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const root = await realpath(join(dirname(fileURLToPath(import.meta.url)), '../..'));
 const state = join(await realpath(tmpdir()), 'own-checks-' + process.getuid() + '-' + digest(root).slice(0, 20));
 const plan = JSON.parse(await readFile(join(root, 'scripts/own-ci/plan.json'), 'utf8'));
-const proof = await verifyGate({ root, state, plan });
+const proof = await verifyGate({ root, state, plan: await verifyPlan(root, state, plan) });
 const pointer = JSON.parse(await boundedOwnedFile(join(state, 'latest.json')));
 if (!/^run-[a-zA-Z0-9]+$/.test(pointer.run)) throw new Error('Invalid proof pointer');
 const artifact = proof.artifacts.find(item => item.path === 'hop-preparing-version.json');
@@ -23,7 +23,8 @@ const file = join(state, pointer.run, artifact.stored);
 if (await realpath(file) !== file) throw new Error('Linked preparing-version artifact');
 const bytes = await boundedOwnedFile(file);
 if (digest(bytes) !== artifact.hash) throw new Error('Preparing-version artifact changed');
-if (JSON.stringify(await captureSource(root)) !== JSON.stringify(proof.source)) throw new Error('Source changed after version verification');
+const after = await captureSource(root);
+if (after.tree !== proof.source.tree || after.sourceHash !== proof.source.sourceHash) throw new Error('Source changed after version verification');
 console.log(parsePreparingVersion(JSON.parse(bytes).version));
 
 

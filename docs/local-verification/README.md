@@ -1,6 +1,18 @@
 # Local verification
 
-Run `./scripts/check-release` before a pull request or release, then `./scripts/check-release --verify` immediately before publishing that exact clean commit. `scripts/checks.sh` verifies an existing fresh proof for the exact source, or runs the same complete gate when that proof is absent, stale or invalid. This avoids repeating an unchanged successful run during pre-push and release packaging; it never accepts a failed or partial report. The proof binds HEAD, tree, tracked files, plan, command exit codes, logs, artifacts and cleanup; it expires after six hours. A changed source, failed latest run, missing output, altered log or stale proof is rejected.
+Run `./scripts/check-release` before a pull request or release, then `./scripts/check-release --verify` immediately before publishing that exact clean commit. `scripts/checks.sh` verifies an existing fresh proof for the exact source, or runs the check the changed files call for when that proof is absent, stale or invalid. This avoids repeating an unchanged successful run during pre-push and release packaging; it never accepts a failed or partial report. The proof binds the tree, tracked files, plan, command exit codes, logs, artifacts and cleanup; it expires after six hours. A merge or empty commit whose tree matches the proven one reuses the proof; the pre-push hook checks its message.
+
+### Scoped checks
+
+Without arguments `scripts/checks.sh` runs `./scripts/check-release --auto`. It compares HEAD with its merge base on `origin/main` and picks the check from `scripts/own-ci/scope.json`:
+
+- Documentation alone runs the base steps and the baseline tests for launch, updates and signing.
+- A file of one feature adds the test files of that feature group. Groups join feature prefixes of file names; a prefix outside every group runs the full check, so a change to `KeepAwakeController.swift` runs the Awake, Cooling and lid tests, not the tracker or the sound mixer.
+- A changed test file runs itself.
+- A shared file (`Package.swift`, `scripts/`, the app shell, module wiring, the helper and the filter), a fixture, a file no rule covers, a feature without tests outside the build-only list, a minor or major version, or an `Info.plist` edit beyond the version runs the full check.
+- `scripts/release.sh` for a new minor or major version accepts only a full proof (`./scripts/check-release --verify-full`) and otherwise runs the full check.
+
+The scoped plan keeps the toolchain, commit messages, warning-free build, canvas, export, live-layer, translation and preparing-version steps, and runs every case of the selected test classes. It leaves out the self-tests of the check scripts and CodeQL; any change to those scripts runs in full anyway. The proof records the base. `--verify` accepts it only while that base is on `origin/main` and under HEAD and the same files still select the same plan. `./scripts/check-release` with no flag always runs the full check. A changed source, failed latest run, missing output, altered log or stale proof is rejected.
 
 Prerequisites are macOS, Node 22 with bundled npm, Xcode at `/Applications/Xcode.app`, the installed macOS 26.5 SDK, and the pinned CodeQL Swift bundle 2.27.2 with the reviewed compatibility extractor on PATH. Apple Silicon also needs Rosetta 2 for the official Intel Swift extractor. The check does not install Rosetta or accept its license.
 
@@ -62,7 +74,8 @@ startup and execution. Individual test deadlines remain unchanged.
 Every discovered case must pass exactly once in its assigned batch, and each batch
 must report successful completion. Unknown discovery entries, missing or repeated
 batches, foreign cases, failures and skips fail the gate. Filtered runs do not
-replace or reduce the complete discovery requirement.
+replace or reduce the complete discovery requirement. A scoped run requires every
+case of each selected class and fails when a selected class is not discovered.
 
 Native commands use a mandatory macOS sandbox. Only system/toolchain/verified SDK and private-run content can be read, only the run can be written, and network access is limited to loopback. HOME, Foundation home, module caches and temporary files belong to the run. Preferences and Keychain services are denied. Only the existing export self-test can contact the pasteboard service: it creates a UUID-named board, verifies its own synthetic image and releases it; it does not access the general clipboard. Other native modes deny that service too. The OS permission is service-wide, so the dedicated self-test entry point and inspected source are part of this boundary.
 

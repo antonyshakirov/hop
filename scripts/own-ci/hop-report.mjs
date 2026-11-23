@@ -25,21 +25,30 @@ export function summarizeTests(discovery, output, minimum = 1675) {
   return completedCases(discoveredCases(discovery, minimum), output, 'All tests');
 }
 
-export function swiftTestBatches(discovery, minimum = 1675) {
+export function swiftTestBatches(discovery, minimum = 1675, classes) {
+  let selected = discoveredCases(discovery, minimum);
+  if (classes) {
+    if (!Array.isArray(classes) || !classes.length || new Set(classes).size !== classes.length || classes.some(name => !/^Hop(?:Core|UI|Hardware|PluginAPI|PluginRuntime)Tests\.[A-Za-z0-9_]+$/.test(name))) throw new Error('Invalid scoped test classes');
+    for (const name of classes) if (!selected.some(id => id.startsWith(name + '/'))) throw new Error('Scoped test class not discovered: ' + name);
+    selected = selected.filter(id => classes.includes(id.split('/')[0]));
+  }
   const groups = new Map();
-  for (const id of discoveredCases(discovery, minimum)) {
+  for (const id of selected) {
     const suite = id.split('/')[0];
     const group = id.startsWith('HopUITests.') ? suite : suite.split('.')[0];
     if (!groups.has(group)) groups.set(group, []);
     groups.get(group).push(id);
   }
-  return [...groups].sort(([a], [b]) => a.localeCompare(b)).map(([id, cases]) => ({
-    id, cases: cases.sort(), filter: '^' + id.replaceAll('.', '\\.') + (id.startsWith('HopUITests.') ? '/' : '\\.'),
-  }));
+  return [...groups].sort(([a], [b]) => a.localeCompare(b)).map(([id, cases]) => {
+    const suites = [...new Set(cases.map(item => item.split('/')[0].split('.')[1]))].sort();
+    const filter = id.startsWith('HopUITests.') ? '^' + id.replaceAll('.', '\\.') + '/'
+      : classes ? '^' + id + '\\.(' + suites.join('|') + ')/' : '^' + id + '\\.';
+    return { id, cases: cases.sort(), filter };
+  });
 }
 
-export function summarizeTestBatches(discovery, reports, minimum = 1675) {
-  const batches = swiftTestBatches(discovery, minimum);
+export function summarizeTestBatches(discovery, reports, minimum = 1675, classes) {
+  const batches = swiftTestBatches(discovery, minimum, classes);
   if (reports.length !== batches.length || new Set(reports.map(report => report.id)).size !== batches.length) throw new Error('Incomplete Swift test batches');
   const cases = batches.flatMap(batch => {
     const report = reports.find(report => report.id === batch.id);

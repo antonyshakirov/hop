@@ -72,7 +72,13 @@ xcrun notarytool history --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
 # Nothing is packaged from a red tree: build, tests and translations first —
 # the same gate the pre-push hook runs. A release that fails its own
 # checks is not a release (2026-08-29).
-scripts/checks.sh
+# SPEC: docs/local-verification/README.md — "Scoped checks", a minor or major release runs everything.
+CURRENT="$(plutil -extract CFBundleShortVersionString raw scripts/Info.plist)"
+if [[ "${CURRENT%.*}" == "${VERSION%.*}" ]]; then
+    scripts/checks.sh
+else
+    scripts/check-release --verify-full || scripts/check-release
+fi
 
 # SPEC: docs/spec.md — "Versioning", the number released is the one the notes name.
 PREPARING="$(env TMPDIR=/private/tmp node scripts/own-ci/preparing-version.mjs)"

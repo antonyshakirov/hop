@@ -43,3 +43,14 @@ test('batch reports reject missing, duplicate, failed, skipped or foreign cases'
   ];
   for (const invalid of invalidReports) assert.throws(() => summarizeTestBatches(discovery, invalid, 6));
 });
+test('scoped classes run alone, joined per target, and every named class must exist', () => {
+  const classes = ['HopCoreTests.CoreTests', 'HopUITests.SecondTests'];
+  const batches = swiftTestBatches(discovery, 6, classes);
+  assert.deepEqual(batches.map(batch => batch.id), ['HopCoreTests', 'HopUITests.SecondTests']);
+  assert.equal(batches[0].filter, '^HopCoreTests\\.(CoreTests)/');
+  const scopedReports = batches.map(batch => ({ id: batch.id, output: output(batch.cases) }));
+  assert.equal(summarizeTestBatches(discovery, scopedReports, 6, classes).passed, 2);
+  assert.throws(() => summarizeTestBatches(discovery, scopedReports.slice(1), 6, classes));
+  for (const invalid of [[], ['HopUITests.MissingTests'], ['HopCoreTests.CoreTests', 'HopCoreTests.CoreTests'], ['Other.Thing']])
+    assert.throws(() => swiftTestBatches(discovery, 6, invalid));
+});
