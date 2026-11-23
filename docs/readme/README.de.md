@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.7**
+
+- Bei zugeklapptem Deckel und dunklem Bildschirm gehen Awake und Deckelmodus nicht mehr nach etwa anderthalb Minuten aus. Schaltet ein Schutz den Deckelmodus ab, läuft Awake weiter.
+
 **2.5.6**
 
 - Den Audiomixer starten und Hop Mix stoppen hält Hop nicht mehr an. Der Mixer zeigt den Start ab dem Klick.

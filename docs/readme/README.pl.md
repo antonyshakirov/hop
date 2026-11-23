@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.7**
+
+- Przy zamkniętej pokrywie i wygaszonym ekranie Awake i przełącznik pokrywy nie wyłączają się już po około półtorej minuty. Gdy zabezpieczenie wyłączy przełącznik pokrywy, Awake działa dalej.
+
 **2.5.6**
 
 - Uruchamianie miksera dźwięku i zatrzymywanie Hop Mix nie wstrzymują już Hop. Mikser pokazuje start od razu po kliknięciu.

@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.7**
+
+- Khi gập nắp và màn hình tắt, Awake và nút nắp máy không còn tự tắt sau khoảng một phút rưỡi. Khi cơ chế bảo vệ tắt nút nắp máy, Awake vẫn tiếp tục chạy.
+
 **2.5.6**
 
 - Khởi động bộ trộn âm thanh và dừng Hop Mix không còn làm Hop bị đứng. Bộ trộn hiển thị trạng thái đang khởi động ngay khi bấm.

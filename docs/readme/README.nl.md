@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.7**
+
+- Met het deksel dicht en het scherm uit gaan Awake en de dekselschakelaar niet meer na ongeveer anderhalve minuut uit. Zet een beveiliging de dekselschakelaar uit, dan blijft Awake draaien.
+
 **2.5.6**
 
 - De audiomixer starten en Hop Mix stoppen houden Hop niet meer op. De mixer toont het starten vanaf de klik.

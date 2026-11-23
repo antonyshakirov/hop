@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.7**
+
+- Capot fermé et écran éteint, Awake et le bouton du capot ne s’arrêtent plus au bout d’une minute et demie. Si une protection désactive le bouton du capot, Awake continue.
+
 **2.5.6**
 
 - Lancer le mixeur audio et arrêter Hop Mix ne figent plus Hop. Le mixeur affiche son démarrage dès le clic.

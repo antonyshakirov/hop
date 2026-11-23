@@ -5,8 +5,10 @@ import ServiceManagement
 // SPEC: docs/spec.md — Cooling controls and Protected lid sessions.
 @MainActor
 final class CoolingController: ObservableObject {
-    static let shared = CoolingController()
-    @Published private(set) var snapshot = HardwareStatus()
+    static let shared = CoolingController(napGuard: AppNapGuard(reason: "Hop — hardware lease"))
+    @Published private(set) var snapshot = HardwareStatus() {
+        didSet { napGuard?.hold(snapshot.active || snapshot.restorationPending) }
+    }
     @Published private(set) var hasReadings = false
     @Published private(set) var lastStopReason: HardwareReason?
     @Published private(set) var serviceEnabled = false
@@ -18,6 +20,8 @@ final class CoolingController: ObservableObject {
     var lidDidStop: ((HardwareReason?) -> Void)?
     private let preview: Bool
     private let service: CoolingService
+    /// A napped app misses the lease renewal and the service ends fans and lid.
+    private let napGuard: AppNapGuard?
     private var desired = HardwareConfiguration()
     private var lidDeadline: Date?
     private var viewOpen = false
@@ -53,8 +57,10 @@ final class CoolingController: ObservableObject {
     init(preview: Bool = false, service: CoolingService? = nil, lockFactory: (() throws -> AppProcessLock)? = nil,
          persistPreferences: @escaping () -> Bool = { UserDefaults.standard.synchronize() },
          openSettings: @escaping () -> Void = { SMAppService.openSystemSettingsLoginItems() },
-         notificationCenter: NotificationCenter = .default) {
+         notificationCenter: NotificationCenter = .default,
+         napGuard: AppNapGuard? = nil) {
         self.preview = preview
+        self.napGuard = preview ? nil : napGuard
         self.openSettings = openSettings
         self.notificationCenter = notificationCenter
         hardwareModules = Self.enabledHardwareModules
