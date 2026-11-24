@@ -139,6 +139,12 @@ final class AgentCommandTests: XCTestCase {
         XCTAssertEqual(url("hop://awake/on"), .keepAwake(on: true, seconds: nil))
     }
 
+    func testDevBuildSchemeSpeaksTheSameVocabularyAndOthersAreIgnored() {
+        XCTAssertEqual(url("hop-dev://lid/on"), .lidMode(true))
+        XCTAssertEqual(url("hop-dev://lid/off"), .lidMode(false))
+        XCTAssertNil(url("https://lid/on"))
+    }
+
     func testLinkAddsATodoWithItsFields() {
         let out = url("hop://todo/add?text=call%20the%20notary&important=true&repeatDays=mon,wed")
         guard case .todoAdd(let draft)? = out else { return XCTFail("expected todo.add") }

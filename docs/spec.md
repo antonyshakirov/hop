@@ -5651,6 +5651,11 @@ taught anything.
   `hop://todo/add?text=…&important=true&repeatDays=mon,wed`, `hop://tracker/stop`.
   This is what a Shortcut can open, so anything the system can trigger a Shortcut
   from can reach Hop.
+- Hop Dev registers `hop-dev://` instead of `hop://` and accepts the same
+  vocabulary. With one shared scheme macOS picked whichever bundle it liked,
+  and on 2026-11-24 `open -g hop://lid/on` launched Hop Dev next to a running
+  Hop: the command changed the Dev app, while the released app's
+  `agent-state.json` kept saying lid mode was off.
 - The vocabulary covers the app rather than one module: the timer and stopwatch,
   the tracker, to-dos (add with note/reminder/repeat/star, complete, delete),
   keep-awake with an optional duration, lid mode, the keyboard lock, window

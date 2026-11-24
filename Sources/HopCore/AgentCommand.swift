@@ -74,12 +74,15 @@ public enum AgentCommandParser {
         return entries.compactMap(command(from:))
     }
 
-    /// A `hop://` link — what a Shortcut, a script or `open` can fire:
+    // SPEC: docs/spec.md — Agent bridge, Hop Dev answers only `hop-dev://`.
+    public static let urlSchemes: Set<String> = ["hop", "hop-dev"]
+
+    /// A `hop://` (or Hop Dev's `hop-dev://`) link — what a Shortcut, a script or `open` can fire:
     /// `hop://timer/start?minutes=16`, `hop://todo/add?text=call%20the%20notary`.
     /// The host and path spell the same verb the file uses, and the query carries
     /// the same fields.
     public static func parse(url: URL) -> AgentCommand? {
-        guard url.scheme?.lowercased() == "hop" else { return nil }
+        guard let scheme = url.scheme?.lowercased(), urlSchemes.contains(scheme) else { return nil }
         let parts = [url.host ?? ""] + url.path.split(separator: "/").map(String.init)
         var entry: [String: Any] = ["do": parts.filter { !$0.isEmpty }.joined(separator: ".")]
         for item in URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? [] {

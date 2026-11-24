@@ -157,6 +157,8 @@ hop://lid/on
 
 From a terminal or a script: `open "hop://timer/start?minutes=16"`.
 
+The test build Hop Dev answers only `hop-dev://` links (`hop-dev://lid/on`), so `hop://` always reaches the installed Hop.
+
 ### Shortcuts
 
 Any of the links above works as a Shortcut: one action, **Open URL**, with the
