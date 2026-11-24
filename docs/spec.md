@@ -7207,8 +7207,11 @@ runs that feature's tests and the launch, update and signing baseline, not the
 tests of every other module. A small edit of the app shell (`App.swift` and
 the other shared Swift files) runs the core tests and the features its changed
 lines name (Anton, 2026-11-24). A new module, a new or unmapped file, a large
-edit of the app shell, a minor or major release and changes to the build,
-signing or update scripts run the full check. The map lives in `scripts/own-ci/scope.json`; the rules are in
+edit of the app shell, a minor or major release, `Package.swift`, the
+scripts that run the Swift build and tests and the files that pick the check
+run the full check. A packaging or signing script or a check self-test runs
+only the checks that execute or read it: the script syntax step, its
+self-tests and the signing and release tests. The map lives in `scripts/own-ci/scope.json`; the rules are in
 [Local verification](local-verification/README.md#scoped-checks).
 
 ## Repo workflow
