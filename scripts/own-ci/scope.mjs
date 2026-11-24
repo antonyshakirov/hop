@@ -15,26 +15,46 @@ const version = plist => {
 };
 const withoutVersions = plist => plist.replace(/(<key>CFBundle(?:ShortVersionString|Version)<\/key>\s*<string>)[^<]*(<\/string>)/g, '$1$2');
 
+// Changed lines of a unified diff and the enclosing declaration git prints after
+// each hunk header; file headers end at the first hunk of each file.
+const parseDiff = diff => {
+  const changes = [], context = [];
+  let inHunk = false;
+  for (const line of diff.split('\n')) {
+    if (line.startsWith('diff --git ')) inHunk = false;
+    else if (line.startsWith('@@')) { inHunk = true; context.push(line.replace(/^@@[^@]*@@/, '')); }
+    else if (inHunk && /^[+-]/.test(line)) changes.push(line.slice(1));
+  }
+  return { changes, context };
+};
+const camelParts = identifier => identifier.replace(/^_+/, '').replace(/^[a-z]/, letter => letter.toUpperCase())
+  .match(/[A-Z]+(?=[A-Z][a-z])|[A-Z][a-z0-9]*|[0-9]+/g) ?? [];
+const diffTokens = ({ changes, context }) => new Set([...changes, ...context].flatMap(line => (line.match(/[A-Za-z_][A-Za-z0-9_]*/g) ?? []).flatMap(camelParts)));
+
 const testClasses = source => [...source.matchAll(/\bclass\s+([A-Za-z0-9_]+)\s*:\s*XCTestCase\b/g)].map(match => match[1]);
 const otherTestBases = source => /\bclass\s+[A-Za-z0-9_]+Tests?\s*:\s*(?!\s|XCTestCase\b)/.test(source);
 
 export function validateScope(config) {
   const strings = value => Array.isArray(value) && value.every(item => typeof item === 'string' && item.length);
+  const shared = config.shared;
+  if (!shared || !strings(shared.files) || !strings(shared.core) || !Number.isInteger(shared.maxChangedLines) || shared.maxChangedLines < 1) throw new Error('Invalid scope shared rule');
   if (config.schema !== 1 || !strings(config.docs) || !strings(config.full) || !strings(config.buildOnly) || !strings(config.baseline) || !strings(config.scopedSteps) || !Array.isArray(config.paths) || typeof config.groups !== 'object') throw new Error('Invalid scope map');
   for (const rule of config.paths) if (typeof rule.match !== 'string' || !(rule.group in config.groups) || rule.also !== undefined && !strings(rule.also)) throw new Error('Invalid scope path rule');
   for (const tokens of Object.values(config.groups)) if (!strings(tokens)) throw new Error('Invalid scope group');
   return config;
 }
 
-// files: tracked paths at HEAD; read(path): file text at HEAD; base and head plist
-// texts decide the release rule. Returns the full mode or the exact test files.
-export function selectScope({ config, changed, files, read, basePlist, headPlist }) {
+// files: tracked paths at HEAD; read(path): file text at HEAD; diff(path): the
+// -U0 diff of a shared file; base and head plist texts decide the release rule.
+// Returns the full mode or the exact test files.
+export function selectScope({ config, changed, files, read, diff, basePlist, headPlist }) {
   validateScope(config);
   const full = reason => ({ mode: 'full', reason });
   const tests = files.filter(path => /^Tests\/[^/]+\/[^/]+\.swift$/.test(path));
   const byFeature = tokens => tests.filter(path => tokens.includes(featureOf(path)));
   const groupOf = token => Object.values(config.groups).filter(tokens => tokens.includes(token)).flat();
   const selected = new Set(config.baseline);
+  let sharedChanged = 0;
   for (const path of [...changed].sort()) {
     if (config.docs.some(glob => matches(glob, path))) continue;
     const rule = config.paths.find(item => matches(item.match, path));
@@ -44,6 +64,18 @@ export function selectScope({ config, changed, files, read, basePlist, headPlist
       continue;
     }
     if (config.full.some(glob => matches(glob, path))) return full('shared file ' + path);
+    if (config.shared.files.some(glob => matches(glob, path))) {
+      if (!files.includes(path)) return full('shared file removed ' + path);
+      const text = diff?.(path);
+      if (typeof text !== 'string' || !text.trim()) return full('no diff for shared file ' + path);
+      const parsed = parseDiff(text);
+      sharedChanged += parsed.changes.length;
+      if (!parsed.changes.length) return full('no changed lines read for shared file ' + path);
+      if (sharedChanged > config.shared.maxChangedLines) return full('large change in shared files');
+      for (const glob of config.shared.core) for (const file of tests.filter(item => matches(glob, item))) selected.add(file);
+      for (const token of diffTokens(parsed)) for (const file of byFeature(groupOf(token))) selected.add(file);
+      continue;
+    }
     if (/^Tests\/[^/]+\/[^/]+\.swift$/.test(path)) { if (files.includes(path)) selected.add(path); continue; }
     if (!/^Sources\/[^/]+\/[^/]+\.(swift|c|h|m)$/.test(path)) return full('unmapped file ' + path);
     const token = featureOf(path);

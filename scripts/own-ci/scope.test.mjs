@@ -18,10 +18,15 @@ const sources = new Map([
   testFile('Tests/HopUITests/SettingsModuleGroupsTests.swift'),
   testFile('Tests/HopHardwareTests/HardwareFanCurveTests.swift'),
   testFile('Tests/HopUITests/MenuOrderTests.swift', 'final class MenuOrderTests: MenuTestCase {}'),
-  ['Sources/Hop/KeepAwakeController.swift', ''], ['Sources/Hop/Alerts.swift', ''], ['Sources/Hop/App.swift', ''],
+  testFile('Tests/HopCoreTests/AgentCommandTests.swift'),
+  testFile('Tests/HopUITests/PanelDismissalTests.swift'),
+  testFile('Tests/HopCoreTests/ModuleVisibilityTests.swift'),
+  ['Sources/Hop/KeepAwakeController.swift', ''], ['Sources/Hop/Alerts.swift', ''], ['Sources/Hop/App.swift', ''], ['Sources/Hop/Theme.swift', ''],
 ]);
-const select = (changed, { base = '2.5.6', head = '2.5.7', basePlist = plist(base), headPlist = plist(head), extra = [] } = {}) =>
-  selectScope({ config, changed, files: [...sources.keys(), ...extra], read: path => sources.get(path) ?? '', basePlist, headPlist });
+const select = (changed, { base = '2.5.6', head = '2.5.7', basePlist = plist(base), headPlist = plist(head), extra = [], diffs = {} } = {}) =>
+  selectScope({ config, changed, files: [...sources.keys(), ...extra], read: path => sources.get(path) ?? '', diff: path => diffs[path], basePlist, headPlist });
+const hunk = (lines, context = 'final class AppDelegate: NSObject') =>
+  `diff --git a/x b/x\n--- a/x\n+++ b/x\n@@ -10,2 +10,2 @@ ${context}\n` + lines.join('\n');
 const names = selection => selection.tests.map(path => path.split('/').at(-1));
 
 test('the checked-in map and plan are valid', () => {
@@ -47,7 +52,7 @@ test('every class in a selected file runs', () => {
   assert.ok(selection.classes.includes('HopCoreTests.TimerEngineTests'));
 });
 test('shared, unmapped and untested files make the check full', () => {
-  for (const changed of ['Sources/Hop/App.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/own-ci/scope.json', 'engine/rqbit/x', 'Tests/HopCoreTests/Fixtures/a.json', 'Sources/Hop/Unknown.swift', 'notes/plan.txt', 'Sources/Hop/Sub/Thing.swift'])
+  for (const changed of ['Sources/Hop/App.swift', 'Sources/HopCore/ModuleCatalog.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/own-ci/scope.json', 'engine/rqbit/x', 'Tests/HopCoreTests/Fixtures/a.json', 'Sources/Hop/Unknown.swift', 'notes/plan.txt', 'Sources/Hop/Sub/Thing.swift'])
     assert.equal(select([changed]).mode, 'full', changed);
 });
 test('a prefix outside every group runs full even when a test file shares it', () => {
@@ -86,4 +91,41 @@ test('the scoped plan keeps the base steps, passes the classes and drops CodeQL'
   assert.ok(!scoped.artifacts.some(item => item.path.startsWith('hop-codeql')));
   assert.deepEqual(scoped.scope, { base: 'b'.repeat(40), tests: selection.tests });
   assert.throws(() => scopedPlan(plan, { mode: 'full' }, 'b'.repeat(40), config));
+});
+test('a small edit of a shared file runs the core tests and the groups its changed lines name', () => {
+  const diffs = { 'Sources/Hop/App.swift': hunk(['-        guard let scheme = url.scheme, scheme == "hop" else { return }', '+        guard AgentCommandParser.urlSchemes.contains(url.scheme ?? "") else { return }']) };
+  const selection = select(['Sources/Hop/App.swift'], { diffs });
+  assert.equal(selection.mode, 'scoped');
+  for (const name of ['AgentCommandTests.swift', 'PanelDismissalTests.swift', 'ModuleVisibilityTests.swift', ...config.baseline.map(path => path.split('/').at(-1))])
+    assert.ok(names(selection).includes(name), name);
+  assert.ok(!names(selection).includes('SoundMixerPresetsTests.swift'));
+  assert.ok(!names(selection).includes('CoolingControllerTests.swift'));
+});
+test('identifiers in lowerCamel and the enclosing declaration also pick their groups', () => {
+  const diffs = { 'Sources/Hop/App.swift': hunk(['+        model.keepAwake.start()'], 'func soundMixerDidChange()') };
+  const selection = select(['Sources/Hop/App.swift'], { diffs });
+  assert.ok(names(selection).includes('CoolingControllerTests.swift'));
+  assert.ok(names(selection).includes('SoundMixerPresetsTests.swift'));
+});
+test('a shared file without a diff, with a large diff or next to a minor release runs full', () => {
+  const big = { 'Sources/Hop/App.swift': hunk(Array.from({ length: config.shared.maxChangedLines + 1 }, (_, i) => '+let value' + i + ' = 0')) };
+  assert.equal(select(['Sources/Hop/App.swift'], { diffs: { 'Sources/Hop/App.swift': '' } }).mode, 'full');
+  assert.equal(select(['Sources/Hop/App.swift'], { diffs: big }).mode, 'full');
+  const small = { 'Sources/Hop/App.swift': hunk(['+let spacing = 4']) };
+  assert.equal(select(['Sources/Hop/App.swift'], { diffs: small }).mode, 'scoped');
+  assert.equal(select(['Sources/Hop/App.swift', 'scripts/Info.plist'], { diffs: small, head: '2.6.0' }).mode, 'full');
+});
+test('a removed shared file and the summed size of several shared edits run full', () => {
+  assert.equal(select(['Sources/Hop/SoleInstance.swift'], { diffs: { 'Sources/Hop/SoleInstance.swift': hunk(['-let lock = 1']) } }).mode, 'full');
+  const half = hunk(Array.from({ length: Math.ceil(config.shared.maxChangedLines / 2) + 1 }, (_, i) => '+let value' + i + ' = 0'));
+  assert.equal(select(['Sources/Hop/App.swift'], { diffs: { 'Sources/Hop/App.swift': half } }).mode, 'scoped');
+  assert.equal(select(['Sources/Hop/App.swift', 'Sources/Hop/Theme.swift'], { diffs: { 'Sources/Hop/App.swift': half, 'Sources/Hop/Theme.swift': half } }).mode, 'full');
+});
+test('changed lines that look like diff headers still count and name their groups', () => {
+  const diffs = { 'Sources/Hop/App.swift': hunk(['--- TimerEngine.start()', '+++ x']) };
+  assert.ok(names(select(['Sources/Hop/App.swift'], { diffs })).includes('TimerEngineTests.swift'));
+});
+test('the scope map rejects a missing or malformed shared rule', () => {
+  assert.throws(() => validateScope({ ...config, shared: undefined }));
+  assert.throws(() => validateScope({ ...config, shared: { ...config.shared, maxChangedLines: 0 } }));
 });

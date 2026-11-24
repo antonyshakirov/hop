@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "note": "Maps changed files to the Swift test files a scoped check runs. Rules apply in order: docs, paths, full, then the feature prefix of the file name, which must belong to a group or to buildOnly. A file no rule covers makes the check full. See docs/local-verification/README.md#scoped-checks.",
+  "note": "Maps changed files to the Swift test files a scoped check runs. Rules apply in order: docs, paths, full, shared, then the feature prefix of the file name, which must belong to a group or to buildOnly. A shared file runs the core tests plus the groups named by the identifiers on its changed lines; past maxChangedLines it runs full. A file no rule covers makes the check full. See docs/local-verification/README.md#scoped-checks.",
   "docs": [
     "docs/**", "product-spec/**", "*.md", "LICENSE", ".github/FUNDING.yml"
   ],
@@ -20,13 +20,22 @@
   "full": [
     "Package.swift", "Package.resolved", "scripts/**", "engine/**", "assets/**",
     "Sources/HopHardwareHelper/**", "Sources/HopNetFilter/**",
-    "Sources/Hop/App.swift", "Sources/Hop/AppModel.swift", "Sources/Hop/AppRelaunch.swift",
-    "Sources/Hop/Controls.swift", "Sources/Hop/Theme.swift", "Sources/Hop/StatusItemController.swift",
-    "Sources/Hop/SoleInstance.swift", "Sources/Hop/URLSessionTransport.swift",
-    "Sources/Hop/ModuleActivation.swift", "Sources/Hop/ModulePresentation.swift",
-    "Sources/HopCore/ModuleCatalog.swift", "Sources/Hop/HotkeyManager.swift",
+    "Sources/HopCore/ModuleCatalog.swift",
     "Tests/*/Fixtures/**", "Tests/HopUITests/PluginFixtures/**"
   ],
+  "shared": {
+    "files": [
+      "Sources/Hop/App.swift", "Sources/Hop/AppModel.swift", "Sources/Hop/AppRelaunch.swift",
+      "Sources/Hop/Controls.swift", "Sources/Hop/Theme.swift", "Sources/Hop/StatusItemController.swift",
+      "Sources/Hop/SoleInstance.swift", "Sources/Hop/URLSessionTransport.swift",
+      "Sources/Hop/ModuleActivation.swift", "Sources/Hop/ModulePresentation.swift", "Sources/Hop/HotkeyManager.swift"
+    ],
+    "core": [
+      "Tests/*/Module*", "Tests/*/Panel*", "Tests/*/MenuBar*", "Tests/*/Settings*",
+      "Tests/*/FirstRun*", "Tests/*/DockQuit*", "Tests/*/LaunchAtLogin*", "Tests/*/Hotkey*"
+    ],
+    "maxChangedLines": 150
+  },
   "groups": {
     "awake": ["Keep", "Awake", "Cooling", "Lid", "Protected", "Idle"],
     "hardware": ["Hardware", "Fan", "SMC", "Idle", "Battery", "Low", "Thermal", "Power"],
