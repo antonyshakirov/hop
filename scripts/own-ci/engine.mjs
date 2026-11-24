@@ -384,6 +384,7 @@ async function scopeFor(root, base) {
     changed: list(['diff', '--name-only', '--no-renames', '-z', base, 'HEAD']),
     files: list(['ls-files', '-z']),
     read: path => show('HEAD:' + path) ?? '',
+    diff: path => { try { return git(root, ['diff', '-U0', '--no-renames', '--no-color', '--no-ext-diff', base, 'HEAD', '--', path]); } catch { return undefined; } },
     basePlist: show(base + ':scripts/Info.plist'),
     headPlist: show('HEAD:scripts/Info.plist'),
   });
