@@ -1508,7 +1508,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !plugins.isEmpty { model.settingsSectionRequest = "plugins"; showSettingsWindow() }
         // hop:// links come from Shortcuts, scripts, or anything that can run
         // `open`. Same command vocabulary as the command file, one parser for both.
-        let hopLinks = urls.filter { $0.scheme?.lowercased() == "hop" }
+        let hopLinks = urls.filter { AgentCommandParser.urlSchemes.contains($0.scheme?.lowercased() ?? "") }
         for link in hopLinks {
             guard let command = AgentCommandParser.parse(url: link) else { continue }
             agent?.perform(command)

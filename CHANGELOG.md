@@ -1,5 +1,9 @@
 # Hop - version history
 
+## 2.5.8 - 2026-11-24
+
+- Commands from AI agents always reach Hop, even when a test build of Hop is installed next to it.
+
 ## 2.5.7 - 2026-11-23
 
 - With the lid closed and the screen off, Awake and the lid switch no longer turn off after 90 seconds. If a safeguard turns the lid switch off, Awake keeps running.

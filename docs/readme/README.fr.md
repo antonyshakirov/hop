@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- Les commandes des agents IA arrivent toujours à Hop, même si une version de test de Hop est installée à côté.
+
 **2.5.7**
 
 - Capot fermé et écran éteint, Awake et le bouton du capot ne s’arrêtent plus au bout d’une minute et demie. Si une protection désactive le bouton du capot, Awake continue.

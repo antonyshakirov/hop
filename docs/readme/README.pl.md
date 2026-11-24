@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- Polecenia od agentów AI zawsze trafiają do Hop, nawet gdy obok jest zainstalowana testowa wersja Hop.
+
 **2.5.7**
 
 - Przy zamkniętej pokrywie i wygaszonym ekranie Awake i przełącznik pokrywy nie wyłączają się już po około półtorej minuty. Gdy zabezpieczenie wyłączy przełącznik pokrywy, Awake działa dalej.

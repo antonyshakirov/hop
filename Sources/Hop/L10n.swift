@@ -588,6 +588,35 @@ enum L10n {
         return patchNewsText(text, lang: lang)
     }
 
+    static func patch258Text(_ lang: AppLanguage) -> [String] {
+        let text: [String]
+        switch lang {
+        case .en: text = ["Commands from AI agents always reach Hop, even when a test build of Hop is installed next to it."]
+        case .ru: text = ["Команды от ИИ-агентов всегда доходят до Hop, даже если рядом установлена тестовая сборка Hop."]
+        case .de: text = ["Befehle von KI-Agenten erreichen immer Hop, auch wenn daneben eine Testversion von Hop installiert ist."]
+        case .es: text = ["Las órdenes de los agentes de IA siempre llegan a Hop, aunque haya una versión de prueba de Hop instalada al lado."]
+        case .pt: text = ["Os comandos dos agentes de IA chegam sempre ao Hop, mesmo com uma versão de teste do Hop instalada ao lado."]
+        case .fr: text = ["Les commandes des agents IA arrivent toujours à Hop, même si une version de test de Hop est installée à côté."]
+        case .it: text = ["I comandi degli agenti IA arrivano sempre a Hop, anche se accanto è installata una versione di prova di Hop."]
+        case .zh: text = ["即使旁边安装了 Hop 测试版，AI 代理发出的命令也始终送达 Hop。"]
+        case .ja: text = ["Hop のテスト版が一緒にインストールされていても、AI エージェントのコマンドは必ず Hop に届きます。"]
+        case .nl: text = ["Opdrachten van AI-agents komen altijd bij Hop aan, ook als er een testversie van Hop naast staat."]
+        case .ko: text = ["Hop 테스트 빌드가 함께 설치되어 있어도 AI 에이전트의 명령은 항상 Hop으로 전달됩니다."]
+        case .th: text = ["คำสั่งจากเอเจนต์ AI ส่งถึง Hop เสมอ แม้จะติดตั้ง Hop รุ่นทดสอบไว้ด้วย"]
+        case .vi: text = ["Lệnh từ tác nhân AI luôn đến đúng Hop, kể cả khi bản thử nghiệm của Hop được cài bên cạnh."]
+        case .hi: text = ["Hop का टेस्ट बिल्ड साथ में इंस्टॉल होने पर भी AI एजेंट के कमांड हमेशा Hop तक पहुँचते हैं।"]
+        case .id: text = ["Perintah dari agen AI selalu sampai ke Hop, meski versi uji Hop terpasang di sampingnya."]
+        case .tr: text = ["Yanında Hop'un bir test sürümü kurulu olsa bile yapay zekâ ajanlarının komutları her zaman Hop'a ulaşır."]
+        case .pl: text = ["Polecenia od agentów AI zawsze trafiają do Hop, nawet gdy obok jest zainstalowana testowa wersja Hop."]
+        case .ar: text = ["تصل أوامر وكلاء الذكاء الاصطناعي دائمًا إلى Hop، حتى عند تثبيت نسخة تجريبية من Hop بجانبه."]
+        case .he: text = ["פקודות מסוכני AI תמיד מגיעות ל-Hop, גם כשגרסת ניסיון של Hop מותקנת לצדו."]
+        case .fa: text = ["فرمان‌های عامل‌های هوش مصنوعی همیشه به Hop می‌رسند، حتی وقتی نسخهٔ آزمایشی Hop کنار آن نصب است."]
+        case .ur: text = ["ساتھ میں Hop کا آزمائشی ورژن انسٹال ہو تب بھی AI ایجنٹس کے کمانڈ ہمیشہ Hop تک پہنچتے ہیں۔"]
+        case .sr: text = ["Команде AI агената увек стижу до Hop-а, чак и када је поред њега инсталирана пробна верзија Hop-а."]
+        }
+        return text.map { patchNewsText($0, lang: lang) }
+    }
+
     static func patch257Text(_ lang: AppLanguage) -> [String] {
         let text: [String]
         switch lang {
@@ -705,7 +734,8 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.7 – 2026-11-23\n\n" + patch257Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+        "2.5.8 – 2026-11-24\n\n" + patch258Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+            + "2.5.7 – 2026-11-23\n\n" + patch257Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.6 – 2026-11-18\n\n" + patch256Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.5 – 2026-11-18\n\n" + patch255Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.4 – 2026-11-18\n\n• " + patch254Text(lang) + "\n\n"

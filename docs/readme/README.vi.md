@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- Lệnh từ tác nhân AI luôn đến đúng Hop, kể cả khi bản thử nghiệm của Hop được cài bên cạnh.
+
 **2.5.7**
 
 - Khi gập nắp và màn hình tắt, Awake và nút nắp máy không còn tự tắt sau khoảng một phút rưỡi. Khi cơ chế bảo vệ tắt nút nắp máy, Awake vẫn tiếp tục chạy.

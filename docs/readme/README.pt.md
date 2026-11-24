@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- Os comandos dos agentes de IA chegam sempre ao Hop, mesmo com uma versão de teste do Hop instalada ao lado.
+
 **2.5.7**
 
 - Com a tampa fechada e o ecrã apagado, o Awake e o botão da tampa já não se desligam ao fim de um minuto e meio. Se uma proteção desligar o botão da tampa, o Awake continua a funcionar.

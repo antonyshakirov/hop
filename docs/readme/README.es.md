@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- Las órdenes de los agentes de IA siempre llegan a Hop, aunque haya una versión de prueba de Hop instalada al lado.
+
 **2.5.7**
 
 - Con la tapa cerrada y la pantalla apagada, Awake y el botón de la tapa ya no se apagan al cabo de un minuto y medio. Si una protección apaga el botón de la tapa, Awake sigue funcionando.

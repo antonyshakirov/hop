@@ -146,6 +146,11 @@ if [[ $DEV == 1 ]]; then
     plutil -replace CFBundleName -string "Hop Dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleDisplayName -string "Hop Dev" "$APP/Contents/Info.plist"
     plutil -replace HopHardwareDiagnosticsVersion -integer 1 "$APP/Contents/Info.plist"
+    # SPEC: docs/spec.md — Agent bridge: a shared hop:// scheme let macOS route agent links to Hop Dev.
+    # WORKAROUND: plutil -replace on an array index inserts instead of replacing, so the whole array is set.
+    plutil -replace CFBundleURLTypes.0.CFBundleURLSchemes -json '["hop-dev"]' "$APP/Contents/Info.plist"
+    [[ "$(plutil -extract CFBundleURLTypes.0.CFBundleURLSchemes json -o - "$APP/Contents/Info.plist")" == '["hop-dev"]' ]] \
+        || { echo "❌ Hop Dev must register only hop-dev://"; exit 1; }
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.audio-worker" "$WORKER_APP/Contents/Info.plist"
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.hardware-helper" "$HARDWARE_APP/Contents/Info.plist"
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.plugin-runtime" "$PLUGIN_XPC/Contents/Info.plist"
