@@ -35,7 +35,8 @@
         "scripts/own-ci/codeql.test.mjs",
         "scripts/own-ci/codeql-coverage.test.mjs",
         "scripts/own-ci/codeql-sdk-tree.test.mjs",
-        "scripts/own-ci/verify-release.test.mjs"
+        "scripts/own-ci/verify-release.test.mjs",
+        "scripts/own-ci/script-syntax.test.mjs"
       ],
       "timeoutMs": 900000,
       "tapMinimum": 120
@@ -49,6 +50,16 @@
         "-I",
         "scripts/own-ci/codeql-setup.test.py"
       ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "script-syntax",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/script-syntax.mjs"
+      ],
+      "network": false,
       "timeoutMs": 120000
     },
     {

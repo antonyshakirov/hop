@@ -36,6 +36,7 @@ const otherTestBases = source => /\bclass\s+[A-Za-z0-9_]+Tests?\s*:\s*(?!\s|XCTe
 
 export function validateScope(config) {
   const strings = value => Array.isArray(value) && value.every(item => typeof item === 'string' && item.length);
+  for (const rule of config.tooling ?? []) if (typeof rule.name !== 'string' || !strings(rule.match) || !strings(rule.steps) || rule.tests !== undefined && !strings(rule.tests) || rule.groups !== undefined && !(strings(rule.groups) && rule.groups.every(group => group in config.groups))) throw new Error('Invalid scope tooling rule');
   const shared = config.shared;
   if (!shared || !strings(shared.files) || !strings(shared.core) || !Number.isInteger(shared.maxChangedLines) || shared.maxChangedLines < 1) throw new Error('Invalid scope shared rule');
   if (config.schema !== 1 || !strings(config.docs) || !strings(config.full) || !strings(config.buildOnly) || !strings(config.baseline) || !strings(config.scopedSteps) || !Array.isArray(config.paths) || typeof config.groups !== 'object') throw new Error('Invalid scope map');
@@ -55,12 +56,21 @@ export function selectScope({ config, changed, files, read, diff, basePlist, hea
   const groupOf = token => Object.values(config.groups).filter(tokens => tokens.includes(token)).flat();
   const selected = new Set(config.baseline);
   let sharedChanged = 0;
+  const steps = new Set();
   for (const path of [...changed].sort()) {
     if (config.docs.some(glob => matches(glob, path))) continue;
     const rule = config.paths.find(item => matches(item.match, path));
     if (rule) {
       for (const file of byFeature(config.groups[rule.group])) selected.add(file);
       for (const glob of rule.also ?? []) for (const file of tests.filter(item => matches(glob, item))) selected.add(file);
+      continue;
+    }
+    const tool = (config.tooling ?? []).find(item => item.match.some(glob => matches(glob, path)));
+    if (tool) {
+      if (!files.includes(path)) return full('tooling file removed ' + path);
+      for (const step of tool.steps) steps.add(step);
+      for (const glob of tool.tests ?? []) for (const file of tests.filter(item => matches(glob, item))) selected.add(file);
+      for (const group of tool.groups ?? []) for (const file of byFeature(config.groups[group])) selected.add(file);
       continue;
     }
     if (config.full.some(glob => matches(glob, path))) return full('shared file ' + path);
@@ -97,13 +107,15 @@ export function selectScope({ config, changed, files, read, diff, basePlist, hea
     const target = file.split('/')[1];
     for (const name of found) classes.push(target + '.' + name);
   }
-  return { mode: 'scoped', tests: [...selected].sort(), classes: [...new Set(classes)].sort() };
+  return { mode: 'scoped', tests: [...selected].sort(), classes: [...new Set(classes)].sort(), steps: [...steps].sort() };
 }
 
 export function scopedPlan(plan, selection, base, config) {
   if (selection.mode !== 'scoped') throw new Error('Scoped plan needs a scoped selection');
-  const steps = plan.steps.filter(step => config.scopedSteps.includes(step.id)).map(step => step.id !== 'hop-tests' ? step
+  const wanted = new Set([...config.scopedSteps, ...(selection.steps ?? [])]);
+  if (wanted.has('hop-codeql')) throw new Error('CodeQL runs only in the full check');
+  const steps = plan.steps.filter(step => wanted.has(step.id)).map(step => step.id !== 'hop-tests' ? step
     : { ...step, args: [...step.args, '--classes=' + selection.classes.join(',')], tapMinimum: 1 });
-  if (steps.length !== config.scopedSteps.length || !steps.some(step => step.id === 'hop-tests')) throw new Error('Scoped steps missing from plan');
+  if (steps.length !== wanted.size || !steps.some(step => step.id === 'hop-tests')) throw new Error('Scoped steps missing from plan');
   return { ...plan, steps, artifacts: (plan.artifacts ?? []).filter(item => !item.path.startsWith('hop-codeql')), scope: { base, tests: selection.tests } };
 }

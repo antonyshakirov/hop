@@ -19,6 +19,7 @@ const sources = new Map([
   testFile('Tests/HopHardwareTests/HardwareFanCurveTests.swift'),
   testFile('Tests/HopUITests/MenuOrderTests.swift', 'final class MenuOrderTests: MenuTestCase {}'),
   testFile('Tests/HopCoreTests/AgentCommandTests.swift'),
+  testFile('Tests/HopCoreTests/ReleaseNewsTests.swift'),
   testFile('Tests/HopUITests/PanelDismissalTests.swift'),
   testFile('Tests/HopCoreTests/ModuleVisibilityTests.swift'),
   ['Sources/Hop/KeepAwakeController.swift', ''], ['Sources/Hop/Alerts.swift', ''], ['Sources/Hop/App.swift', ''], ['Sources/Hop/Theme.swift', ''],
@@ -52,7 +53,7 @@ test('every class in a selected file runs', () => {
   assert.ok(selection.classes.includes('HopCoreTests.TimerEngineTests'));
 });
 test('shared, unmapped and untested files make the check full', () => {
-  for (const changed of ['Sources/Hop/App.swift', 'Sources/HopCore/ModuleCatalog.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/own-ci/scope.json', 'engine/rqbit/x', 'Tests/HopCoreTests/Fixtures/a.json', 'Sources/Hop/Unknown.swift', 'notes/plan.txt', 'Sources/Hop/Sub/Thing.swift'])
+  for (const changed of ['Sources/Hop/App.swift', 'Sources/HopCore/ModuleCatalog.swift', 'Package.swift', 'scripts/own-ci/plan.json', 'scripts/own-ci/hop-step.mjs', 'scripts/own-ci/codeql.mjs', 'scripts/build-remuxer.sh', 'engine/rqbit/x', 'Tests/HopCoreTests/Fixtures/a.json', 'Sources/Hop/Unknown.swift', 'notes/plan.txt', 'Sources/Hop/Sub/Thing.swift'])
     assert.equal(select([changed]).mode, 'full', changed);
 });
 test('a prefix outside every group runs full even when a test file shares it', () => {
@@ -124,6 +125,37 @@ test('a removed shared file and the summed size of several shared edits run full
 test('changed lines that look like diff headers still count and name their groups', () => {
   const diffs = { 'Sources/Hop/App.swift': hunk(['--- TimerEngine.start()', '+++ x']) };
   assert.ok(names(select(['Sources/Hop/App.swift'], { diffs })).includes('TimerEngineTests.swift'));
+});
+const tooling = ['scripts/build-app.sh', 'scripts/Hop.entitlements', 'scripts/own-ci/engine.test.mjs', 'scripts/own-ci/scope.test.mjs'];
+const checkFiles = ['scripts/own-ci/scope.json', 'scripts/own-ci/scope.mjs', 'scripts/own-ci/engine.mjs', 'scripts/own-ci/network.mjs', 'scripts/own-ci/preparing-version.mjs', 'scripts/own-ci/script-syntax.mjs', 'scripts/checks.sh', 'scripts/check-release', 'scripts/build-budget.py'];
+const stepIds = selection => scopedPlan(plan, selection, 'c'.repeat(40), config).steps.map(step => step.id);
+test('a packaging script runs the script syntax step, release self-tests and the tests that read it, not every Swift test', () => {
+  for (const path of ['scripts/build-app.sh', 'scripts/Hop.entitlements']) {
+    const selection = select([path], { extra: tooling });
+    assert.equal(selection.mode, 'scoped', path);
+    assert.ok(stepIds(selection).includes('script-syntax'));
+    assert.ok(stepIds(selection).includes('adapter-self-tests'));
+    assert.ok(!stepIds(selection).includes('core-self-tests'));
+    assert.ok(!stepIds(selection).includes('hop-codeql'));
+    assert.ok(selection.tests.includes('Tests/HopCoreTests/SigningTests.swift'));
+    assert.ok(selection.tests.includes('Tests/HopCoreTests/ReleaseNewsTests.swift'));
+    assert.ok(!names(selection).includes('CoolingControllerTests.swift'));
+  }
+});
+test('a file that picks the check, wraps the Swift steps or verifies the proof runs full', () => {
+  for (const path of checkFiles) assert.equal(select([path], { extra: [...tooling, ...checkFiles] }).mode, 'full', path);
+});
+test('a change to a check self-test runs the self-tests with the baseline', () => {
+  const selection = select(['scripts/own-ci/engine.test.mjs', 'scripts/own-ci/scope.test.mjs'], { extra: tooling });
+  assert.equal(selection.mode, 'scoped');
+  for (const id of ['build-budget-self-tests', 'core-self-tests', 'adapter-self-tests', 'script-syntax', 'hop-build', 'hop-tests']) assert.ok(stepIds(selection).includes(id), id);
+  assert.deepEqual(selection.tests, [...config.baseline].sort());
+});
+test('a removed tooling file runs full and a feature fix adds no tooling steps', () => {
+  assert.equal(select(['scripts/build-app.sh']).mode, 'full');
+  assert.deepEqual(stepIds(select(['Sources/Hop/KeepAwakeController.swift'])), config.scopedSteps);
+  assert.throws(() => scopedPlan(plan, { ...select([]), steps: ['hop-codeql'] }, 'c'.repeat(40), config));
+  assert.throws(() => validateScope({ ...config, tooling: [{ name: 'x', match: ['a'], steps: ['s'], groups: ['nope'] }] }));
 });
 test('the scope map rejects a missing or malformed shared rule', () => {
   assert.throws(() => validateScope({ ...config, shared: undefined }));
