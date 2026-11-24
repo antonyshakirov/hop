@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- Yanında Hop'un bir test sürümü kurulu olsa bile yapay zekâ ajanlarının komutları her zaman Hop'a ulaşır.
+
 **2.5.7**
 
 - Kapak kapalı ve ekran kararmışken Awake ve kapak düğmesi artık yaklaşık bir buçuk dakika sonra kapanmaz. Bir güvenlik önlemi kapak düğmesini kapatırsa Awake çalışmaya devam eder.

@@ -128,7 +128,7 @@ final class HotfixReleaseTests: XCTestCase {
     func testTheMinorReleaseHasItsCard() {
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.4.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.4"))
-        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.5.7")
+        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.5.8")
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.3.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.3"))
     }
@@ -193,8 +193,17 @@ final class HotfixReleaseTests: XCTestCase {
         XCTAssertEqual(PanelView.releaseCardIDs.last, "2.5.3")
         for lang in AppLanguage.allCases {
             let notes = L10n.t(.docNews, lang)
-            XCTAssertTrue(notes.hasPrefix("2.5.7 – 2026-11-23"), lang.rawValue)
+            XCTAssertTrue(notes.contains("2.5.7 – 2026-11-23"), lang.rawValue)
             for item in L10n.patch257Text(lang) { XCTAssertTrue(notes.contains("• " + item), lang.rawValue) }
+        }
+    }
+
+    func testPatch258HasLocalizedNotesWithoutAnotherFeatureCard() {
+        XCTAssertEqual(PanelView.releaseCardIDs.last, "2.5.3")
+        for lang in AppLanguage.allCases {
+            let notes = L10n.t(.docNews, lang)
+            XCTAssertTrue(notes.hasPrefix("2.5.8 – 2026-11-24"), lang.rawValue)
+            for item in L10n.patch258Text(lang) { XCTAssertTrue(notes.contains("• " + item), lang.rawValue) }
         }
     }
 }

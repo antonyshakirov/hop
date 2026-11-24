@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- Perintah dari agen AI selalu sampai ke Hop, meski versi uji Hop terpasang di sampingnya.
+
 **2.5.7**
 
 - Saat tutup ditutup dan layar mati, Awake dan sakelar tutup tidak lagi mati setelah sekitar satu setengah menit. Jika pengaman mematikan sakelar tutup, Awake tetap berjalan.

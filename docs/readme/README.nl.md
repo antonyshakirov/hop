@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- Opdrachten van AI-agents komen altijd bij Hop aan, ook als er een testversie van Hop naast staat.
+
 **2.5.7**
 
 - Met het deksel dicht en het scherm uit gaan Awake en de dekselschakelaar niet meer na ongeveer anderhalve minuut uit. Zet een beveiliging de dekselschakelaar uit, dan blijft Awake draaien.

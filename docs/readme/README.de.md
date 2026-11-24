@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- Befehle von KI-Agenten erreichen immer Hop, auch wenn daneben eine Testversion von Hop installiert ist.
+
 **2.5.7**
 
 - Bei zugeklapptem Deckel und dunklem Bildschirm gehen Awake und Deckelmodus nicht mehr nach etwa anderthalb Minuten aus. Schaltet ein Schutz den Deckelmodus ab, läuft Awake weiter.

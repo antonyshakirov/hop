@@ -4,6 +4,10 @@
 
 # Hop
 
+**2.5.8**
+
+- I comandi degli agenti IA arrivano sempre a Hop, anche se accanto è installata una versione di prova di Hop.
+
 **2.5.7**
 
 - Con il coperchio chiuso e lo schermo spento, Awake e il pulsante del coperchio non si spengono più dopo circa un minuto e mezzo. Se una protezione spegne il pulsante del coperchio, Awake continua a funzionare.
