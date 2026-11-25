@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- O modo tampa fica ligado até você desligá-lo, o tempo acabar ou o Mac entrar em repouso ou desligar.
+- O menu para remover um torrent cabe numa linha. O aviso de refrigeração só aparece depois de um modo manual das ventoinhas.
+
 **2.5.8**
 
 - Os comandos dos agentes de IA chegam sempre ao Hop, mesmo com uma versão de teste do Hop instalada ao lado.

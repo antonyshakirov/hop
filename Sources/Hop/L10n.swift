@@ -589,6 +589,35 @@ enum L10n {
         return patchNewsText(text, lang: lang)
     }
 
+    static func patch259Text(_ lang: AppLanguage) -> [String] {
+        let text: [String]
+        switch lang {
+        case .en: text = ["Lid mode stays on until you turn it off, its time runs out, or the Mac sleeps or shuts down.", "The torrent removal menu fits on one line. The cooling notice appears only after a manual fan mode ends."]
+        case .ru: text = ["Режим крышки работает, пока вы его не выключите, не истечёт его время или Mac не уснёт или не выключится.", "Меню удаления торрента помещается в одну строку. Уведомление об охлаждении появляется только после ручного режима вентиляторов."]
+        case .de: text = ["Der Deckelmodus bleibt an, bis du ihn ausschaltest, seine Zeit abläuft oder der Mac schläft oder herunterfährt.", "Das Menü zum Entfernen eines Torrents passt in eine Zeile. Der Kühlhinweis erscheint nur nach einem manuellen Lüftermodus."]
+        case .es: text = ["El modo tapa sigue activo hasta que lo apagues, se acabe su tiempo o el Mac entre en reposo o se apague.", "El menú para quitar un torrent cabe en una línea. El aviso de refrigeración solo aparece al terminar un modo manual de ventiladores."]
+        case .pt: text = ["O modo tampa fica ligado até você desligá-lo, o tempo acabar ou o Mac entrar em repouso ou desligar.", "O menu para remover um torrent cabe numa linha. O aviso de refrigeração só aparece depois de um modo manual das ventoinhas."]
+        case .fr: text = ["Le mode capot reste actif jusqu'à ce que vous le coupiez, que son délai expire ou que le Mac se mette en veille ou s'éteigne.", "Le menu de suppression d'un torrent tient sur une ligne. L'avis de refroidissement n'apparaît qu'après un mode manuel des ventilateurs."]
+        case .it: text = ["La modalità coperchio resta attiva finché non la spegni, scade il suo tempo o il Mac va in stop o si spegne.", "Il menu per rimuovere un torrent sta su una riga. L'avviso di raffreddamento compare solo dopo una modalità manuale delle ventole."]
+        case .zh: text = ["合盖模式会一直开启，直到你将其关闭、时间结束，或 Mac 睡眠或关机。", "删除种子的菜单只占一行。散热提示只在手动风扇模式结束后出现。"]
+        case .ja: text = ["ふたモードは、オフにするか時間が切れるか、Mac がスリープまたはシステム終了するまで続きます。", "トレントの削除メニューは 1 行に収まります。冷却の通知は手動ファンモードの終了後にだけ表示されます。"]
+        case .nl: text = ["De klepmodus blijft aan tot je hem uitzet, de tijd om is of de Mac slaapt of uitschakelt.", "Het menu om een torrent te verwijderen past op één regel. De koelmelding verschijnt alleen na een handmatige ventilatormodus."]
+        case .ko: text = ["덮개 모드는 직접 끄거나 시간이 끝나거나 Mac이 잠자기 또는 종료될 때까지 유지됩니다.", "토렌트 삭제 메뉴가 한 줄에 들어갑니다. 냉각 알림은 수동 팬 모드가 끝난 뒤에만 나타납니다."]
+        case .th: text = ["โหมดฝาพับเปิดอยู่จนกว่าคุณจะปิด หมดเวลา หรือ Mac เข้าสู่โหมดพักหรือปิดเครื่อง", "เมนูลบทอร์เรนต์อยู่ในบรรทัดเดียว การแจ้งเตือนการระบายความร้อนแสดงเฉพาะหลังโหมดพัดลมแบบกำหนดเองจบลง"]
+        case .vi: text = ["Chế độ gập nắp vẫn bật cho đến khi bạn tắt, hết thời gian, hoặc Mac ngủ hay tắt máy.", "Menu xóa torrent nằm gọn trên một dòng. Thông báo làm mát chỉ hiện sau khi chế độ quạt thủ công kết thúc."]
+        case .hi: text = ["लिड मोड तब तक चालू रहता है जब तक आप इसे बंद न करें, इसका समय खत्म न हो, या Mac स्लीप या बंद न हो।", "टोरेंट हटाने का मेनू एक पंक्ति में आ जाता है। कूलिंग सूचना केवल मैनुअल फ़ैन मोड खत्म होने के बाद दिखती है।"]
+        case .id: text = ["Mode tutup tetap aktif sampai Anda mematikannya, waktunya habis, atau Mac tidur atau dimatikan.", "Menu hapus torrent muat dalam satu baris. Pemberitahuan pendinginan hanya muncul setelah mode kipas manual berakhir."]
+        case .tr: text = ["Kapak modu siz kapatana, süresi dolana ya da Mac uyuyana veya kapanana kadar açık kalır.", "Torrent kaldırma menüsü tek satıra sığar. Soğutma bildirimi yalnızca elle seçilen fan modu bittikten sonra görünür."]
+        case .pl: text = ["Tryb klapy działa, dopóki go nie wyłączysz, nie minie jego czas albo Mac nie uśpi się lub nie wyłączy.", "Menu usuwania torrenta mieści się w jednym wierszu. Powiadomienie o chłodzeniu pojawia się tylko po ręcznym trybie wentylatorów."]
+        case .ar: text = ["يبقى وضع الغطاء مفعّلًا حتى توقفه أو ينتهي وقته أو يدخل Mac في السكون أو يُطفأ.", "تتسع قائمة إزالة التورنت في سطر واحد. يظهر إشعار التبريد فقط بعد انتهاء وضع المراوح اليدوي."]
+        case .he: text = ["מצב המכסה נשאר פעיל עד שתכבה אותו, הזמן שלו יסתיים או ה-Mac ייכנס למצב שינה או ייכבה.", "תפריט הסרת הטורנט נכנס בשורה אחת. הודעת הקירור מופיעה רק אחרי שמצב מאוורר ידני מסתיים."]
+        case .fa: text = ["حالت درِ دستگاه روشن می‌ماند تا وقتی آن را خاموش کنید، زمانش تمام شود یا Mac به خواب برود یا خاموش شود.", "منوی حذف تورنت در یک خط جا می‌شود. اعلان خنک‌سازی فقط پس از پایان حالت دستی فن نمایش داده می‌شود."]
+        case .ur: text = ["ڈھکن موڈ تب تک چلتا ہے جب تک آپ اسے بند نہ کریں، اس کا وقت ختم نہ ہو، یا Mac سلیپ یا بند نہ ہو۔", "ٹورنٹ ہٹانے کا مینو ایک سطر میں آ جاتا ہے۔ کولنگ کی اطلاع صرف دستی پنکھا موڈ ختم ہونے کے بعد دکھائی دیتی ہے۔"]
+        case .sr: text = ["Режим поклопца остаје укључен док га не искључиш, док му не истекне време или док Mac не заспи или се не угаси.", "Мени за уклањање торента стаје у један ред. Обавештење о хлађењу се појављује само после ручног режима вентилатора."]
+        }
+        return text.map { patchNewsText($0, lang: lang) }
+    }
+
     static func patch258Text(_ lang: AppLanguage) -> [String] {
         let text: [String]
         switch lang {
@@ -735,7 +764,8 @@ enum L10n {
     }
 
     private static func news25Notes(_ lang: AppLanguage, previous: String) -> String {
-        "2.5.8 – 2026-11-24\n\n" + patch258Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+        "2.5.9 – 2026-11-25\n\n" + patch259Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
+            + "2.5.8 – 2026-11-24\n\n" + patch258Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.7 – 2026-11-23\n\n" + patch257Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.6 – 2026-11-18\n\n" + patch256Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"
             + "2.5.5 – 2026-11-18\n\n" + patch255Text(lang).map { "• " + $0 }.joined(separator: "\n\n") + "\n\n"

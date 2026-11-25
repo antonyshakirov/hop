@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- Chế độ gập nắp vẫn bật cho đến khi bạn tắt, hết thời gian, hoặc Mac ngủ hay tắt máy.
+- Menu xóa torrent nằm gọn trên một dòng. Thông báo làm mát chỉ hiện sau khi chế độ quạt thủ công kết thúc.
+
 **2.5.8**
 
 - Lệnh từ tác nhân AI luôn đến đúng Hop, kể cả khi bản thử nghiệm của Hop được cài bên cạnh.

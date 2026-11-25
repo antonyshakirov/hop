@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- Le mode capot reste actif jusqu'à ce que vous le coupiez, que son délai expire ou que le Mac se mette en veille ou s'éteigne.
+- Le menu de suppression d'un torrent tient sur une ligne. L'avis de refroidissement n'apparaît qu'après un mode manuel des ventilateurs.
+
 **2.5.8**
 
 - Les commandes des agents IA arrivent toujours à Hop, même si une version de test de Hop est installée à côté.

@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- Kapak modu siz kapatana, süresi dolana ya da Mac uyuyana veya kapanana kadar açık kalır.
+- Torrent kaldırma menüsü tek satıra sığar. Soğutma bildirimi yalnızca elle seçilen fan modu bittikten sonra görünür.
+
 **2.5.8**
 
 - Yanında Hop'un bir test sürümü kurulu olsa bile yapay zekâ ajanlarının komutları her zaman Hop'a ulaşır.

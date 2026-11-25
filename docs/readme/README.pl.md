@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- Tryb klapy działa, dopóki go nie wyłączysz, nie minie jego czas albo Mac nie uśpi się lub nie wyłączy.
+- Menu usuwania torrenta mieści się w jednym wierszu. Powiadomienie o chłodzeniu pojawia się tylko po ręcznym trybie wentylatorów.
+
 **2.5.8**
 
 - Polecenia od agentów AI zawsze trafiają do Hop, nawet gdy obok jest zainstalowana testowa wersja Hop.

@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- La modalità coperchio resta attiva finché non la spegni, scade il suo tempo o il Mac va in stop o si spegne.
+- Il menu per rimuovere un torrent sta su una riga. L'avviso di raffreddamento compare solo dopo una modalità manuale delle ventole.
+
 **2.5.8**
 
 - I comandi degli agenti IA arrivano sempre a Hop, anche se accanto è installata una versione di prova di Hop.
