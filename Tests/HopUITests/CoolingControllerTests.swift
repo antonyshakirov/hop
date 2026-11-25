@@ -113,6 +113,18 @@ private final class ClientService: CoolingService {
 
 @MainActor
 final class CoolingControllerTests: XCTestCase {
+    func testOnlyALostFanOverrideEarnsAStopBanner() {
+        var lidOnly = HardwareStatus(); lidOnly.active = true; lidOnly.lid = true
+        var fan = lidOnly; fan.lid = false; fan.policy = FanPolicy(mode: .maximum)
+        var stopped = HardwareStatus(); stopped.reason = .heartbeat
+        XCTAssertNil(CoolingController.stopNotice(previous: lidOnly, current: stopped))
+        XCTAssertEqual(CoolingController.stopNotice(previous: fan, current: stopped), .heartbeat)
+        var pending = fan; pending.active = false; pending.restorationPending = true
+        XCTAssertEqual(CoolingController.stopNotice(previous: pending, current: stopped), .heartbeat)
+        stopped.reason = .stopped
+        XCTAssertNil(CoolingController.stopNotice(previous: fan, current: stopped))
+    }
+
     func testOnOffOnBehindFanControlOnlyDispatchesTheLastLidIntent() async throws {
         let (controller, service) = try fixture()
         await controller.refresh()
