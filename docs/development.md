@@ -54,7 +54,9 @@ for release lands in `main`:
 1. `git checkout main && git merge dev`
 2. a line in `CHANGELOG.md`
 3. `./scripts/release.sh X.Y.Z [--critical]` — builds, zips, signs with
-   Ed25519 and places `latest.json` + the archive into the website repo (`public/downloads/hop/`)
+   Ed25519 and uploads the builds, then `latest.json`, to `downloads/hop/` on
+   every mirror through `scripts/upload-release.sh` (the Russian mirror fetches
+   them from hop.tools itself and checks SHA-256)
 4. commit in the website repo + `./deploy.sh` — the update ships to users
 5. `git tag vX.Y.Z` in this repo
 6. after `Hop.dmg` is attached to the immutable GitHub release, update

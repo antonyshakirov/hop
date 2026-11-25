@@ -20,8 +20,6 @@ SITE_DOWNLOADS="${HOP_SITE_DOWNLOADS:-/var/www/hop-website/downloads/hop}"
 # list in Sources/HopCore/DownloadMirrors.swift and the two must agree.
 MIRROR_SSH="${HOP_MIRROR_SSH:-timeweb-new}"
 MIRROR_DOWNLOADS="${HOP_MIRROR_DOWNLOADS:-/var/www/hop-mirror/downloads/hop}"
-typeset -a TARGETS
-TARGETS=("$SITE_SSH:$SITE_DOWNLOADS" "$MIRROR_SSH:$MIRROR_DOWNLOADS")
 [[ -f "$HOME/.minimo-release-key" ]] || { echo "signing key ~/.minimo-release-key not found"; exit 1 }
 
 # SPEC: docs/spec.md — "Signing, notarisation, and why permissions must survive
@@ -239,27 +237,13 @@ cat > "$STAGE/latest.json" << JSON
 }
 JSON
 
-# Builds to EVERY host first, latest.json to every host after: a client may take
-# the manifest from one host and the build from another, so no manifest may name
-# a file that any host is still missing.
 cp dist/Hop.dmg dist/Hop-intel.dmg "$STAGE/"
-# Symbolic mode, not `F644`: macOS ships openrsync now, which refuses every
-# numeric form and takes this one. GNU rsync understands it too, so the script
-# runs the same on a machine that still has it.
-UPLOAD_MODE="u=rw,go=r"
-for target in $TARGETS; do
-    rsync -az --chmod="$UPLOAD_MODE" \
+HOP_UPLOAD_PRIMARY="$SITE_SSH:$SITE_DOWNLOADS" \
+HOP_UPLOAD_PRIMARY_URL="$BASE" \
+HOP_UPLOAD_MIRRORS="$MIRROR_SSH:$MIRROR_DOWNLOADS" \
+    scripts/upload-release.sh "$STAGE/latest.json" \
         "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig" \
-        "$STAGE/Hop.dmg" "$STAGE/Hop-intel.dmg" \
-        "$target/" \
-        || { echo "upload of the builds to $target failed"; exit 1 }
-    echo "builds uploaded to $target"
-done
-for target in $TARGETS; do
-    rsync -az --chmod="$UPLOAD_MODE" "$STAGE/latest.json" "$target/" \
-        || { echo "upload of latest.json to $target failed"; exit 1 }
-    echo "latest.json uploaded to $target"
-done
+        "$STAGE/Hop.dmg" "$STAGE/Hop-intel.dmg"
 rm -rf "$STAGE"
 
 # The landing shows the version in its hero, its footer and its

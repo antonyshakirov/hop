@@ -7,7 +7,7 @@
 **2.5.9**
 
 - Le mode capot reste actif jusqu'à ce que vous le coupiez, que son délai expire ou que le Mac se mette en veille ou s'éteigne.
-- Le menu de suppression d'un torrent tient sur une ligne. L'avis de refroidissement n'apparaît qu'après un mode manuel des ventilateurs.
+- Le menu de suppression d'un torrent tient sur une ligne. L'alerte refroidissement n'apparaît qu'à la fin d'un mode ventilateur manuel.
 
 **2.5.8**
 
