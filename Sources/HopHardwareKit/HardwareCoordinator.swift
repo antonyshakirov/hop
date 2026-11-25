@@ -164,6 +164,9 @@ public final class HardwareCoordinator {
         }
     }
 
+    public var leaseActive: Bool { owner != nil }
+    public var endReason: HardwareReason? { reason }
+
     public func disconnect(owner: UUID) {
         if self.owner == owner { stop(.disconnected) }
     }

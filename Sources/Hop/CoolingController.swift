@@ -51,6 +51,7 @@ final class CoolingController: ObservableObject {
     private var stateTicket: UInt64 = 0
     private var refreshing = false
     private var connectionFailed = false
+    private var releasePending = false
     private let openSettings: () -> Void
     private let notificationCenter: NotificationCenter
 
@@ -379,6 +380,7 @@ final class CoolingController: ObservableObject {
         guard desired.valid else { throw HardwareReason.invalid }
         let requested = desired
         let status = try await send(.init(.configure, configuration: requested))
+        releasePending = false
         guard status.reason == nil || status.reason == .stopped,
               status.active == requested.needsLease, status.lid == requested.lid,
               !status.active || status.policy.mode == requested.fan.mode else {
@@ -401,7 +403,7 @@ final class CoolingController: ObservableObject {
         while busy && ProcessInfo.processInfo.systemUptime < deadline {
             try? await Task.sleep(nanoseconds: 20_000_000)
         }
-        guard !busy else { service.invalidate(); failure = .restoreFailed; return }
+        guard !busy else { abandonLease(); failure = .restoreFailed; return }
         busy = true
         defer { busy = false; stopTimerIfIdle() }
         do { try await waitForRequest(); try await configure() }
@@ -434,7 +436,18 @@ final class CoolingController: ObservableObject {
         while inFlight && ProcessInfo.processInfo.systemUptime < deadline {
             try await Task.sleep(nanoseconds: 20_000_000)
         }
-        guard !inFlight else { service.invalidate(); throw HardwareReason.commandFailed }
+        guard !inFlight else { abandonLease(); throw HardwareReason.commandFailed }
+    }
+
+    // SPEC: docs/spec.md — Protected lid sessions, a dropped connection keeps the lease.
+    /// The service keeps a running app's lease over a dropped connection, so giving up
+    /// on a stuck request queues an explicit stop for the next refresh; a newer
+    /// configure replaces it.
+    func abandonLease() {
+        service.invalidate()
+        desired = .init(); lidDeadline = nil
+        releasePending = true
+        startTimer()
     }
 
     private func accept(_ status: HardwareStatus) {
@@ -488,17 +501,23 @@ final class CoolingController: ObservableObject {
     func refresh() async {
         guard !preview, !busy, !inFlight, !updating, !refreshing else { return }
         if pendingTransaction != nil || snapshot.maintenanceID != nil { await resumeRegistration(); return }
-        if !viewOpen, snapshot.active, ProcessInfo.processInfo.systemUptime - lastRenewal < 20 { return }
+        if !viewOpen, snapshot.active, !releasePending,
+           ProcessInfo.processInfo.systemUptime - lastRenewal < 20 { return }
         refreshing = true
         defer { refreshing = false }
         let state = await readServiceState()
         guard !busy, !inFlight, !updating else { return }
         do {
             if state == .enabled {
-                let renew = snapshot.active && desired.needsLease
-                    && ProcessInfo.processInfo.systemUptime - lastRenewal >= 20
-                _ = try await send(.init(renew ? .renew : .status))
-                if renew { lastRenewal = ProcessInfo.processInfo.systemUptime }
+                if releasePending {
+                    let status = try await send(.init(.stop))
+                    if !status.active { releasePending = false }
+                } else {
+                    let renew = snapshot.active && desired.needsLease
+                        && ProcessInfo.processInfo.systemUptime - lastRenewal >= 20
+                    _ = try await send(.init(renew ? .renew : .status))
+                    if renew { lastRenewal = ProcessInfo.processInfo.systemUptime }
+                }
             } else {
                 var local = await service.localStatus()
                 if snapshot.active || snapshot.restorationPending {
@@ -533,7 +552,8 @@ final class CoolingController: ObservableObject {
     }
 
     private func stopTimerIfIdle() {
-        if !viewOpen && !snapshot.active && !snapshot.restorationPending && !busy && pendingFanPolicy == nil && pendingLidTarget == nil
+        if !viewOpen && !snapshot.active && !snapshot.restorationPending && !busy && !releasePending
+            && pendingFanPolicy == nil && pendingLidTarget == nil
             && snapshot.reason != .busy && !snapshot.maintenance && pendingTransaction == nil {
             timer?.invalidate(); timer = nil
         }
