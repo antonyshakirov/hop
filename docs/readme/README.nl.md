@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- De klepmodus blijft aan tot je hem uitzet, de tijd om is of de Mac slaapt of uitschakelt.
+- Het menu om een torrent te verwijderen past op één regel. De koelmelding verschijnt alleen na een handmatige ventilatormodus.
+
 **2.5.8**
 
 - Opdrachten van AI-agents komen altijd bij Hop aan, ook als er een testversie van Hop naast staat.

@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- Der Deckelmodus bleibt an, bis du ihn ausschaltest, seine Zeit abläuft oder der Mac schläft oder herunterfährt.
+- Das Menü zum Entfernen eines Torrents passt in eine Zeile. Der Kühlhinweis erscheint nur nach einem manuellen Lüftermodus.
+
 **2.5.8**
 
 - Befehle von KI-Agenten erreichen immer Hop, auch wenn daneben eine Testversion von Hop installiert ist.

@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- Lid mode stays on until you turn it off, its time runs out, or the Mac sleeps or shuts down.
+- The torrent removal menu fits on one line. The cooling notice appears only after a manual fan mode ends.
+
 **2.5.8**
 
 - Commands from AI agents always reach Hop, even when a test build of Hop is installed next to it.

@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- El modo tapa sigue activo hasta que lo apagues, se acabe su tiempo o el Mac entre en reposo o se apague.
+- El menú para quitar un torrent cabe en una línea. El aviso de refrigeración solo aparece al terminar un modo manual de ventiladores.
+
 **2.5.8**
 
 - Las órdenes de los agentes de IA siempre llegan a Hop, aunque haya una versión de prueba de Hop instalada al lado.

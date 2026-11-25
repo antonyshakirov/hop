@@ -4,6 +4,11 @@
 
 # Hop
 
+**2.5.9**
+
+- Mode tutup tetap aktif sampai Anda mematikannya, waktunya habis, atau Mac tidur atau dimatikan.
+- Menu hapus torrent muat dalam satu baris. Pemberitahuan pendinginan hanya muncul setelah mode kipas manual berakhir.
+
 **2.5.8**
 
 - Perintah dari agen AI selalu sampai ke Hop, meski versi uji Hop terpasang di sampingnya.
