@@ -441,6 +441,7 @@ final class CoolingController: ObservableObject {
         snapshotRevision &+= 1
         let wasLid = snapshot.lid
         let wasActive = snapshot.active || snapshot.restorationPending
+        let notice = Self.stopNotice(previous: snapshot, current: status)
         snapshot = status
         hasReadings = true
         if status.active { lastStopReason = nil }
@@ -454,13 +455,20 @@ final class CoolingController: ObservableObject {
         }
         if !status.active {
             desired = .init(); lidDeadline = nil
-            if wasActive, let reason = status.reason, reason != .stopped,
-               reason != lastNotified, !preview, !Snapshot.active {
+            if let reason = notice, reason != lastNotified, !preview, !Snapshot.active {
                 lastNotified = reason
                 Alerts.noticeIfAllowed(title: L10n.t(.coolingTitle, L10n.current),
                     body: L10n.t(CoolingCopy.key(reason), L10n.current))
             }
         }
+    }
+
+    // SPEC: docs/spec.md — Monitor, cooling stop banner.
+    /// A lid-only session reports its stop in the keep-awake row, so only a lost fan override earns a banner.
+    nonisolated static func stopNotice(previous: HardwareStatus, current: HardwareStatus) -> HardwareReason? {
+        guard previous.active || previous.restorationPending, previous.policy.mode != .automatic,
+              !current.active, let reason = current.reason, reason != .stopped else { return nil }
+        return reason
     }
 
     private func applyServiceState(_ value: CoolingServiceState) {

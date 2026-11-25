@@ -1331,7 +1331,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   pressure forces standalone manual cooling to maximum; critical pressure returns
   control to macOS. Protected lid sessions stop already at serious pressure. Writes require the same administrator-approved
   hardware service as protected lid sessions. It restores system control on
-  stop, loss of the app heartbeat and after its own restart. Dev and production
+  stop, loss of the app heartbeat and after its own restart. Only a lost manual
+  fan mode posts a Cooling banner; a lid-only session reports its stop in the
+  keep-awake row, so fanless Macs never see one. Dev and production
   share hardware ownership; a second client cannot take over an active lease.
   Apple-style float target schemas accept typed `F<n>Md` or `F<n>md` mode
   keys with optional `Ftst`; unknown schemas remain read-only. Manual takeover
