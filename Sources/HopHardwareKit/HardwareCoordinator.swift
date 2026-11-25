@@ -16,14 +16,13 @@ public struct HardwareRecovery: Codable, Equatable {
     public var lidOverrideApplied: Bool
     public var sleepOverrideRestored: Bool
     public var maintenance: HardwareMaintenance?
-    public var idleLidRelease = false
     public init(sleepDisabledBefore: Bool? = nil, fans: [Int] = [], maintenance: HardwareMaintenance? = nil,
                 lidOverrideApplied: Bool = false, sleepOverrideRestored: Bool = false) {
         self.sleepDisabledBefore = sleepDisabledBefore; self.fans = fans
         self.maintenance = maintenance; self.lidOverrideApplied = lidOverrideApplied
         self.sleepOverrideRestored = sleepOverrideRestored
     }
-    private enum CodingKeys: String, CodingKey { case sleepDisabledBefore, fans, maintenance, lidOverrideApplied, sleepOverrideRestored, idleLidRelease }
+    private enum CodingKeys: String, CodingKey { case sleepDisabledBefore, fans, maintenance, lidOverrideApplied, sleepOverrideRestored }
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         sleepDisabledBefore = try values.decodeIfPresent(Bool.self, forKey: .sleepDisabledBefore)
@@ -31,13 +30,11 @@ public struct HardwareRecovery: Codable, Equatable {
         maintenance = try values.decodeIfPresent(HardwareMaintenance.self, forKey: .maintenance)
         lidOverrideApplied = try values.decodeIfPresent(Bool.self, forKey: .lidOverrideApplied) ?? false
         sleepOverrideRestored = try values.decodeIfPresent(Bool.self, forKey: .sleepOverrideRestored) ?? false
-        idleLidRelease = try values.decodeIfPresent(Bool.self, forKey: .idleLidRelease) ?? false
     }
     public var hasOverrides: Bool { sleepDisabledBefore != nil || !fans.isEmpty }
     public var empty: Bool { !hasOverrides && maintenance == nil }
     public var valid: Bool {
-        (!idleLidRelease || lidOverrideApplied)
-            && (!lidOverrideApplied || sleepDisabledBefore == false)
+        (!lidOverrideApplied || sleepDisabledBefore == false)
             && (!sleepOverrideRestored || lidOverrideApplied)
             && fans.count <= 8 && Set(fans).count == fans.count && fans.allSatisfy { (0..<8).contains($0) }
             && (maintenance.map { HardwareIdentity.applications.contains($0.application) && $0.user != 0 } ?? true)
@@ -58,14 +55,12 @@ public protocol HardwareBackend: AnyObject {
     func sleepDisabled() throws -> Bool
     func setSleepDisabled(_ disabled: Bool) throws
     func restoreClosedLidBehavior() throws
-    func idleLidReleaseReady() -> Bool
     func setFans(_ targets: [Int: Double]) throws
     func restoreFans(_ indices: [Int]) throws
 }
 
 public extension HardwareBackend {
     var fanDiagnostic: FanFailure? { nil }
-    func idleLidReleaseReady() -> Bool { false }
 }
 
 /// Serializes hardware ownership, independent cutoffs and durable recovery.
@@ -91,9 +86,14 @@ public final class HardwareCoordinator {
 
     public init(backend: HardwareBackend, journal: HardwareJournal,
                 application: String = "com.antonshakirov.minimo",
-                now: @escaping () -> Double = { ProcessInfo.processInfo.systemUptime }) {
+                now: @escaping () -> Double = HardwareCoordinator.monotonicSeconds) {
         self.backend = backend; self.journal = journal; self.now = now
         self.application = application
+    }
+
+    // SPEC: docs/spec.md — a real sleep counts toward the heartbeat cutoff and lid duration.
+    public static func monotonicSeconds() -> Double {
+        Double(clock_gettime_nsec_np(CLOCK_MONOTONIC)) / 1_000_000_000
     }
 
     public func recoverAtLaunch() {
@@ -115,12 +115,8 @@ public final class HardwareCoordinator {
         guard let configuration else { return }
         let time = now(), observation = backend.observe()
         if let deadline, time >= deadline { stop(.expired); return }
-        if time - lastHeartbeat >= 90 || time < lastHeartbeat { stop(.heartbeat); return }
+        if heartbeatLost(at: time) { stop(.heartbeat); return }
         if let cutoff = cutoff(configuration, observation) { stop(cutoff); return }
-        if configuration.lid, observation.lidClosed == true, backend.idleLidReleaseReady() {
-            releaseIdleLid()
-            return
-        }
         if configuration.fan.mode != .automatic {
             do {
                 let speeds = try fanSpeeds(configuration.fan, observation)
@@ -133,36 +129,7 @@ public final class HardwareCoordinator {
         }
     }
 
-    private func releaseIdleLid() {
-        guard var desired = configuration, desired.lid else { return }
-        do {
-            recovery.idleLidRelease = true
-            try journal.save(recovery)
-            try restoreSleep(requestSleep: false)
-            var next = recovery
-            next.sleepDisabledBefore = nil
-            next.lidOverrideApplied = false
-            next.sleepOverrideRestored = false
-            next.idleLidRelease = false
-            desired.lid = false
-            desired.duration = nil
-            deadline = nil
-            if desired.needsLease {
-                try journal.save(next)
-                recovery = next
-                configuration = desired
-            } else {
-                try journal.clear()
-                recovery = .init()
-                configuration = nil; appliedFanTargets = nil; owner = nil; deadline = nil
-                reason = .stopped
-                journal.release(); locked = false
-            }
-        } catch {
-            configuration = nil; appliedFanTargets = nil; owner = nil; deadline = nil
-            reason = .restoreFailed
-        }
-    }
+    private func heartbeatLost(at time: Double) -> Bool { time - lastHeartbeat >= 90 || time < lastHeartbeat }
 
     public var leaseActive: Bool { owner != nil }
     public var endReason: HardwareReason? { reason }
@@ -175,6 +142,8 @@ public final class HardwareCoordinator {
 
     public func handle(_ request: HardwareRequest, owner: UUID, user: UInt32 = UInt32(getuid())) -> HardwareStatus {
         guard request.supportedVersion else { return status(error: .protocolMismatch) }
+        // SPEC: after a real sleep the first request may arrive before tick(); it must not renew the lapsed lease.
+        if configuration != nil, heartbeatLost(at: now()) { stop(.heartbeat) }
         if let active = self.owner, active != owner {
             var value = status(error: .busy)
             value.active = false; value.lid = false; value.policy = .init()
@@ -302,7 +271,6 @@ public final class HardwareCoordinator {
             next.sleepDisabledBefore = nil
             next.lidOverrideApplied = false
             next.sleepOverrideRestored = false
-            next.idleLidRelease = false
             try journal.save(next)
             recovery = next
         }
@@ -372,8 +340,6 @@ public final class HardwareCoordinator {
 
     private func restoreSleep(requestSleep: Bool = true) throws {
         guard let original = recovery.sleepDisabledBefore else { return }
-        // SPEC: every retry must persist idle intent before changing sleep state.
-        if recovery.idleLidRelease { try journal.save(recovery) }
         if !recovery.sleepOverrideRestored {
             if !original, !recovery.lidOverrideApplied, try backend.sleepDisabled() {
                 // SPEC: retain confirmed ownership even when a journal failure requires best-effort reset.
@@ -387,7 +353,7 @@ public final class HardwareCoordinator {
         if recovery.lidOverrideApplied {
             var saved = true
             do { try journal.save(recovery) } catch { saved = false }
-            if requestSleep && !recovery.idleLidRelease {
+            if requestSleep {
                 // SPEC: a later foreign override is not ours to reset or bypass during retry.
                 guard try !backend.sleepDisabled() else { throw HardwareReason.restoreFailed }
                 try backend.restoreClosedLidBehavior()
