@@ -19,8 +19,6 @@ public final class SystemHardwareBackend: HardwareBackend {
             thermalSeverity: ProcessInfo.processInfo.thermalState.rawValue, fanAvailability: sensors.availability)
     }
 
-    public func idleLidReleaseReady() -> Bool { IdleLidPolicy.ready() }
-
     public func sleepDisabled() throws -> Bool {
         guard let value = Self.parseSleepDisabled(try Self.pmset(["-g"])) else { throw HardwareReason.commandFailed }
         return value

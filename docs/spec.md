@@ -1278,25 +1278,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   expiring its timer, or changing its duration does not release or retime the lid
   lease. The lid indicator shows the requested state immediately and returns to
   the confirmed state if the service refuses. Explicit lid-off and quitting release its override.
-  Safety cutoffs remain independent of both UI controls: a cutoff, expiry or idle
-  release of the lid lease leaves Awake and its deadline unchanged.
+  Safety cutoffs remain independent of both UI controls: a cutoff or expiry of
+  the lid lease leaves Awake and its deadline unchanged.
   Disabling the whole Awake module confirms active or pending lid work and
   explicitly releases both controls, including a pending enable reply.
-- **Ordinary idle release — Anton, 2026-11-17.** While the lid is closed,
-  the hardware service removes only Hop's lid override after the current power
-  source's system sleep timeout and confirmed HID inactivity, provided no active
-  system-wide power assertion blocks sleep. Awake's own assertion participates
-  in this check. A disabled system sleep timeout, unknown input, malformed data
-  or an unknown active assertion does not trigger release. The lid switch then
-  turns off without automatic rearming; independently configured manual fans
-  remain active and do not inherit the old lid deadline.
-  Idle release records its intent durably before any sleep-state write, including
-  retries and helper restarts. This path never requests forced system sleep:
-  macOS decides when to sleep after the override is restored. Assertion reads are
-  snapshots, not an atomic guarantee against a newly arriving assertion. A crash
-  before idle intent can be persisted retains the existing crash-recovery policy.
-  Battery, heat, expiry and heartbeat cutoffs retain their established behavior.
-  Real closed-lid idle/media/agent behavior still requires device acceptance.
+- **Lid mode ends only when Anton or the Mac ends it — Anton, 2026-11-25.**
+  Lid mode stays on with the lid closed for as long as Hop runs, however long the
+  Mac sits idle: watching a film, opening the lid for a moment and closing it
+  again never drops it. It ends only through lid-off, its own duration, quitting
+  Hop, a safety cutoff (battery, heat), a real system sleep long enough that the
+  last heartbeat is 90 s old at wake (the first request after wake cannot renew
+  it) or a shutdown, whose leftover override the service restores at
+  its next launch. This replaces the ordinary idle release of 2026-11-17.
 - **Keep awake survives an update** (Anton, 2026-10-01; revised 2026-10-25
   and protected-service agreement, 2026-11-15). Timed awake and all active or
   unresolved hardware overrides defer installation. Endless ordinary awake can
@@ -5348,8 +5341,12 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   recorded and synced before writing; successful restoration/readback precedes
   clearing. Failed restoration keeps the journal for retries and startup recovery.
 - GUI heartbeat renews at 20 seconds; the service checks cutoffs every 3 seconds
-  and releases after 90 seconds without a heartbeat. A connection loss releases
-  its lease immediately. The hardware watchdog is independent of ordinary awake
+  and releases after 90 seconds without a heartbeat. Its clock is
+  `CLOCK_MONOTONIC`, which keeps counting while the Mac sleeps and ignores wall
+  clock changes, so a real sleep longer than 90 s ends the lease at wake and a
+  lid duration counts real time (Anton, 2026-11-25). A connection loss keeps the
+  lease while the app process lives; the app's exit releases it (see Protected
+  lid sessions). The hardware watchdog is independent of ordinary awake
   assertion handoff. A disabled module cannot initiate or retain its controls.
 - An update first validates the complete incoming app/helper signatures and
   daemon registration. A durable maintenance transaction records UUID, app ID

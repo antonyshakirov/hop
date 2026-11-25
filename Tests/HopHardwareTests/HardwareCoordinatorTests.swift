@@ -115,8 +115,6 @@ final class HardwareCoordinatorTests: XCTestCase {
 
     private final class Backend: HardwareBackend {
         let journal: Journal
-        var idleReady = false
-        func idleLidReleaseReady() -> Bool { idleReady }
         var sleep = false
         var reading = HardwareObservation(fans: [.init(id: 0, rpm: 1200, minimum: 1000,
             maximum: 6000, manual: false)], temperature: 70, supportsControl: true,
@@ -166,75 +164,22 @@ final class HardwareCoordinatorTests: XCTestCase {
         }
     }
 
-    func testIdleReleaseRestoresOnlyLidWithoutDemandSleepOrRearming() {
-        for manual in [false, true] {
-            let journal = Journal(), owner = UUID()
-            let actual = Backend(journal)
-            actual.reading.lidClosed = true
-            var time: Double = 10
-            let coordinator = HardwareCoordinator(backend: actual, journal: journal, now: { time })
-            _ = coordinator.handle(.init(.configure, configuration: .init(lid: true,
-                fan: .init(mode: manual ? .maximum : .automatic), duration: 5)), owner: owner)
-            actual.idleReady = true
+    func testAClosedIdleLidKeepsTheLeaseUntilTheAppStopsIt() {
+        var time: Double = 10
+        let journal = Journal(), owner = UUID()
+        let backend = Backend(journal)
+        backend.reading.lidClosed = true
+        let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { time })
+        _ = coordinator.handle(.init(.configure, configuration: .init(lid: true)), owner: owner)
+        while time < 3_600 {
+            time += 20
+            XCTAssertTrue(coordinator.handle(.init(.renew), owner: owner).lid)
             coordinator.tick()
-            let result = coordinator.handle(.init(.status), owner: owner)
-            XCTAssertFalse(result.lid); XCTAssertFalse(actual.sleep)
-            XCTAssertEqual(result.active, manual)
-            XCTAssertEqual(actual.sleepRequests, 0)
-            XCTAssertEqual(actual.targets.isEmpty, !manual)
-            time = 16
-            coordinator.tick()
-            XCTAssertFalse(actual.sleep)
-            XCTAssertEqual(coordinator.handle(.init(.status), owner: owner).active, manual)
         }
-    }
-
-    func testFailedIdleMarkerNeverAllowsRestoreWritesOnRetry() {
-        let journal = Journal(), owner = UUID()
-        let backend = Backend(journal)
-        backend.reading.lidClosed = true
-        let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { 10 })
-        _ = coordinator.handle(.init(.configure, configuration: .init(lid: true)), owner: owner)
-        let writes = backend.writes
-        backend.idleReady = true; journal.rejectSave = true
-        coordinator.tick(); coordinator.tick(); coordinator.shutdown()
         XCTAssertTrue(backend.sleep)
-        XCTAssertEqual(backend.writes, writes)
         XCTAssertEqual(backend.sleepRequests, 0)
-        XCTAssertEqual(journal.record?.idleLidRelease, false)
-        journal.rejectSave = false
-        coordinator.tick()
+        XCTAssertFalse(coordinator.handle(.init(.stop), owner: owner).lid)
         XCTAssertFalse(backend.sleep)
-        XCTAssertEqual(backend.sleepRequests, 0)
-        XCTAssertNil(journal.record)
-    }
-
-    func testIdleReleaseFailureAndRestartNeverDemandSleep() {
-        let journal = Journal(), owner = UUID()
-        let backend = Backend(journal)
-        backend.reading.lidClosed = true
-        let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { 10 })
-        _ = coordinator.handle(.init(.configure, configuration: .init(lid: true)), owner: owner)
-        backend.idleReady = true; backend.rejectRestore = true
-        coordinator.tick()
-        XCTAssertEqual(journal.record?.idleLidRelease, true)
-        XCTAssertEqual(backend.sleepRequests, 0)
-        journal.release(); backend.rejectRestore = false
-        let restarted = HardwareCoordinator(backend: backend, journal: journal, now: { 10 })
-        restarted.recoverAtLaunch()
-        XCTAssertFalse(backend.sleep); XCTAssertEqual(backend.sleepRequests, 0)
-        XCTAssertNil(journal.record)
-    }
-
-    func testIdleEligibilityDoesNotStopOpenLidAndUnknownEligibilityKeepsLease() {
-        let journal = Journal()
-        let actual = Backend(journal), owner = UUID()
-        let coordinator = HardwareCoordinator(backend: actual, journal: journal, now: { 10 })
-        _ = coordinator.handle(.init(.configure, configuration: .init(lid: true)), owner: owner)
-        actual.idleReady = true
-        coordinator.tick(); XCTAssertTrue(actual.sleep)
-        actual.idleReady = false; actual.reading.lidClosed = true
-        coordinator.tick(); XCTAssertTrue(actual.sleep)
     }
 
     func testJournalPrecedesBothOverridesAndStopRestoresOnlyTheLease() {
@@ -452,6 +397,21 @@ final class HardwareCoordinatorTests: XCTestCase {
         time = 91; coordinator.tick()
         XCTAssertFalse(backend.sleep)
         XCTAssertEqual(coordinator.handle(.init(.renew), owner: owner).reason, .heartbeat)
+        XCTAssertFalse(coordinator.handle(.init(.status), owner: owner).active)
+    }
+
+    func testARenewArrivingFirstAfterALongSleepDoesNotReviveTheLease() {
+        var time: Double = 1
+        let journal = Journal(), owner = UUID()
+        let backend = Backend(journal)
+        let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { time })
+        _ = coordinator.handle(.init(.configure, configuration: .init(lid: true)), owner: owner)
+        time = 15; XCTAssertTrue(coordinator.handle(.init(.renew), owner: owner).lid)
+        time = 15 + 600
+        let woke = coordinator.handle(.init(.renew), owner: owner)
+        XCTAssertFalse(woke.lid); XCTAssertEqual(woke.reason, .heartbeat)
+        XCTAssertFalse(backend.sleep)
+        coordinator.tick()
         XCTAssertFalse(coordinator.handle(.init(.status), owner: owner).active)
     }
 

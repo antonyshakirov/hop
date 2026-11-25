@@ -127,8 +127,8 @@ final class KeepAwakeController: ObservableObject {
 
     private func syncAppNap() { napGuard?.hold(hasModuleWork) }
 
-    /// The service ended the lid override on its own: expiry, idle release or a
-    /// safety cutoff. Awake is an independent control and keeps running.
+    /// The service ended the lid override on its own: expiry or a safety
+    /// cutoff. Awake is an independent control and keeps running.
     // SPEC: docs/spec.md — Lid and Awake are independent.
     func observeLidStops(_ cooling: CoolingController) {
         cooling.lidDidStop = { [weak self] _ in self?.lidServiceStopped() }
