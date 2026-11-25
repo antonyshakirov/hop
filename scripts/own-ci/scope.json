@@ -22,7 +22,7 @@
       "name": "packaging",
       "match": [
         "scripts/build-app.sh", "scripts/build-scratch.sh", "scripts/signing.sh", "scripts/make-dmg.sh", "scripts/make-dmg-bg.swift",
-        "scripts/dmg-settings.py", "scripts/release.sh", "scripts/verify-release.sh", "scripts/verify-release-signature.mjs",
+        "scripts/dmg-settings.py", "scripts/release.sh", "scripts/upload-release.sh", "scripts/verify-release.sh", "scripts/verify-release-signature.mjs",
         "scripts/sign-release.swift", "scripts/sign-tool.swift", "scripts/*.entitlements", "scripts/Hop*-Info.plist",
         "scripts/com.antonshakirov.minimo.hardware.plist", "scripts/make-icon.sh", "scripts/make-icon.swift",
         "scripts/make-doc-icons.sh", "scripts/make-doc-icons.swift", "scripts/make-screens.sh",
@@ -36,7 +36,8 @@
       "name": "checks",
       "match": [
         "scripts/build-budget.test.py", "scripts/own-ci/engine.test.mjs", "scripts/own-ci/scope.test.mjs",
-        "scripts/own-ci/swift-test-batches.test.mjs", "scripts/own-ci/verify-release.test.mjs", "scripts/own-ci/script-syntax.test.mjs"
+        "scripts/own-ci/swift-test-batches.test.mjs", "scripts/own-ci/verify-release.test.mjs", "scripts/own-ci/upload-release.test.mjs",
+        "scripts/own-ci/script-syntax.test.mjs"
       ],
       "steps": ["build-budget-self-tests", "core-self-tests", "adapter-self-tests", "script-syntax"]
     }

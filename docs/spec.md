@@ -7602,11 +7602,25 @@ is written the way its newest one is.
   - A mirror cannot change what gets installed: the Ed25519 check stands
     between the download and the install, and it is the same key on every
     host.
-- Release: `scripts/release.sh X.Y.Z [--critical]` → the build, its
-  signature and `latest.json` are rsynced to `downloads/hop/` on EVERY
-  mirror, manifest last → the site's version number is committed and
-  deployed → `scripts/verify-release.sh X.Y.Z` → `git tag vX.Y.Z` + GitHub
-  release.
+- Release: `scripts/release.sh X.Y.Z [--critical]` → the builds and their
+  signatures reach `downloads/hop/` on EVERY mirror, then `latest.json` goes to
+  every mirror → the site's version number is committed and deployed →
+  `scripts/verify-release.sh X.Y.Z` → `git tag vX.Y.Z` + GitHub release.
+  - `scripts/upload-release.sh` does the upload. The Mac rsyncs the builds to
+    the primary; each other mirror then downloads them from
+    `https://hop.tools/downloads/hop/`, checks each file's SHA-256 against
+    the one on the Mac, and only after every file matches renames them over
+    the live ones. A visitor never gets a partial or a wrong build.
+  - The mirror fetches for itself because the route from the Mac to
+    `ru.hop.tools` is unreliable per connection (measured 2026-11-26: about
+    one rsync in four crawled at 40–100 KB/s while the next ran at
+    600 KB/s), and server to server it runs at 5–16 MB/s.
+  - When the fetch fails, the Mac pushes the builds to that mirror itself.
+    Every rsync has a deadline (`HOP_UPLOAD_ATTEMPT_SECONDS`, 300) and up to
+    `HOP_UPLOAD_ATTEMPTS` (3) tries, each on a fresh connection; a killed
+    rsync leaves only its hidden temp file, never a half-written build. If no
+    route works, the release stops before any host gets the new manifest
+    (`scripts/own-ci/upload-release.test.mjs`).
 - Nothing is announced before the files serve: verify-release.sh downloads
   the LIVE latest.json, the exact zip it points to, checks the 64-byte
   signature file and the bundle version inside the zip, and the landing
