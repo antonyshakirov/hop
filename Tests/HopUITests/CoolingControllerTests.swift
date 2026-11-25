@@ -108,7 +108,10 @@ private final class ClientService: CoolingService {
         status.supportsControl = true; return status
     }
     func localDiagnostics() async -> [FanKeyReading] { localKeys }
-    func invalidate() { root.disconnect(owner: owner) }
+    /// The live helper keeps a running app's lease when its connection drops.
+    func invalidate() { invalidations += 1 }
+    var invalidations = 0
+    func exitApp() { root.disconnect(owner: owner) }
 }
 
 @MainActor
@@ -594,7 +597,7 @@ final class CoolingControllerTests: XCTestCase {
             persistPreferences: { persistenceSucceeds }, openSettings: openSettings,
             notificationCenter: observing ?? .default, napGuard: napGuard)
         addTeardownBlock { @MainActor in
-            controller.close(); service.invalidate()
+            controller.close(); service.exitApp()
             for (key, value) in zip(keys, saved) {
                 if let value { defaults.set(value, forKey: key) } else { defaults.removeObject(forKey: key) }
             }
@@ -622,6 +625,51 @@ final class CoolingControllerTests: XCTestCase {
         XCTAssertEqual(controller.lastStopReason, .battery)
         await controller.refresh()
         XCTAssertEqual(service.calls.filter { $0 == .configure }.count, 1)
+    }
+
+    func testATimedOutReplyAfterOpeningTheLidKeepsTheLidSession() async throws {
+        let (controller, service) = try fixture()
+        var stopped = 0
+        controller.lidDidStop = { _ in stopped += 1 }
+        try await controller.setLid(true, until: nil)
+        controller.open()
+        service.failRequests = true
+        await controller.refresh()
+        XCTAssertEqual(service.invalidations, 1)
+        XCTAssertTrue(service.hardware.sleep)
+        service.failRequests = false
+        await controller.refresh()
+        XCTAssertTrue(controller.snapshot.active); XCTAssertTrue(controller.snapshot.lid)
+        XCTAssertFalse(controller.snapshot.restorationPending)
+        XCTAssertEqual(stopped, 0)
+        XCTAssertNil(controller.lastStopReason)
+        XCTAssertTrue(service.hardware.sleep)
+    }
+
+    func testGivingUpOnAStuckRequestStopsTheKeptLeaseOnTheNextRefresh() async throws {
+        let (controller, service) = try fixture()
+        var stopped = 0
+        controller.lidDidStop = { _ in stopped += 1 }
+        try await controller.setLid(true, until: nil)
+        controller.abandonLease()
+        XCTAssertEqual(service.invalidations, 1)
+        await controller.refresh()
+        XCTAssertEqual(service.calls.last, .stop)
+        XCTAssertFalse(service.hardware.sleep)
+        XCTAssertFalse(controller.snapshot.active); XCTAssertFalse(controller.snapshot.lid)
+        XCTAssertEqual(stopped, 1)
+        await controller.refresh()
+        XCTAssertEqual(service.calls.filter { $0 == .stop }.count, 1)
+    }
+
+    func testANewerLidRequestReplacesAQueuedRelease() async throws {
+        let (controller, service) = try fixture()
+        try await controller.setLid(true, until: nil)
+        controller.abandonLease()
+        try await controller.setLid(true, until: nil)
+        await controller.refresh()
+        XCTAssertFalse(service.calls.contains(.stop))
+        XCTAssertTrue(service.hardware.sleep); XCTAssertTrue(controller.snapshot.lid)
     }
 
     func testALiveLeaseKeepsHopOutOfAppNapUntilTheServiceEndsIt() async throws {

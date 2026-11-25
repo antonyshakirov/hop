@@ -1211,6 +1211,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   user-initiated activity that allows idle system sleep, so App Nap cannot
   delay the 20-second renewal with the lid closed and the display off
   (`AwakeBackgroundTests`, `CoolingControllerTests`).
+  A lease belongs to the running Hop process (pid and start time), not to one
+  XPC connection: a reply timeout or dropped connection after opening the lid
+  reconnects to the same lease and renews it, so the lid override stays on
+  until the user turns it off, a cutoff fires, or Hop exits. An exited Hop
+  releases the lease within one 3-second service tick; another Hop process
+  stays busy. Only the newest connection of a process may act, so a request
+  queued on a closed or replaced connection is refused rather than applied
+  late. When Hop gives up on a request stuck past the longest reply wait, its
+  next refresh sends an explicit stop instead of relying on the dropped
+  connection; a newer configure replaces that pending stop
+  (`HardwareCoordinatorTests`, `CoolingControllerTests`). The service logs
+  every lease end with its reason and queue waits over 2 seconds under
+  `com.antonshakirov.minimo.hardware`.
   A cutoff restores only Hop-owned changes and does not automatically rearm.
   Failure to restore remains visible and is retried; a pending recovery record
   survives helper restart. Ordinary keep-awake needs no helper. Screen locking

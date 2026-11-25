@@ -2,6 +2,7 @@ import Foundation
 import HopHardwareKit
 import Darwin
 import SystemConfiguration
+import os
 
 // SPEC: docs/spec.md — Protected lid sessions and Cooling controls.
 final class HardwareService: NSObject, NSXPCListenerDelegate {
@@ -13,6 +14,8 @@ final class HardwareService: NSObject, NSXPCListenerDelegate {
     private let appID: String
     private let requirement: String
     var ownerUID: uid_t?
+    let clients = ClientRegistry(alive: { HardwareService.process($0.pid) == $0 })
+    static let log = Logger(subsystem: "com.antonshakirov.minimo.hardware", category: "lease")
 
     init(appID: String, requirement: String) {
         self.appID = appID; self.requirement = requirement
@@ -30,10 +33,13 @@ final class HardwareService: NSObject, NSXPCListenerDelegate {
         timer.schedule(deadline: .now() + 1, repeating: 3, leeway: .milliseconds(250))
         timer.setEventHandler { [weak self] in
             guard let self else { return }
-            if let ownerUID, ownerUID != Self.activeUser() {
-                coordinator.shutdown(); self.ownerUID = nil
+            tracking {
+                if let ownerUID = self.ownerUID, ownerUID != Self.activeUser() {
+                    self.coordinator.shutdown(); self.ownerUID = nil
+                }
+                self.releaseDeparted()
+                self.coordinator.tick()
             }
-            coordinator.tick()
         }
         timer.resume(); self.timer = timer
         signal(SIGTERM, SIG_IGN)
@@ -43,17 +49,47 @@ final class HardwareService: NSObject, NSXPCListenerDelegate {
     }
 
     func listener(_ listener: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection) -> Bool {
-        guard Self.activeUser() == connection.effectiveUserIdentifier else { return false }
+        guard Self.activeUser() == connection.effectiveUserIdentifier,
+              let process = Self.process(connection.processIdentifier) else { return false }
         connection.setCodeSigningRequirement(requirement)
-        let session = HardwareSession(service: self, uid: connection.effectiveUserIdentifier)
+        let lease = clients.connect(process)
+        let session = HardwareSession(service: self, uid: connection.effectiveUserIdentifier, lease: lease)
         connection.exportedInterface = NSXPCInterface(with: HardwareXPC.self)
         connection.exportedObject = session
+        // A dropped connection from a live app keeps its lease; only an exited app releases it here.
         connection.invalidationHandler = { [weak self] in
-            self?.queue.async { self?.coordinator.disconnect(owner: session.owner) }
+            self?.clients.retire(lease)
+            self?.queue.async { self?.tracking { self?.releaseDeparted() } }
         }
         connection.interruptionHandler = connection.invalidationHandler
         connection.resume()
         return true
+    }
+
+    /// Logs every lease end with its reason, whichever path ended it.
+    func tracking<T>(_ body: () throws -> T) rethrows -> T {
+        let wasActive = coordinator.leaseActive
+        defer {
+            if wasActive, !coordinator.leaseActive {
+                let reason = coordinator.endReason?.rawValue ?? "none"
+                Self.log.notice("lease ended: \(reason, privacy: .public)")
+            }
+        }
+        return try body()
+    }
+
+    func releaseDeparted() {
+        for owner in clients.departed() { coordinator.disconnect(owner: owner) }
+    }
+
+    static func process(_ pid: pid_t) -> ClientProcess? {
+        var info = kinfo_proc(), size = MemoryLayout<kinfo_proc>.stride
+        var name: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, pid]
+        guard pid > 0, sysctl(&name, 4, &info, &size, nil, 0) == 0, size > 0,
+              info.kp_proc.p_pid == pid, info.kp_proc.p_stat != SZOMB,
+              info.kp_proc.p_flag & P_WEXIT == 0 else { return nil }
+        let start = info.kp_proc.p_starttime
+        return ClientProcess(pid: pid, started: UInt64(start.tv_sec) &* 1_000_000 &+ UInt64(start.tv_usec))
     }
 
     static func activeUser() -> uid_t? {
@@ -65,25 +101,36 @@ final class HardwareService: NSObject, NSXPCListenerDelegate {
 }
 
 final class HardwareSession: NSObject, HardwareXPC {
-    let owner = UUID()
+    private let lease: ClientLease
     private unowned let service: HardwareService
     private let uid: uid_t
-    init(service: HardwareService, uid: uid_t) { self.service = service; self.uid = uid }
+    init(service: HardwareService, uid: uid_t, lease: ClientLease) {
+        self.service = service; self.uid = uid; self.lease = lease
+    }
 
     func request(_ data: Data, reply: @escaping (Data) -> Void) {
+        let received = ProcessInfo.processInfo.systemUptime
         service.queue.async { [self] in
-            var status: HardwareStatus
-            do {
-                guard HardwareService.activeUser() == uid else {
-                    service.coordinator.disconnect(owner: owner)
-                    throw HardwareReason.unauthorized
+            let waited = ProcessInfo.processInfo.systemUptime - received
+            if waited > 2 { HardwareService.log.notice("request waited \(waited, format: .fixed(precision: 1)) s for the queue") }
+            let owner = lease.owner
+            let status: HardwareStatus = service.tracking {
+                do {
+                    guard HardwareService.activeUser() == uid else {
+                        service.coordinator.disconnect(owner: owner)
+                        throw HardwareReason.unauthorized
+                    }
+                    guard service.clients.isCurrent(lease) else { throw HardwareReason.busy }
+                    service.releaseDeparted()
+                    let request = try HardwareRequest.decode(data)
+                    let status = service.coordinator.handle(request, owner: owner, user: uid)
+                    if request.operation == .configure, status.active, status.reason == nil { service.ownerUID = uid }
+                    return status
+                } catch {
+                    var status = service.coordinator.handle(HardwareRequest(.status), owner: owner)
+                    status.reason = error as? HardwareReason ?? .invalid
+                    return status
                 }
-                let request = try HardwareRequest.decode(data)
-                status = service.coordinator.handle(request, owner: owner, user: uid)
-                if request.operation == .configure, status.active, status.reason == nil { service.ownerUID = uid }
-            } catch {
-                status = service.coordinator.handle(HardwareRequest(.status), owner: owner)
-                status.reason = error as? HardwareReason ?? .invalid
             }
             reply((try? JSONEncoder().encode(status)) ?? Data())
         }

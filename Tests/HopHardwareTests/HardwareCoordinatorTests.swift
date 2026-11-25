@@ -534,6 +534,39 @@ final class HardwareCoordinatorTests: XCTestCase {
         XCTAssertFalse(backend.sleep)
     }
 
+    func testAReconnectFromTheSameRunningAppKeepsTheLidLease() {
+        let journal = Journal(), backend = Backend(journal)
+        let coordinator = HardwareCoordinator(backend: backend, journal: journal, now: { 1 })
+        let app = ClientProcess(pid: 400, started: 10), other = ClientProcess(pid: 400, started: 99)
+        var running: Set<ClientProcess> = [app, other]
+        let clients = ClientRegistry(alive: { running.contains($0) })
+        let first = clients.connect(app)
+        XCTAssertTrue(coordinator.handle(.init(.configure, configuration: .init(lid: true)), owner: first.owner).lid)
+
+        // The app timed out a reply and dropped its connection, then reconnected.
+        clients.retire(first)
+        XCTAssertFalse(clients.isCurrent(first))
+        for gone in clients.departed() { coordinator.disconnect(owner: gone) }
+        XCTAssertTrue(backend.sleep)
+        let second = clients.connect(app)
+        XCTAssertEqual(second.owner, first.owner)
+        XCTAssertFalse(clients.isCurrent(first)); XCTAssertTrue(clients.isCurrent(second))
+        let renewed = coordinator.handle(.init(.renew), owner: second.owner)
+        XCTAssertTrue(renewed.active); XCTAssertTrue(renewed.lid)
+        XCTAssertTrue(coordinator.leaseActive)
+
+        let stranger = clients.connect(other)
+        XCTAssertNotEqual(stranger.owner, first.owner)
+        XCTAssertEqual(coordinator.handle(.init(.renew), owner: stranger.owner).reason, .busy)
+
+        running.remove(app)
+        for gone in clients.departed() { coordinator.disconnect(owner: gone) }
+        XCTAssertFalse(backend.sleep); XCTAssertFalse(coordinator.leaseActive)
+        XCTAssertEqual(coordinator.endReason, .disconnected)
+        XCTAssertFalse(clients.isCurrent(second))
+        XCTAssertNotEqual(clients.connect(app).owner, first.owner)
+    }
+
     func testUnknownPowerStateOrForeignSleepOverrideNeverClaimsSuccess() {
         for condition in 0..<4 {
             let journal = Journal()
