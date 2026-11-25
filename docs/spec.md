@@ -4746,9 +4746,10 @@ eight hours, and came back the moment it was removed and added again.
 
 ### Removing a torrent: what each choice deletes (Anton, 2026-10-22)
 
-The torrent's remove control opens three labelled actions with SF Symbols and
-an explicit Cancel button. Use a vertical list so long translations remain
-readable in the narrow panel:
+The torrent's remove control turns the torrent's first line into one row of
+three short actions and Cancel (Anton, 2026-11-25): "remove · delete torrent ·
+delete all" in English, "убрать · удалить торрент · удалить всё" in Russian. The
+full meaning of each action sits in its hover tooltip, not in an extra line:
 
 - Remove from list: forget the transfer, keep the original `.torrent` and downloads.
 - Delete torrent file: forget the transfer and move the original `.torrent` to
@@ -4756,6 +4757,11 @@ readable in the narrow panel:
 - Delete everything, including downloads: forget the transfer, remove downloaded
   files through the existing persistent engine-removal queue, and move the
   known original `.torrent` to the Trash.
+
+All three actions carry equal weight (Anton, 2026-11-25): same primary text
+colour, no red and no highlighted default, so "delete all" never looks like the
+expected choice. Short labels in every language fit the row at full size;
+`TorrentRemovalMenuTests` checks the colour, the single line and the fit.
 
 Picker, drop, and Finder-open additions retain the source path and SHA-256 of
 its imported bytes, persisted across restarts. Only a regular, non-symlink

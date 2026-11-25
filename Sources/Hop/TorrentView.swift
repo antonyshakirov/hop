@@ -562,52 +562,10 @@ struct TorrentView: View {
         return "· " + parts.joined(separator: " · ")
     }
 
-    /// SPEC: docs/spec.md "Removing a torrent: what each choice deletes".
     private func removeConfirm(_ item: TorrentController.TorrentItem) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            removalButton(t(.torrentRemoveTorrent), symbol: "list.bullet") {
-                remove(item, choice: .list)
-            }
-            removalButton(t(.torrentRemoveSource), symbol: "doc") {
-                remove(item, choice: .sourceFile)
-            }
-            .disabled(item.sourceFile == nil)
-            .opacity(item.sourceFile == nil ? 0.45 : 1)
-            if item.sourceFile == nil {
-                Text(t(.torrentSourceUnavailable))
-                    .font(Theme.mono(9))
-                    .foregroundStyle(Theme.textTertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            removalButton(t(.torrentRemoveAll), symbol: "trash", color: Theme.accentRed) {
-                remove(item, choice: .all)
-            }
-            Button { confirmingRemove = nil } label: {
-                HoverLabel(text: t(.quitCancel), size: 10, color: Theme.textSecondary)
-                    .padding(.vertical, 6)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-        }
-    }
-
-    private func removalButton(_ title: String, symbol: String,
-                               color: Color = Theme.textPrimary,
-                               action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                Image(systemName: symbol).frame(width: 16)
-                Text(title).fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 0)
-            }
-            .font(Theme.mono(11))
-            .foregroundStyle(color)
-            .padding(.vertical, 6)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .hoverDim()
+        TorrentRemovalMenu(lang: lang, sourceAvailable: item.sourceFile != nil,
+                           choose: { remove(item, choice: $0) },
+                           cancel: { confirmingRemove = nil })
     }
 
     private func remove(_ item: TorrentController.TorrentItem, choice: TorrentController.RemovalChoice) {
@@ -767,5 +725,42 @@ struct TorrentView: View {
         if h > 0 { return "\(h)\(t(.unitHour)) \(m)\(t(.unitMin))" }
         if m > 0 { return "\(m)\(t(.unitMin)) \(sec)\(t(.unitSec))" }
         return "\(sec)\(t(.unitSec))"
+    }
+}
+
+// SPEC: docs/spec.md "Removing a torrent: what each choice deletes".
+struct TorrentRemovalMenu: View {
+    let lang: AppLanguage
+    let sourceAvailable: Bool
+    let choose: (TorrentController.RemovalChoice) -> Void
+    let cancel: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            choice(.torrentShortList, help: .torrentRemoveKeepHelp, .list)
+            choice(.torrentShortSource, help: sourceAvailable ? .torrentRemoveSource : .torrentSourceUnavailable, .sourceFile)
+                .disabled(!sourceAvailable)
+                .opacity(sourceAvailable ? 1 : 0.45)
+            choice(.torrentShortAll, help: .torrentRemoveDeleteHelp, .all)
+            Spacer(minLength: 4)
+            Button(action: cancel) {
+                HoverLabel(text: L10n.t(.quitCancel, lang), size: 10, color: Theme.textTertiary)
+                    .lineLimit(1)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func choice(_ title: L10nKey, help: L10nKey,
+                        _ value: TorrentController.RemovalChoice) -> some View {
+        Button { choose(value) } label: {
+            HoverLabel(text: L10n.t(title, lang), size: 10, color: Theme.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(L10n.t(help, lang))
     }
 }
